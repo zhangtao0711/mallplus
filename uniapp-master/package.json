@@ -1,0 +1,17 @@
+{
+  "name": "uniapp",
+  "version": "1.0.0",
+  "description": "mallplus商城",
+  "main": "main.js",
+  "dependencies": {
+    "amap-js": "^1.2.1",
+    "jweixin-module": "^1.6.0",
+    "weixin-js-sdk": "^1.4.0-test"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
