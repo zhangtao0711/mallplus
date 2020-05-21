@@ -21,7 +21,7 @@ import {
   updateMerchatBusinessMaterials
 } from "@/api/merchat/merchatBusinessMaterials";
 import SingleUpload from "@/components/Upload/singleUpload";
-import ProductInfoDetail from "./ProductInfoDetail";
+// import ProductInfoDetail from "./ProductInfoDetail";
 
 export default {
   name: "MerchatBusinessMaterialsDetail",

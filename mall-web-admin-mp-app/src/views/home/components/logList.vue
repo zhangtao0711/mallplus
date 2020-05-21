@@ -1,7 +1,7 @@
 
 <template>
   <div class="logContainer">
-    <el-card class="box-card">
+    <!-- <el-card class="box-card">
       <div slot="header" class="clearfix">
         <a :href="github" target="_blank">
            <svg-icon icon-class="iconGithub" />
@@ -23,7 +23,7 @@
           </div>
       </div>
 
-  </el-card>
+  </el-card> -->
   </div>
 </template>
 

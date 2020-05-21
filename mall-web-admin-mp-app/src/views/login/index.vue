@@ -13,7 +13,7 @@
         ref="loginForm"
         label-position="left"
       >
-        <h2 class="login-title color-main">用户登录</h2>
+        <p class="login-title color-main">用户登录</p>
         <el-form-item prop="username">
           <el-input
             name="username"
@@ -188,6 +188,8 @@ export default {
 }
 .login-title {
   text-align: center;
+  letter-spacing: 8px;
+  font-size: 22px;
 }
 
 .login-center-layout {
@@ -203,7 +205,7 @@ export default {
 }
 .bg1 {
   width: 100%;
-  height: 1920px;
+  height: 937px;
   background: url("~@/assets/images/login_center_bg.jpg") no-repeat;
   background-size: 100% 100%;
 }
