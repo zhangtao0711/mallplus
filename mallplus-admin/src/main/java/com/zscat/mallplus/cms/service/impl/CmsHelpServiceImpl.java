@@ -1,16 +1,20 @@
 package com.zscat.mallplus.cms.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zscat.mallplus.cms.entity.CmsHelp;
 import com.zscat.mallplus.cms.entity.CmsHelpCategory;
 import com.zscat.mallplus.cms.mapper.CmsHelpCategoryMapper;
 import com.zscat.mallplus.cms.mapper.CmsHelpMapper;
 import com.zscat.mallplus.cms.service.ICmsHelpService;
+import com.zscat.mallplus.water.entity.WtFilterElementType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -37,5 +41,10 @@ public class CmsHelpServiceImpl extends ServiceImpl<CmsHelpMapper, CmsHelp> impl
         category.setHelpCount(category.getHelpCount() + 1);
         helpCategoryMapper.updateById(category);
         return true;
+    }
+
+    @Override
+    public IPage<CmsHelp> pageList(IPage<CmsHelp> page, CmsHelp entity){
+        return page.setRecords(helpMapper.pageList(entity));
     }
 }
