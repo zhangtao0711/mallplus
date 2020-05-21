@@ -6,9 +6,9 @@
       ref="MerchatFacilitatorConfigFrom"
       label-width="170px"
     >
-      <!-- <el-form-item label="服务商信息主键" prop="id">
+      <el-form-item label="服务商信息主键" prop="id" v-show="false">
         <el-input v-model="merchatFacilitatorConfig.id" style="width: 370px;" />
-      </el-form-item>-->
+      </el-form-item>
 
       <el-form-item label="用于证书解密的密钥" prop="apiv3key">
         <el-input
@@ -74,12 +74,13 @@ import {
   createMerchatFacilitatorConfig,
   getMerchatFacilitatorConfig,
   updateMerchatFacilitatorConfig,
-  uploadFile
+  uploadFile,
+  fetchList
 } from "@/api/merchat/merchatFacilitatorConfig";
 import FileUpload from "@/components/Upload/fileUpload";
 import FileDownload from "@/components/download/fileDownload";
 import axios from "axios";
-import { getToken,get } from '@/utils/auth'
+import { getToken, get } from "@/utils/auth";
 
 const defaultMerchatFacilitatorConfig = {
   name: ""
@@ -95,6 +96,12 @@ export default {
   },
   data() {
     return {
+      id:null,
+      listQuery: {
+        keyword: null,
+        pageNum: 1,
+        pageSize: 10
+      },
       coverUrl:
         process.env.BASE_API + "/merchat/merchatBusinessMaterials/download",
       coverUrlW:
@@ -130,24 +137,45 @@ export default {
     };
   },
   created() {
-    if (this.isEdit) {
-      getMerchatFacilitatorConfig(this.$route.query.id).then(response => {
-        this.merchatFacilitatorConfig = response.data;
-      });
-    } else {
-      this.merchatFacilitatorConfig = Object.assign(
-        {},
-        defaultMerchatFacilitatorConfig
-      );
-    }
+    this.getList();
+
+    // if (this.isEdit) {
+    //   getMerchatFacilitatorConfig(this.$route.query.id).then(response => {
+    //     this.merchatFacilitatorConfig = response.data;
+    //   });
+    // } else {
+    //   this.merchatFacilitatorConfig = Object.assign(
+    //     {},
+    //     defaultMerchatFacilitatorConfig
+    //   );
+    // }
   },
   methods: {
+    getList() {
+      fetchList(this.listQuery).then(response => {
+        if (response.data.records.length > 0) {
+          this.isEdit = true;
+          this.id = response.data.records[0].id
+          getMerchatFacilitatorConfig(response.data.records[0].id).then(
+            response => {
+              this.merchatFacilitatorConfig = response.data;
+              this.merchatFacilitatorConfig.updateBy = get("userId")
+            }
+          );
+        } else {
+          this.merchatFacilitatorConfig = Object.assign(
+            {},
+            defaultMerchatFacilitatorConfig
+          );
+        }
+      });
+    },
     download(path) {
       axios({
         method: "get",
         url: this.coverUrl,
         params: {
-          path:path
+          path: path
         },
         // responseType: "blob",
         headers: {
@@ -212,17 +240,6 @@ export default {
     },
 
     onSubmit(formName) {
-      this.merchatFacilitatorConfig = {
-        apiv3key: "65fdd8532fbsc784936909f1a7r5872f",
-        mchId: "1527256251",
-        apiclientCert: "/opt/merchant/upload/apiclient_cert_1589590742710.pem",
-        privateKeyPath: "/opt/merchant/upload/apiclient_key_1589590774651.pem",
-        apiclientCertP12:
-          "/opt/merchant/upload/apiclient_cert_1589590780157.p12",
-        publicKeyPath:
-          "/opt/merchant/cert/wechatpay_1999B3A90DAAE4D81C1807832ABC88D94BD3EA39-1589591701756.pem",
-        createBy:get('userId')
-      };
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.$confirm("是否提交数据", "提示", {
@@ -232,7 +249,7 @@ export default {
           }).then(() => {
             if (this.isEdit) {
               updateMerchatFacilitatorConfig(
-                this.$route.query.id,
+                this.id,
                 this.merchatFacilitatorConfig
               ).then(response => {
                 if (response.code == 200) {
@@ -242,7 +259,7 @@ export default {
                     type: "success",
                     duration: 1000
                   });
-                  this.$router.back();
+                  this.getList()
                 } else {
                   this.$message({
                     message: response.msg,
@@ -252,7 +269,6 @@ export default {
                 }
               });
             } else {
-              // console.log(this.merchatFacilitatorConfig);
               createMerchatFacilitatorConfig(
                 this.merchatFacilitatorConfig
               ).then(response => {
@@ -267,7 +283,7 @@ export default {
                     type: "success",
                     duration: 1000
                   });
-                  this.$router.back();
+                  this.getList()
                 } else {
                   this.$message({
                     message: response.msg,
