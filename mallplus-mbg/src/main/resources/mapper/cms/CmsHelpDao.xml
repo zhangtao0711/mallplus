@@ -12,6 +12,7 @@
         <result column="create_time" property="createTime"/>
         <result column="read_count" property="readCount"/>
         <result column="content" property="content"/>
+        <result column="category_name" property="categoryName"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -19,4 +20,11 @@
         id, category_id, icon, title, show_status, create_time, read_count, content
     </sql>
 
+    <select id="pageList" resultMap="BaseResultMap">
+        SELECT
+        a.id, a.category_id, a.icon, a.title, a.show_status, a.create_time, a.read_count, a.content
+        ,b.name as category_name
+        FROM cms_help a
+        LEFT JOIN cms_help_category b ON a.category_id=b.id
+    </select>
 </mapper>

@@ -49,6 +49,24 @@ public class CmsHelpCategoryController {
         return new CommonResult().failed();
     }
 
+    @SysLog(MODULE = "cms", REMARK = "根据条件查询所有显示中帮助分类表列表")
+    @ApiOperation("根据条件查询所有显示中帮助分类表列表")
+    @GetMapping(value = "/listOn")
+    @PreAuthorize("hasAuthority('cms:CmsHelpCategory:read')")
+    public Object getCmsHelpCategoryOn(CmsHelpCategory entity
+//            ,@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+//                                           @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
+    ) {
+        try {
+//            return new CommonResult().success(ICmsHelpCategoryService.page(new Page<CmsHelpCategory>(pageNum, pageSize), new QueryWrapper<>(entity)));
+            entity.setShowStatus(1);//状态
+            return new CommonResult().success(ICmsHelpCategoryService.list(new QueryWrapper<>(entity)));
+        } catch (Exception e) {
+            log.error("根据条件查询所有帮助分类表列表：%s", e.getMessage(), e);
+        }
+        return new CommonResult().failed();
+    }
+
     @SysLog(MODULE = "cms", REMARK = "保存帮助分类表")
     @ApiOperation("保存帮助分类表")
     @PostMapping(value = "/create")

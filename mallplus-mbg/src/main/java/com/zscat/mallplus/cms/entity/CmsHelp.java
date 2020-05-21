@@ -64,6 +64,10 @@ public class CmsHelp extends BaseEntity implements Serializable {
      */
     private String content;
 
+    /**
+     * 类别
+     */
+    private String categoryName;
 
     public Long getId() {
         return id;
@@ -129,6 +133,14 @@ public class CmsHelp extends BaseEntity implements Serializable {
         this.content = content;
     }
 
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
     @Override
     public String toString() {
         return "CmsHelp{" +
@@ -140,6 +152,7 @@ public class CmsHelp extends BaseEntity implements Serializable {
                 ", createTime=" + createTime +
                 ", readCount=" + readCount +
                 ", content=" + content +
+                ", categoryName=" + categoryName +
                 "}";
     }
 }
