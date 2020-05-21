@@ -1,6 +1,5 @@
 <template> 
-    <merchatBusinessMaterials-detail :is-edit='false'>
-</merchatBusinessMaterials-detail>
+    <merchatBusinessMaterials-detail :is-edit='false'></merchatBusinessMaterials-detail>
 </template>
 <script>
     import MerchatBusinessMaterialsDetail from './components/detail'

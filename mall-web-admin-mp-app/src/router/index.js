@@ -1504,20 +1504,20 @@ export const constantRouterMap = [
         component: () => import('@/views/merchat/index'),
         meta: { title: '特约商户申请列表', icon: 'product-list' }
       },
-      // {
-      //   path: 'addMerchatBusinessMaterials',
-      //   name: 'addMerchatBusinessMaterials',
-      //   component: () => import('@/views/merchat/add'),
-      //   meta: {title: '添加商户号', icon: 'product-list'},
-      //   hidden: true
-      // },
-      // {
-      //   path: 'updateMerchatBusinessMaterials',
-      //   name: 'updateMerchatBusinessMaterials',
-      //   component: () => import('@/views/merchat/update'),
-      //   meta: {title: '修改商户号', icon: 'product-list'},
-      //   hidden: true
-      // },
+      {
+        path: 'addMerchatBusinessMaterials',
+        name: 'addMerchatBusinessMaterials',
+        component: () => import('@/views/merchat/add'),
+        meta: {title: '添加商户号', icon: 'product-list'},
+        hidden: true
+      },
+      {
+        path: 'updateMerchatBusinessMaterials',
+        name: 'updateMerchatBusinessMaterials',
+        component: () => import('@/views/merchat/update'),
+        meta: {title: '修改商户号', icon: 'product-list'},
+        hidden: true
+      },
     ]
   },
   {
