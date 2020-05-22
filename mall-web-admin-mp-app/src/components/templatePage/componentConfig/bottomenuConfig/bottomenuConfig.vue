@@ -1,10 +1,10 @@
 <style lang="less" scoped>
-@import "./orderConfig.less";
+@import "./bottomenuConfig.less";
 </style>
 <template :options="options">
   <div class="d-config">
     <el-tabs value="content" class="d-tab">
-      <el-tab-pane label="订单中心设置" name="content">
+      <el-tab-pane label="TabBar设置" name="content">
         <div class="pannelcontent">
           <div class="pannelItem">
             <div class="tit">每行数量</div>
@@ -68,11 +68,11 @@ export default {
   props: ["options","editable"],
   data() {
     return {
-      order_num: "5",
+      order_num: "4",
       order_bg: "#fff",
       order_iconcolor: "#000",
       order_textcolor: "#000",
-      order_badgecolor: "#fff",
+      order_badgecolor: "#000",
       newOptions: {},
       colorGroup: []
     };
@@ -100,11 +100,11 @@ export default {
       if (JSON.stringify(optionsParams) == "{}") {
         _this.restore();
       } else {
-        _this.order_num = optionsParams.order_num || '5';
+        _this.order_num = optionsParams.order_num || '4';
         _this.order_bg = optionsParams.order_bg || '';
         _this.order_iconcolor = optionsParams.order_iconcolor || '#000';
         _this.order_textcolor = optionsParams.order_textcolor || '#000';
-        _this.order_badgecolor = optionsParams.order_badgecolor || '#fff';
+        _this.order_badgecolor = optionsParams.order_badgecolor || '#000';
         _this.colorGroup = optionsParams.colorGroup || [];
       }
     },
@@ -134,11 +134,11 @@ export default {
     // 恢复初始状态
     restore() {
       let _this = this;
-      _this.order_num = "5"
+      _this.order_num = "4"
       _this.order_bg = "#fff"
       _this.order_iconcolor = "#000"
       _this.order_textcolor = "#000"
-      _this.order_badgecolor = "#fff"
+      _this.order_badgecolor = "#000"
       _this.colorGroup = []
       for(let i = 0; i < _this.order_num; i++) {
         let newObj = {

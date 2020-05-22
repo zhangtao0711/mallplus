@@ -1,20 +1,32 @@
 <style lang="less" scoped>
-@import "./orderTem.less";
+@import "./bottomenuTem.less";
+.footer {
+  //  position:absolute;
+  //  left:0;
+  bottom: 0;
+  width: 100%;
+  height: 120px;
+  //  background-color: red;;
+}
 </style>
 
 <template>
-  <div class="order diyitem">
-    <div class="order-title">订单中心</div>
-    <div class="order-group" :style="{background:order_bg}">
-      <div class="order-item" v-for="(item,index) in colorGroup" :key="index">
-        <div class="iconImg">
-          <div class="badge" :style="{background:order_badgecolor,color:order_textcolor}">1</div>
-          <span :class="['icon iconfont',item.adImg]" :style="{color:order_iconcolor,fontSize:'20px'}"></span>
+  <div>
+    <div class="order diyitem">
+      <!-- <div class="order-title">TabBar</div> -->
+      <div class="order-group" :style="{background:order_bg}">
+        <div class="order-item" v-for="(item,index) in colorGroup" :key="index">
+          <div class="iconImg">
+            <!-- <div class="badge" :style="{background:order_badgecolor,color:order_textcolor}">1</div> -->
+            <span
+              :class="['icon iconfont',item.adImg]"
+              :style="{color:order_iconcolor,fontSize:'20px'}"
+            ></span>
+          </div>
+          <div class="iconText" :style="{color:order_textcolor}">{{item.adText}}</div>
         </div>
-        <div class="iconText" :style="{color:order_textcolor}">{{item.adText}}</div>
       </div>
     </div>
-    
   </div>
 </template>
 
@@ -23,11 +35,11 @@ export default {
   props: ["options"],
   data() {
     return {
-      order_num: "5",
+      order_num: "4",
       order_bg: "#fff",
       order_iconcolor: "#000",
       order_textcolor: "#000",
-      order_badgecolor: "red",
+      order_badgecolor: "#000",
       newOptions: {},
       colorGroup: []
     };
@@ -61,19 +73,19 @@ export default {
     // 恢复初始
     restore() {
       let _this = this;
-      _this.order_num = "5"
-      _this.order_bg = "#fff"
-      _this.order_iconcolor = "#000"
-      _this.order_textcolor = "#000"
-      _this.order_badgecolor = "red"
-      _this.colorGroup = []
-      for(let i = 0; i < _this.order_num; i++) {
+      _this.order_num = "4";
+      _this.order_bg = "#fff";
+      _this.order_iconcolor = "#000";
+      _this.order_textcolor = "#000";
+      _this.order_badgecolor = "#000";
+      _this.colorGroup = [];
+      for (let i = 0; i < _this.order_num; i++) {
         let newObj = {
           adImg: "",
-          adText:"",
+          adText: "",
           adLink: ""
-        }
-        _this.colorGroup.push(newObj)
+        };
+        _this.colorGroup.push(newObj);
       }
     },
     // 更换banner
