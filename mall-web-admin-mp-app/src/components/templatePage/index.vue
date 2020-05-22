@@ -63,7 +63,6 @@
 									<ImgTem v-if="item.components == 'imgGroup'" :options="item.options" />
 									<DoubleImgTem v-if="item.components == 'doubleimgGroup'" :options="item.options" />
 									<TabTem v-if="item.components == 'xuanxiangqia'" :options="item.options" />
-									<!-- <OtherTypes v-if="item.components == 'qitaleixing'" :options="item.options" /> -->
 									<SearchTem v-if="item.components == 'search'" :options="item.options" />
 									<VideoTem v-if="item.components == 'video'" :options="item.options" />
 									<MemberTem class="undraggable" v-if="item.components == 'member'" :options="item.options" />
@@ -146,14 +145,6 @@
 					:options="currentClick"
 					:editable="editable"
 				/>
-				<!-- <OtherConfig
-					v-if="currentClick.components == 'qitaleixing'"
-					v-on:listenToOpenLinkSelect="openLinkSelect"
-					v-on:listenToOpenImgSelect="openImgSelect"
-					v-on:listenToForm="changeTemplate"
-					:options="currentClick"
-					:editable="editable"
-				/> -->
 				<SearchConfig
 					v-if="currentClick.components == 'search'"
 					v-on:listenToOpenLinkSelect="openLinkSelect"
@@ -222,8 +213,6 @@ import DoubleImgTem from './components/doubleImgTem/doubleImgTem';
 import DoubleImgConfig from './componentConfig/doubleImgConfig/doubleImgConfig';
 import TabTem from './components/tabTem/tabTem';
 import TabConfig from './componentConfig/tabConfig/tabConfig';
-// import OtherTypes from './components/otherTypes/otherTypes';
-// import OtherConfig from './componentConfig/otherConfig/otherConfig';
 import SearchTem from './components/searchTem/searchTem';
 import SearchConfig from './componentConfig/searchConfig/searchConfig';
 import BlankTem from './components/blankTem/blankTem';
@@ -269,8 +258,6 @@ export default {
 		DoubleImgConfig,
 		TabTem,		
 		TabConfig,
-		// OtherTypes,
-		// OtherConfig,
 		SearchTem,
 		SearchConfig,
 		BlankTem,
