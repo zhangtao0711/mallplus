@@ -58,6 +58,19 @@ export const constantRouterMap = [
       import('@/components/templatePage'),
   },
   {
+    path: '/@/components/templatePage/index1',
+    name: 'templateComponents1',
+    meta: {
+      title: '组件测试',
+      showflg: true,
+      showrole: true,
+      // roles: "-2",
+      level1: 'common',
+    },
+    component: () =>
+      import('@/components/templatePage/index1'),
+  },
+  {
     path: '/pms',
     component: Layout,
     redirect: '/pms/product',
