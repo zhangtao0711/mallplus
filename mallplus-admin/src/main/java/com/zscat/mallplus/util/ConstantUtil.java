@@ -8,4 +8,7 @@ public class ConstantUtil {
     public static final String applet_dealer = "2";
     //经销商用户小程序-卖水 和公众号用unionid打通数据共通 若没有配置这个则使用手机号
     public static final String applet_dealer_user = "3";
+
+    public static final String delFlag = "1";   // 删除状态(1-正常,0-已删除)
+    public static final String deleteLogic = "0";// 删除状态(1-正常,0-已删除)
 }
