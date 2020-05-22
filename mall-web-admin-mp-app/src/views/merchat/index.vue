@@ -521,22 +521,6 @@ accountNumber" label="银行账号">
           <template slot-scope="scope">{{ scope.row.rejectReason }}</template>
         </el-table-column>
 
-        <el-table-column prop="createBy" label="创建人">
-          <template slot-scope="scope">{{ scope.row.createBy }}</template>
-        </el-table-column>
-
-        <el-table-column prop="createTime" label="创建时间">
-          <template slot-scope="scope">{{ scope.row.createTime }}</template>
-        </el-table-column>
-
-        <el-table-column prop="updateBy" label="更新人">
-          <template slot-scope="scope">{{ scope.row.updateBy }}</template>
-        </el-table-column>
-
-        <el-table-column prop="updateTime" label="更新时间">
-          <template slot-scope="scope">{{ scope.row.updateTime }}</template>
-        </el-table-column>
-
         <el-table-column label="操作" width="200" align="center">
           <template slot-scope="scope">
             <el-button size="mini" @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>

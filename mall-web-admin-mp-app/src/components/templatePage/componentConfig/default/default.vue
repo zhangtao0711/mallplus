@@ -48,6 +48,9 @@
                         <div class="tit" style="margin-right:30px;margin-bottom:0px;">标题栏背景色</div>
                         <el-color-picker v-model="tabBackColor" @on-change="changeTabBackColor" :editable="false" />
                     </div>
+                    <!-- <div class="pannelItem">
+                      <div class="tit">底部菜单</div>
+                    </div> -->
 
                     <div class="pannelItem" v-if="editable == 'enable'">
                         <div class="tit">标题栏文字</div>

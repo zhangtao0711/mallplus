@@ -43,7 +43,7 @@
           <template slot-scope="scope">{{scope.row.id}}</template>
         </el-table-column>
         <el-table-column label="类别" align="center">
-          <template slot-scope="scope">{{scope.row.categoryId}}</template>
+          <template slot-scope="scope">{{scope.row.categoryName}}</template>
         </el-table-column>
         <el-table-column label="图片" align="center">
           <template slot-scope="scope"><img style="height: 80px" :src="scope.row.icon"></template>

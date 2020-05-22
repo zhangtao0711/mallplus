@@ -97,7 +97,7 @@
     },
     methods: {
       getCateList() {
-        fetchList({pageNum: 1, pageSize: 100}).then(response => {
+        fetchList({pageNum: 1, pageSize: 100,ShowStatus:1}).then(response => {
           this.cateOptions = [];
         let brandList = response.data.records;
         for (let i = 0; i < brandList.length; i++) {

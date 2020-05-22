@@ -1,5 +1,10 @@
 <template>
-  <div>
+  <div class="bg1">
+     <div class="fonts">
+      <span class="text1">四两科技管理平台登录页</span>
+      <br />
+      <span class="text2">Four two science and technology</span>
+    </div>
     <el-card class="login-form-layout">
       <el-form
         autocomplete="on"
@@ -8,21 +13,16 @@
         ref="loginForm"
         label-position="left"
       >
-        <div style="text-align: center">
-          <svg-icon icon-class="login-mall" style="width: 56px;height: 56px;color: #409EFF"></svg-icon>
-        </div>
-        <h2 class="login-title color-main">用户登录</h2>
+        <p class="login-title color-main">用户登录</p>
         <el-form-item prop="username">
           <el-input
             name="username"
             type="text"
             v-model="loginForm.username"
             autocomplete="on"
-            placeholder="请输入用户名"
+            placeholder="请输入登录ID"
           >
-            <span slot="prefix">
-              <svg-icon icon-class="user" class="color-main"></svg-icon>
-            </span>
+           <i slot="prefix" class="el-input__icon el-icon-user" style="color:#0092ff;font-size:20px"></i>
           </el-input>
         </el-form-item>
         <el-form-item prop="password">
@@ -34,15 +34,16 @@
             autocomplete="on"
             placeholder="请输入密码"
           >
-            <span slot="prefix">
+            <!-- <span slot="prefix">
               <svg-icon icon-class="password" class="color-main"></svg-icon>
-            </span>
+            </span> -->
+             <i slot="prefix" class="el-input__icon el-icon-lock" style="color:#0092ff;font-size:20px"></i>
             <span slot="suffix" @click="showPwd">
               <svg-icon icon-class="eye" class="color-main"></svg-icon>
             </span>
           </el-input>
         </el-form-item>
-        <el-form-item style="margin-bottom: 60px">
+        <el-form-item style="margin-bottom: 30px">
           <el-button
             style="width: 100%"
             type="primary"
@@ -50,20 +51,22 @@
             @click.native.prevent="handleLogin"
           >登录</el-button>
         </el-form-item>
-        <el-form-item style="float: left;">
+        
+        <el-form-item style="float: left">
           <el-checkbox-group v-model="type">
             <el-checkbox label="记住密码" name="type"></el-checkbox>
           </el-checkbox-group>
         </el-form-item>
         <el-form-item style="float: right;">
-          <el-button type="text" @click.native.prevent="forgetPassword" style="color:#000;">忘记密码？</el-button>
+          <el-button type="text" @click.native.prevent="forgetPassword" style="color:#fff;">忘记密码？</el-button>
         </el-form-item>
+        
         <!-- <el-form-item style="margin-bottom: 10px">
           <el-button style="width: 100%" type="primary" @click.native.prevent="handleStore">商家入驻</el-button>
-        </el-form-item>-->
+        </el-form-item> -->
       </el-form>
     </el-card>
-    <img :src="login_center_bg" class="login-center-layout" />
+    <!-- <img :src="login_center_bg" class="login-center-layout" /> -->
     <!-- <el-dialog title="下载地址" :visible.sync="dialogVisible" width="40%">
       <el-form ref="brandFrom" label-width="150px">
         <div class="table-layout">
@@ -112,7 +115,7 @@ export default {
       type: [],
       loginForm: {
         username: "admin",
-        password: "123456",
+        password: "123456"
       },
       loginRules: {
         username: [
@@ -127,7 +130,6 @@ export default {
     };
   },
   methods: {
-    
     showPwd() {
       if (this.pwdType === "password") {
         this.pwdType = "";
@@ -176,15 +178,18 @@ export default {
 <style scoped>
 .login-form-layout {
   position: absolute;
+  border: 0;
   left: 0;
   right: 0;
-  width: 360px;
-  margin: 140px auto;
-  border-top: 10px solid #409eff;
+  width: 550px;
+  margin: 50px auto;
+  background: url("~@/assets/images/frame.png") no-repeat top center;
+  background-size: 550px 350px;
 }
-
 .login-title {
   text-align: center;
+  letter-spacing: 8px;
+  font-size: 22px;
 }
 
 .login-center-layout {
@@ -194,5 +199,37 @@ export default {
   max-width: 100%;
   max-height: 100%;
   margin-top: 200px;
+}
+.el-input /deep/ .el-input__inner{
+  background-color: transparent;
+}
+.bg1 {
+  width: 100%;
+  height: 937px;
+  background: url("~@/assets/images/login_center_bg.jpg") no-repeat;
+  background-size: 100% 100%;
+}
+.fonts {
+  padding-top: 165px;
+  color: #00a1ff;
+  width: 100%;
+  text-align: center;
+}
+.text1 {
+  letter-spacing: 8px;
+  font-size: 28px;
+  line-height: 25px;
+}
+.text2 {
+  letter-spacing: 4px;
+  font-size: 22px;
+  line-height: 25px;
+}
+.logotext {
+  color: #0092ff;
+  padding-top: 120px;
+}
+.el-checkbox{
+  color: #fff;
 }
 </style>

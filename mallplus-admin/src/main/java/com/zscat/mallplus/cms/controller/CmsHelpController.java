@@ -1,6 +1,7 @@
 package com.zscat.mallplus.cms.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
 import com.zscat.mallplus.cms.entity.CmsHelp;
@@ -42,7 +43,9 @@ public class CmsHelpController {
                                    @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         try {
-            return new CommonResult().success(ICmsHelpService.page(new Page<CmsHelp>(pageNum, pageSize), new QueryWrapper<>(entity)));
+//            return new CommonResult().success(ICmsHelpService.page(new Page<CmsHelp>(pageNum, pageSize), new QueryWrapper<>(entity)));
+            return new CommonResult().success(ICmsHelpService.pageList(new Page<CmsHelp>(pageNum, pageSize), entity));
+
         } catch (Exception e) {
             log.error("根据条件查询所有帮助表列表：%s", e.getMessage(), e);
         }

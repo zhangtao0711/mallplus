@@ -68,10 +68,10 @@ export default {
   props: ["options","editable"],
   data() {
     return {
-      order_num: "4",
+      order_num: "5",
       order_bg: "#fff",
-      order_iconcolor: "#fff",
-      order_textcolor: "#fff",
+      order_iconcolor: "#000",
+      order_textcolor: "#000",
       order_badgecolor: "#fff",
       newOptions: {},
       colorGroup: []
@@ -100,10 +100,10 @@ export default {
       if (JSON.stringify(optionsParams) == "{}") {
         _this.restore();
       } else {
-        _this.order_num = optionsParams.order_num || '4';
+        _this.order_num = optionsParams.order_num || '5';
         _this.order_bg = optionsParams.order_bg || '';
-        _this.order_iconcolor = optionsParams.order_iconcolor || '#fff';
-        _this.order_textcolor = optionsParams.order_textcolor || '#fff';
+        _this.order_iconcolor = optionsParams.order_iconcolor || '#000';
+        _this.order_textcolor = optionsParams.order_textcolor || '#000';
         _this.order_badgecolor = optionsParams.order_badgecolor || '#fff';
         _this.colorGroup = optionsParams.colorGroup || [];
       }
@@ -134,10 +134,10 @@ export default {
     // 恢复初始状态
     restore() {
       let _this = this;
-      _this.order_num = "4"
+      _this.order_num = "5"
       _this.order_bg = "#fff"
-      _this.order_iconcolor = "#fff"
-      _this.order_textcolor = "#fff"
+      _this.order_iconcolor = "#000"
+      _this.order_textcolor = "#000"
       _this.order_badgecolor = "#fff"
       _this.colorGroup = []
       for(let i = 0; i < _this.order_num; i++) {

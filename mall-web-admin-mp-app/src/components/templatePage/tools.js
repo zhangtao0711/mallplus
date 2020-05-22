@@ -21,7 +21,14 @@ const tools = {
           current:0,
           all:1,
           components: 'order'
-        },
+        },{
+          id:3,
+          name:'底部菜单',
+          icon:'icon-dibucaidan',
+          current:0,
+          all:1,
+          components:'bottomenu'
+        }
         // {
         //   id:3,
         //   name:'常用图标组',
@@ -66,13 +73,16 @@ const tools = {
           all:1,
           components: 'xuanxiangqia'
         },
+        // 
         // {
         //   id:3,
         //   name:'其他类型',
         //   icon:'icon-qitaleixing',
         //   current:0,
-        //   all:1
-        // },{
+        //   all:1,
+        //   components: 'qitaleixing'
+        // },
+        // {
         //   id:5,
         //   name:'猜你喜欢',
         //   icon:'icon-cainixihuan',

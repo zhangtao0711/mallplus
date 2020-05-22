@@ -1,5 +1,5 @@
 <style lang="less" scoped>
-@import "./orderTem.less";
+@import "./otherTypes.less";
 </style>
 
 <template>
@@ -23,11 +23,11 @@ export default {
   props: ["options"],
   data() {
     return {
-      order_num: "5",
+      order_num: "4",
       order_bg: "#fff",
-      order_iconcolor: "#000",
-      order_textcolor: "#000",
-      order_badgecolor: "red",
+      order_iconcolor: "#fff",
+      order_textcolor: "#fff",
+      order_badgecolor: "#fff",
       newOptions: {},
       colorGroup: []
     };
@@ -61,11 +61,11 @@ export default {
     // 恢复初始
     restore() {
       let _this = this;
-      _this.order_num = "5"
+      _this.order_num = "4"
       _this.order_bg = "#fff"
-      _this.order_iconcolor = "#000"
-      _this.order_textcolor = "#000"
-      _this.order_badgecolor = "red"
+      _this.order_iconcolor = "#fff"
+      _this.order_textcolor = "#fff"
+      _this.order_badgecolor = "#fff"
       _this.colorGroup = []
       for(let i = 0; i < _this.order_num; i++) {
         let newObj = {
