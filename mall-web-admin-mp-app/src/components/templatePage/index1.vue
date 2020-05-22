@@ -46,7 +46,6 @@
                     :options="item.options"
                   />
                   <OrderTem v-if="item.components == 'order'" :options="item.options" />
-                  <BottomenuTem v-if="item.components == 'bottomenu'" :options="item.options" />
                   <ListTem v-if="item.components == 'list'" :options="item.options" />
                   <BlankTem v-if="item.components == 'blank'" :options="item.options" />
                   <LineTem v-if="item.components == 'line'" :options="item.options" />
@@ -103,8 +102,6 @@ import MemberTem from "./components/memberTem/memberTem";
 import MemberConfig from "./componentConfig/memberConfig/memberConfig";
 import OrderTem from "./components/orderTem/orderTem";
 import OrderConfig from "./componentConfig/orderConfig/orderConfig";
-import BottomenuTem from "./components/bottomenuTem/bottomenuTem";
-import BottomenuConfig from "./componentConfig/bottomenuConfig/bottomenuConfig";
 import ListTem from "./components/listTem/listTem";
 import ListConfig from "./componentConfig/listConfig/listConfig";
 import IconLists from "./otherComponents/IconList/IconList";
@@ -152,8 +149,6 @@ export default {
     MemberConfig,
     OrderTem,
     OrderConfig,
-    BottomenuTem,
-    BottomenuConfig,
     ListTem,
     ListConfig,
     DefaultConfig,
