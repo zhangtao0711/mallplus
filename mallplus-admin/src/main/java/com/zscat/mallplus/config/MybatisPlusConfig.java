@@ -1,9 +1,11 @@
 package com.zscat.mallplus.config;
 
 
+import com.baomidou.mybatisplus.core.injector.ISqlInjector;
 import com.baomidou.mybatisplus.core.parser.ISqlParser;
 import com.baomidou.mybatisplus.core.parser.ISqlParserFilter;
 import com.baomidou.mybatisplus.core.parser.SqlParserHelper;
+import com.baomidou.mybatisplus.extension.injector.LogicSqlInjector;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.PerformanceInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.tenant.TenantHandler;
@@ -100,7 +102,8 @@ public class MybatisPlusConfig {
 
             @Override
             public boolean doTableFilter(String tableName) {
-                if (tableName.startsWith("cms") || tableName.startsWith("build") || tableName.startsWith("admin_") || tableName.startsWith("QRTZ_")) {
+                if (tableName.startsWith("cms") || tableName.startsWith("build") || tableName.startsWith("admin_")
+                        || tableName.startsWith("QRTZ_") || tableName.startsWith("wt_sim_url_info")) {
                     return true;
                 }
                 return IGNORE_TENANT_TABLES.stream().anyMatch((e) -> e.equalsIgnoreCase(tableName));
@@ -137,4 +140,10 @@ public class MybatisPlusConfig {
     public PerformanceInterceptor performanceInterceptor() {
         return new PerformanceInterceptor();
     }
+
+    @Bean
+    public ISqlInjector sqlInjector() {
+        return new LogicSqlInjector();
+    }
+
 }
