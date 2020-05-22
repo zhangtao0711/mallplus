@@ -19,4 +19,6 @@ public interface IUmsMemberService extends IService<UmsMember> {
     void updataMemberOrderInfo();
 
     Map memberMonthStatic( String date);
+
+
 }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.weixinmp.mapper.ImsAccountWechatsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zscat.mallplus.weixinmp.entity.ImsAccountWechats">
+        <id column="acid" property="acid"/>
+        <result column="uniacid" property="uniacid"/>
+        <result column="token" property="token"/>
+        <result column="encodingaeskey" property="encodingaeskey"/>
+        <result column="level" property="level"/>
+        <result column="name" property="name"/>
+        <result column="account" property="account"/>
+        <result column="original" property="original"/>
+        <result column="signature" property="signature"/>
+        <result column="country" property="country"/>
+        <result column="province" property="province"/>
+        <result column="city" property="city"/>
+        <result column="gender" property="gender"/>
+        <result column="birthday" property="birthday"/>
+        <result column="city" property="city"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="lastupdate" property="lastupdate"/>
+        <result column="key" property="key"/>
+        <result column="secret" property="secret"/>
+        <result column="styleid" property="styleid"/>
+        <result column="subscribeurl" property="subscribeurl"/>
+        <result column="auth_refresh_token" property="authRefreshToken"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        acid,uniacid,token,encodingaeskey,level,name,account,original,signature,country,province,city,username,password,lastupdate,key,secret,styleid,subscribeurl,auth_refresh_token,create_by,create_time
+    </sql>
+</mapper>

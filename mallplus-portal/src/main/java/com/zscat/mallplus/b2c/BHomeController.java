@@ -222,7 +222,7 @@ public class BHomeController {
             return new CommonResult().validateFailed("用户名或密码错误");
         }
         try {
-            Map<String, Object> token = memberService.login(umsMember.getUsername(), umsMember.getPassword());
+            Map<String, Object> token = memberService.login(umsMember.getUsername(), umsMember.getPassword(),umsMember.getUniacid().toString());
             if (token.get("token") == null) {
                 return new CommonResult().validateFailed("用户名或密码错误");
             }
@@ -275,7 +275,8 @@ public class BHomeController {
     @ApiOperation(value = "手机号 密码登录")
     @PostMapping(value = "/user.login")
     public Object login(@RequestParam String phone,
-                        @RequestParam String password) {
+                        @RequestParam String password,
+                        @RequestParam String uniacid) {
         if (phone == null || "".equals(phone)) {
             return new CommonResult().validateFailed("用户名或密码错误");
         }
@@ -284,7 +285,7 @@ public class BHomeController {
         }
         try {
 
-            Map<String, Object> token = memberService.login(phone, password);
+            Map<String, Object> token = memberService.login(phone, password,uniacid);
             if (token.get("token") == null) {
                 return new CommonResult().validateFailed("用户名或密码错误");
             }

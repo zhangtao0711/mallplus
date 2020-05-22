@@ -84,6 +84,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity.exceptionHandling()
                 .accessDeniedHandler(restfulAccessDeniedHandler)
                 .authenticationEntryPoint(restAuthenticationEntryPoint);
+        //以下这句就可以控制单个用户只能创建一个session，也就只能在服务器登录一次
+        httpSecurity.sessionManagement().maximumSessions(1);
     }
 
     @Override
@@ -114,6 +116,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         member = memberService.getByUsername(username);
                         if (member != null) {
                             return new MemberDetails(member);
+                        }else {
+                            member = memberService.selectByUsernameLeader(username);
+                            if (member!=null){
+                                return new MemberDetails(member);
+                            }else {
+                                member = memberService.selectByUsernameStaff(username);
+                                if (member!=null){
+                                    return new MemberDetails(member);
+                                }
+                            }
                         }
 
                     }

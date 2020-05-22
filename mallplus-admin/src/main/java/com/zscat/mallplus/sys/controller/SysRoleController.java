@@ -161,7 +161,7 @@ public class SysRoleController extends ApiController {
     public Object updateShowStatus(@RequestParam("ids") List<Long> ids,
                                    @RequestParam("showStatus") Integer showStatus) {
         SysRole role = new SysRole();
-        role.setId(ids.get(0));
+        role.setRoleId(ids.get(0));
         role.setStatus(showStatus);
         sysRoleService.updates(role);
 

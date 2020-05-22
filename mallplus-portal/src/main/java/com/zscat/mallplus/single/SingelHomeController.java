@@ -339,7 +339,8 @@ public class SingelHomeController {
     @ApiOperation(value = "手机号 密码登录")
     @PostMapping(value = "/login")
     public Object login(@RequestParam String phone,
-                        @RequestParam String password) {
+                        @RequestParam String password,
+                        @RequestParam String uniacid) {
         if (phone == null || "".equals(phone)) {
             return new CommonResult().validateFailed("用户名或密码错误");
         }
@@ -348,7 +349,7 @@ public class SingelHomeController {
         }
         try {
 
-            Map<String, Object> token = memberService.login(phone, password);
+            Map<String, Object> token = memberService.login(phone, password,uniacid);
             if (token.get("token") == null) {
                 log.info("用户名或密码错误");
                 return new CommonResult().failed("用户名或密码错误");

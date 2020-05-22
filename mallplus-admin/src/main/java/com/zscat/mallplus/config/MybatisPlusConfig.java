@@ -74,7 +74,7 @@ public class MybatisPlusConfig {
                     String authHeader = request.getParameter(tokenPre);
                     if (ValidatorUtils.empty(authHeader)) {
                         authHeader = request.getHeader(tokenPre);
-                    }
+                     }
                     if (authHeader != null && authHeader.startsWith("Bearer ")) {
                         String authToken = authHeader.substring("Bearer ".length());
                         String username = jwtTokenUtil.getUserNameFromToken(authToken);
@@ -100,7 +100,7 @@ public class MybatisPlusConfig {
 
             @Override
             public boolean doTableFilter(String tableName) {
-                if (tableName.startsWith("cms") || tableName.startsWith("build") || tableName.startsWith("admin_") || tableName.startsWith("QRTZ_")) {
+                if (tableName.startsWith("cms") || tableName.startsWith("build") || tableName.startsWith("admin_") || tableName.startsWith("QRTZ_")||tableName.equals("merchat_facilitator_config")||tableName.equals("merchant_bank_info")) {
                     return true;
                 }
                 return IGNORE_TENANT_TABLES.stream().anyMatch((e) -> e.equalsIgnoreCase(tableName));

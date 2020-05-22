@@ -26,5 +26,7 @@
         <module>mallplus-admin</module>
         <module>mallplus-search</module>
         <module>mallplus-merchant</module>
+        <module>weixin-java-miniapp</module>
+        <module>weixin-java-mp</module>
     </modules>
 </project>

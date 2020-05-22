@@ -4,18 +4,23 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.zscat.mallplus.sys.entity.SysRole">
-        <id column="id" property="id"/>
-        <result column="name" property="name"/>
-        <result column="description" property="description"/>
-        <result column="admin_count" property="adminCount"/>
-        <result column="create_time" property="createTime"/>
+        <id column="role_id" property="role_id"/>
+        <result column="role_name" property="role_name"/>
+        <result column="role_key" property="role_key"/>
+        <result column="role_sort" property="role_sort"/>
+        <result column="data_scope" property="data_scope"/>
         <result column="status" property="status"/>
-        <result column="sort" property="sort"/>
+        <result column="del_flag" property="del_flag"/>
+        <result column="create_by" property="create_by"/>
+        <result column="create_time" property="create_time"/>
+        <result column="update_by" property="update_by"/>
+        <result column="update_time" property="update_time"/>
+        <result column="remark" property="remark"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, description, admin_count, create_time, status, sort
+        role_id,role_name,role_key,role_sort,data_scope,status,del_flag,create_by,create_time,update_by,update_time,remark
     </sql>
     <select id="getRoleListByUserId" resultMap="BaseResultMap">
         select r.*

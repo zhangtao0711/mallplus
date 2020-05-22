@@ -6,6 +6,7 @@ import com.zscat.mallplus.sys.entity.SysPermission;
 import com.zscat.mallplus.sys.entity.SysRole;
 import com.zscat.mallplus.sys.entity.SysUser;
 import com.zscat.mallplus.sys.entity.SysUserVo;
+import com.zscat.mallplus.vo.SmsCode;
 
 import java.util.List;
 
@@ -45,7 +46,7 @@ public interface ISysUserService extends IService<SysUser> {
 
     Object reg(SysUser entity);
 
-//    SmsCode generateCode(String phone);
+    SmsCode generateCode(String phone);
 
     int updateShowStatus(List<Long> ids, Integer showStatus);
 
@@ -56,4 +57,10 @@ public interface ISysUserService extends IService<SysUser> {
     SysUserVo selectByUserName(String username);
 
     Object resetPwd(SysUser user);
+
+    Object resetPassword(String phone, String password, String confimpassword, String authCode);
+
+    public boolean updateUsernameById(String username,Long id);
+
+    Object updatePhoneById(String oldPhone, String newPhone, String authCode, Long id);
 }

@@ -4,8 +4,11 @@ import com.zscat.mallplus.exception.ApiMallPlusException;
 import com.zscat.mallplus.exception.JwtTokenExpiredException;
 import com.zscat.mallplus.utils.CommonResult;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
@@ -45,7 +48,7 @@ public class InterfaceExceptionHandler {
     public Object runtimeException(RuntimeException e) {
         log.error(e.getMessage(), e);
         // 返回 JOSN
-        return new CommonResult().fail(500);
+        return new CommonResult().failed(e.getMessage());
     }
 
     /**
@@ -56,5 +59,13 @@ public class InterfaceExceptionHandler {
     public Object exception(Exception e) {
         log.error(e.getMessage(), e);
         return new CommonResult().fail(500);
+    }
+
+    @ResponseStatus(value = HttpStatus.OK)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseBody
+    public Object handleBusinessException(MethodArgumentNotValidException exception){
+        log.error(exception.getMessage(), exception);
+        return new CommonResult().failed(exception.getBindingResult().getFieldError().getDefaultMessage());
     }
 }

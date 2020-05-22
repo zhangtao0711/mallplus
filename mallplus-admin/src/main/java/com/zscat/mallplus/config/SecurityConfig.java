@@ -11,6 +11,7 @@ import com.zscat.mallplus.sys.entity.SysStore;
 import com.zscat.mallplus.sys.entity.SysUserVo;
 import com.zscat.mallplus.sys.mapper.SysStoreMapper;
 import com.zscat.mallplus.sys.mapper.SysUserMapper;
+import com.zscat.mallplus.sys.mapper.SysUserStaffMapper;
 import com.zscat.mallplus.sys.service.ISysUserService;
 import com.zscat.mallplus.sys.service.impl.RedisUtil;
 import com.zscat.mallplus.ums.service.RedisService;
@@ -32,12 +33,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import javax.annotation.Resource;
 import java.util.List;
+//import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
 
 
 /**
@@ -50,6 +53,8 @@ import java.util.List;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private ISysUserService sysUserService;
+    @Resource
+    private SysUserStaffMapper sysUserStaffMapper;
     @Resource
     private SysUserMapper userMapper;
     @Resource
@@ -102,6 +107,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity.exceptionHandling()
                 .accessDeniedHandler(restfulAccessDeniedHandler)
                 .authenticationEntryPoint(restAuthenticationEntryPoint);
+        //以下这句就可以控制单个用户只能创建一个session，也就只能在服务器登录一次
+//        httpSecurity.sessionManagement().maximumSessions(1);
+
     }
 
     @Override
@@ -116,6 +124,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * TODO 应该是在这里做多张用户表的校验
+     * @return
+     */
     @Bean
     public UserDetailsService userDetailsService() {
         //获取登录用户信息
@@ -129,6 +141,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             }
             if (admin==null){
                 admin = userMapper.selectByUserName(username);
+                //在这里检索第二张表
+                if (admin==null){
+                    admin = sysUserStaffMapper.selectByUserName(username);
+                }
                 redisService.set(String.format(Rediskey.user, username), JsonUtil.objectToJson(admin));
             }
             //  apiContext.setCurrentProviderId(admin.getStoreId());
@@ -176,4 +192,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         bean.setOrder(0);
         return new CorsFilter(source);
     }
+
+//    @Bean
+//    HttpSessionEventPublisher httpSessionEventPublisher() {
+//        return new HttpSessionEventPublisher();
+//    }
+
 }

@@ -4,6 +4,7 @@ package com.zscat.mallplus.sys.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zscat.mallplus.annotation.IgnoreAuth;
 import com.zscat.mallplus.annotation.SysLog;
 import com.zscat.mallplus.build.entity.BuildingCommunity;
 import com.zscat.mallplus.build.entity.UserCommunityRelate;
@@ -12,22 +13,30 @@ import com.zscat.mallplus.build.mapper.UserCommunityRelateMapper;
 import com.zscat.mallplus.sys.entity.SysPermission;
 import com.zscat.mallplus.sys.entity.SysRole;
 import com.zscat.mallplus.sys.entity.SysUser;
+import com.zscat.mallplus.sys.entity.SysUserStaff;
 import com.zscat.mallplus.sys.mapper.SysPermissionMapper;
 import com.zscat.mallplus.sys.service.ISysPermissionService;
 import com.zscat.mallplus.sys.service.ISysRoleService;
 import com.zscat.mallplus.sys.service.ISysUserService;
+import com.zscat.mallplus.sys.service.ISysUserStaffService;
+import com.zscat.mallplus.ums.entity.UmsMember;
+import com.zscat.mallplus.ums.service.IUmsMemberService;
 import com.zscat.mallplus.ums.service.RedisService;
 import com.zscat.mallplus.util.JsonUtil;
 import com.zscat.mallplus.util.JwtTokenUtil;
+import com.zscat.mallplus.util.StringUtils;
 import com.zscat.mallplus.util.UserUtils;
 import com.zscat.mallplus.utils.CommonResult;
+import com.zscat.mallplus.utils.PhoneUtil;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import com.zscat.mallplus.vo.Rediskey;
+import com.zscat.mallplus.vo.SmsCode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,6 +65,10 @@ public class SysUserController extends ApiController {
     private String tokenHead;
     @Resource
     private ISysUserService sysUserService;
+    @Resource
+    private ISysUserStaffService sysUserStaffService;
+    @Resource
+    private IUmsMemberService memberService;
     @Resource
     private ISysRoleService roleService;
     @Resource
@@ -295,8 +308,8 @@ public class SysUserController extends ApiController {
         if (roleList != null && roleList.size() > 0) {
             for (SysRole a : allroleList) {
                 for (SysRole u : roleList) {
-                    if (u != null && u.getId() != null) {
-                        if (a.getId().equals(u.getId())) {
+                    if (u != null && u.getRoleId() != null) {
+                        if (a.getRoleId().equals(u.getRoleId())) {
                             a.setChecked(true);
                         }
                     }
@@ -411,5 +424,90 @@ public class SysUserController extends ApiController {
         return sysUserService.resetPwd(user);
     }
 
+    /**
+     * 发送短信验证码
+     *
+     * @param phone
+     * @return
+     */
+    @IgnoreAuth
+    @ApiOperation("获取验证码- 模板 - 区分忘记密码/修改手机号/")
+    @PostMapping(value = "/sms/codes")
+    public Object sendSmsCode(@RequestParam String phone) {
+        try {
+            if (!PhoneUtil.checkPhone(phone)) {
+                throw new IllegalArgumentException("手机号格式不正确");
+            }
+            SmsCode smsCode = sysUserService.generateCode(phone);
+
+            return new CommonResult().success(smsCode);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new CommonResult().failed(e.getMessage());
+        }
+    }
+
+    @IgnoreAuth
+    @ApiOperation("重置密码-忘记密码发送短信验证码")
+    @PostMapping(value = "/resetPassword")
+    public Object resetPassword(@RequestParam String phone,
+                                @RequestParam String password,
+                                @RequestParam String confimpassword,
+                                @RequestParam String authCode) {
+        if (phone == null || "".equals(phone)) {
+            return new CommonResult().validateFailed("用户名或密码错误");
+        }
+        if (password == null || "".equals(password)) {
+            return new CommonResult().validateFailed("用户名或密码错误");
+        }
+        if (confimpassword == null || "".equals(confimpassword)) {
+            return new CommonResult().validateFailed("用户名或密码错误");
+        }
+        return sysUserService.resetPassword(phone, password, confimpassword, authCode);
+    }
+
+    @ApiOperation("修改用户名称")
+    @PostMapping(value = "/resetUsername")
+    @PreAuthorize("hasAuthority('sys:user:resetUsername')")
+    public Object resetUsername(@RequestParam String username, @RequestParam Long id) {
+        if (StringUtils.isNotBlank(username)||id==null){
+            return new CommonResult().failed("参数不能为空！");
+        }
+        sysUserService.updateUsernameById(username,id);
+        return new CommonResult().success();
+    }
+
+    @ApiOperation("修改手机号-经销商")
+    @PostMapping(value = "/resetPhone")
+    @PreAuthorize("hasAuthority('sys:user:resetPhone')")
+    public Object resetPhone(@RequestParam String oldPhone,
+                                @RequestParam String newPhone,
+                                @RequestParam Long id,
+                                @RequestParam String authCode) {
+        if (oldPhone == null || "".equals(oldPhone)) {
+            return new CommonResult().validateFailed("原手机号不能为空！");
+        }
+        if (newPhone == null || "".equals(newPhone)) {
+            return new CommonResult().validateFailed("新手机号不能为空！");
+        }
+        if ( authCode== null || "".equals(authCode)) {
+            return new CommonResult().validateFailed("验证码不能为空！");
+        }
+        if (oldPhone.equals(newPhone)){
+            return new CommonResult().validateFailed("新旧手机号不能一致！");
+        }
+        return sysUserService.updatePhoneById(oldPhone, newPhone, authCode,id);
+    }
+
+    @ApiOperation("修改下级经销商申请状态-经销商")
+    @PutMapping(value = "/resetApplyStatus")
+    @PreAuthorize("hasAuthority('sys:user:resetApplyStatus')")
+    public Object resetApplyStatus(@RequestBody SysUser user) {
+        if (user.getId()==null||user.getApplyStatus()==null){
+            return new CommonResult().failed("参数不能为空！");
+        }
+        sysUserService.updateById(user);
+        return new CommonResult().success("操作成功！");
+    }
 }
 
