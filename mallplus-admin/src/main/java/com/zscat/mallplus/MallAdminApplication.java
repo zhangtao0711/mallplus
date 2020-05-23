@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         , "com.zscat.mallplus.cms.mapper", "com.zscat.mallplus.sys.mapper", "com.zscat.mallplus.oms.mapper"
         , "com.zscat.mallplus.pms.mapper", "com.zscat.mallplus.water.mapper"})
 @EnableTransactionManagement
-@ComponentScan({"me.chanjar.weixin.mp.api","com.zscat.mallplus"})//,"cn.binarywang.wx.miniapp.api"
 public class MallAdminApplication {
     public static void main(String[] args) {
         SpringApplication.run(MallAdminApplication.class, args);

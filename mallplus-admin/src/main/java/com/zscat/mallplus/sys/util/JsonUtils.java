@@ -1,5 +1,6 @@
 package com.zscat.mallplus.sys.util;
 
+import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -416,6 +417,4 @@ public class JsonUtils {
             System.out.println(map.get("address"));
         }
     }
-
-
 }

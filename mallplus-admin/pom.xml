@@ -186,7 +186,6 @@
             <groupId>com.github.binarywang</groupId>
             <artifactId>weixin-java-mp</artifactId>
             <version>3.7.0</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.zscat.mallplus</groupId>
@@ -198,6 +197,11 @@
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
             <version>3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-miniapp</artifactId>
+            <version>3.7.0</version>
         </dependency>
 
     </dependencies>
