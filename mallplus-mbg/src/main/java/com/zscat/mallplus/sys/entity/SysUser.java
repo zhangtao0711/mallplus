@@ -4,8 +4,12 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -25,6 +29,17 @@ public class SysUser implements Serializable {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
+
+    @TableField("uniacid")
+    private Integer uniacid;
+    @TableField("uid")
+    private Integer uid;
+    @TableField("groupid")
+    private String groupid;
+    @TableField("pid")
+    private Long pid;
+    @TableField("gid")
+    private Long gid;
 
     private String username;
 
@@ -89,4 +104,35 @@ public class SysUser implements Serializable {
 
     @TableField("store_id")
     private Integer storeId;
+
+    @TableField("dealer_name")
+    private String dealerName;
+    @TableField("dealer_brief")
+    private String dealerBrief;
+    @TableField("realname")
+    private String realname;
+    @TableField("phone")
+    private String phone;
+    @TableField("address")
+    private String address;
+    @TableField("type")
+    private Integer type;
+    @TableField("has_hnx")
+    private Integer hasHnx;
+    @TableField("weixin_openid")
+    private String weixinOpenid;
+    @TableField("avatar")
+    private String avatar;
+    /**
+     * 申请状态 0申请中 1待入驻 2已入驻 3驳回
+     */
+    @TableField("apply_status")
+    private Integer applyStatus;
+
+    @TableField("apply_time")
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm")
+    @ApiModelProperty(value = "创建日期")
+    private Date applyTime;
+
 }

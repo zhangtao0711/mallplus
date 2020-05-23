@@ -20,4 +20,8 @@ public interface UmsMemberMapper extends BaseMapper<UmsMember> {
     List<UmsMember> listByDate(@Param("date") String date, @Param("type") Integer type);
 
     Map memberMonthStatic(@Param("date") String date);
+
+    UmsMember selectByUsernameLeader(String username);
+
+    UmsMember selectByUsernameStaff(String username);
 }

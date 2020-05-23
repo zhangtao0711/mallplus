@@ -8,6 +8,7 @@ import com.zscat.mallplus.elias.CertificateDownloader;
 import com.zscat.mallplus.elias.config.CertPathConfig;
 import com.zscat.mallplus.encrypt.EncryptSensitive;
 import com.zscat.mallplus.merchant.entity.MerchatFacilitatorConfig;
+import com.zscat.mallplus.merchant.service.IMerchatFacilitatorConfigService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
@@ -40,7 +41,7 @@ import java.util.Map;
 public class MerchatFacilitatorConfigController {
 
     @Resource
-    private com.zscat.mallplus.merchant.service.IMerchatFacilitatorConfigService IMerchatFacilitatorConfigService;
+    private IMerchatFacilitatorConfigService IMerchatFacilitatorConfigService;
 
     @SysLog(MODULE = "merchat", REMARK = "根据条件查询所有服务商配置列表")
     @ApiOperation("根据条件查询所有服务商配置列表")
@@ -51,7 +52,7 @@ public class MerchatFacilitatorConfigController {
                                                     @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         try {
-            return new CommonResult().success(IMerchatFacilitatorConfigService.list(new QueryWrapper<>(entity)));//new Page<MerchatFacilitatorConfig>(pageNum, pageSize),
+            return new CommonResult().success(IMerchatFacilitatorConfigService.page(new Page<MerchatFacilitatorConfig>(pageNum, pageSize),new QueryWrapper<>(entity)));//
         } catch (Exception e) {
             log.error("根据条件查询所有服务商配置列表：%s", e.getMessage(), e);
         }

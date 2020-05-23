@@ -8,7 +8,10 @@ import com.zscat.mallplus.enums.AllEnum;
 import com.zscat.mallplus.exception.ApiMallPlusException;
 import com.zscat.mallplus.oms.mapper.OmsOrderMapper;
 import com.zscat.mallplus.oms.vo.OrderStstic;
+import com.zscat.mallplus.sys.entity.SysUser;
+import com.zscat.mallplus.sys.entity.SysUserStaff;
 import com.zscat.mallplus.sys.mapper.SysAreaMapper;
+import com.zscat.mallplus.sys.mapper.SysUserMapper;
 import com.zscat.mallplus.ums.entity.*;
 import com.zscat.mallplus.ums.mapper.SysAppletSetMapper;
 import com.zscat.mallplus.ums.mapper.UmsIntegrationConsumeSettingMapper;
@@ -122,6 +125,8 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     private IUmsMemberLevelService memberLevelService;
     @Resource
     private OmsOrderMapper omsOrderMapper;
+    @Resource
+    private SysUserMapper adminMapper;
     @Resource
     private IUmsMemberBlanceLogService blanceLogService;
     @Resource
@@ -503,11 +508,18 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
             return new CommonResult().failed("密码不一致");
         }
         //查询是否已有该用户
-
         UmsMember queryM = new UmsMember();
         queryM.setUsername(user.getUsername());
         UmsMember umsMembers = memberMapper.selectOne(new QueryWrapper<>(queryM));
         if (umsMembers != null) {
+            return new CommonResult().failed("该用户已经存在");
+        }
+        SysUser umsAdminList = adminMapper.selectByUserName(user.getUsername());
+        if (umsAdminList != null) {
+            return new CommonResult().failed("该用户已经存在");
+        }
+        umsMembers = memberMapper.selectByUsernameStaff(user.getUsername());
+        if (umsMembers!=null){
             return new CommonResult().failed("该用户已经存在");
         }
         //没有该用户进行添加操作
@@ -674,6 +686,7 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
 
     @Override
     public Object getAppletOpenId(AppletLoginParam req) {
+        JSONObject j = new JSONObject();
         SysAppletSet appletSet = getSysAppletSet(req.getAppIdsource());
         if (null == appletSet) {
             throw new ApiMallPlusException("没有设置支付配置");
@@ -704,7 +717,19 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
         if (!signature.equals(sha1)) {
             throw new ApiMallPlusException("登录失败,验证用户信息完整性 签名验证失败" + sha1 + "，" + signature);
         }*/
-        return new CommonResult().success(sessionData.getString("openid"));
+        //判断数据库里面有没有返回的这个openid，有的话直接登录的首页，没有的话直接就是小程序页面
+        j.put("openid",sessionData.getString("openid"));
+        UmsMember umsMember = new UmsMember();
+        //TODO 这里应该还得加上小程序或者公众号的那个id去筛选
+        umsMember.setUniacid(0);
+        umsMember.setWeixinOpenid(sessionData.getString("openid"));
+        UmsMember member = memberMapper.selectOne(new QueryWrapper<>(umsMember));
+        if (member==null){
+            j.put("url","seller/login");
+        }else {
+            j.put("url","pages/index/index");
+        }
+        return new CommonResult().success(j);
     }
 
     @Override
@@ -1227,7 +1252,7 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     }
 
     @Override
-    public Map<String, Object> login(String username, String password) {
+    public Map<String, Object> login(String username, String password,String uniacid) {
 
         Map<String, Object> tokenMap = new HashMap<>();
         String token = null;
@@ -1236,14 +1261,18 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
             if (!passwordEncoder.matches(password, userDetails.getPassword())) {
                 throw new BadCredentialsException("密码不正确");
             }
-            UmsMember member = this.getByUsername(username);
+//            UmsMember member = this.getByUsername(username);
+            UmsMember member = userDetails.getUmsMember();
+            if (!member.getUniacid().equals(uniacid)){
+                throw new BadCredentialsException("用户名或者密码不正确");
+            }
             //验证验证码
            /* if (!verifyAuthCode(user.getCode(), member.getPhone())) {
                 throw  new ApiMallPlusException("验证码错误");
             }*/
 
             //   Authentication authentication = authenticationManager.authenticate(authenticationToken);
-            addIntegration(member.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), member.getUsername());
+//            addIntegration(member.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), member.getUsername());
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                     userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -1290,5 +1319,14 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
         return new CommonResult().success();
     }
 
+    @Override
+    public UmsMember selectByUsernameLeader(String username) {
+        return memberMapper.selectByUsernameLeader(username);
+    }
+
+    @Override
+    public UmsMember selectByUsernameStaff(String username) {
+        return memberMapper.selectByUsernameStaff(username);
+    }
 }
 

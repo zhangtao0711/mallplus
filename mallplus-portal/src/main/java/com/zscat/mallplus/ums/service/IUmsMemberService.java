@@ -84,7 +84,7 @@ public interface IUmsMemberService extends IService<UmsMember> {
     UmsMember queryByOpenId(String openId);
 
 
-    Map<String, Object> login(String username, String password);
+    Map<String, Object> login(String username, String password,String uniacid);
 
     String refreshToken(String token);
 
@@ -150,5 +150,9 @@ public interface IUmsMemberService extends IService<UmsMember> {
      * @return
      */
     Object withDraw(UmsMemberBlanceLog blanceLog);
+
+    public  UmsMember selectByUsernameLeader(String username);
+
+    public UmsMember selectByUsernameStaff(String username);
 }
 

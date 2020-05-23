@@ -28,6 +28,17 @@ public class UmsMember implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    @TableField("uniacid")
+    private Integer uniacid;
+    @TableField("uid")
+    private Integer uid;
+    @TableField("groupid")
+    private String groupid;
+    @TableField("pid")
+    private Long pid;
+    @TableField("gid")
+    private Long gid;
+
     @TableField("member_level_id")
     private Long memberLevelId;
     @TableField("member_level_name")
@@ -164,4 +175,7 @@ public class UmsMember implements Serializable {
 
     @TableField(exist = false)
     private Integer buyCountss;
+
+    @TableField("weixin")
+    private String weixin;
 }

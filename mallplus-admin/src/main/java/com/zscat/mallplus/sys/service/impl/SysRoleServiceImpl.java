@@ -70,18 +70,18 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     public boolean saves(SysRole role) {
         role.setCreateTime(new Date());
         role.setStatus(1);
-        role.setAdminCount(0);
-        role.setSort(0);
+//        role.setAdminCount(0);
+        role.setRoleSort(0);
         roleMapper.insert(role);
-        updatePermission(role.getId(), role.getMenuIds());
+        updatePermission(role.getRoleId(), role.getMenuIds());
         return true;
     }
 
     @Transactional
     @Override
     public boolean updates(SysRole role) {
-        role.setId(role.getId());
-        updatePermission(role.getId(), role.getMenuIds());
+        role.setRoleId(role.getRoleId());
+        updatePermission(role.getRoleId(), role.getMenuIds());
         roleMapper.updateById(role);
         return true;
     }

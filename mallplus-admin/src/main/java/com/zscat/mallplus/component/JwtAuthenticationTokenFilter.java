@@ -1,20 +1,25 @@
 package com.zscat.mallplus.component;
 
 
-import com.zscat.mallplus.exception.JwtTokenExpiredException;
 import com.zscat.mallplus.sys.entity.SysAdminLog;
 import com.zscat.mallplus.sys.service.ISysAdminLogService;
+import com.zscat.mallplus.ums.service.RedisService;
 import com.zscat.mallplus.util.IpAddressUtil;
+import com.zscat.mallplus.util.JsonUtil;
 import com.zscat.mallplus.util.JwtTokenUtil;
+import com.zscat.mallplus.utils.CommonResult;
+import com.zscat.mallplus.utils.HttpUtils;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -40,6 +45,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthenticationTokenFilter.class);
     @Resource
     public ISysAdminLogService fopSystemOperationLogService;
+    @Resource
+    public RedisService redisService;
     @Autowired
     private UserDetailsService userDetailsService;
     @Autowired
@@ -91,6 +98,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             LOGGER.info("checking username:{}", username);
             if (fullUrl.contains("logout") || fullUrl.contains("login")) {
                 if (fullUrl.contains("logout")) {
+                    redisService.remove("prefix-"+username);
                     SecurityContextHolder.getContext().setAuthentication(null);
                 }
             } else {
@@ -105,6 +113,18 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         LOGGER.info("checking username:{}", username);
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+//                        String token = redisService.get("prefix-"+username);
+//                        if (ValidatorUtils.empty(token)||authToken.equals(token)){
+//                            chain.doFilter(request, response);
+//                            return;
+//                        }else {
+//                            response.setCharacterEncoding("UTF-8");
+//                            response.setContentType("application/json; charset=utf-8");
+//                            response.setStatus(506);
+//                            response.getWriter().println(JsonUtil.objectToJson(new CommonResult().forbidden("您已在另一台设备登录，请重新登录!")));
+//                            response.getWriter().flush();
+//                            return;
+//                        }
                     }
                 }
             }

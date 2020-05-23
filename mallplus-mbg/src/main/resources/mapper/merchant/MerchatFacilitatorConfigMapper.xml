@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.merchant.mapper.MerchatFacilitatorConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zscat.mallplus.merchant.entity.MerchatFacilitatorConfig">
+        <id column="id" property="id"/>
+        <result column="apiV3key" property="apiV3key"/>
+        <result column="mch_id" property="mchId"/>
+        <result column="apiclient_cert" property="apiclientCert"/>
+        <result column="private_key_path" property="privateKeyPath"/>
+        <result column="apiclient_cert_p12" property="apiclientCertP12"/>
+        <result column="public_key_path" property="publicKeyPath"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, apiV3key, mch_id, apiclient_cert, private_key_path, apiclient_cert_p12, public_key_path, create_by, create_time, update_by, update_time
+</sql>
+
+    <select id="queryList" resultMap="BaseResultMap">
+        select * from merchat_facilitator_config
+    </select>
+</mapper>

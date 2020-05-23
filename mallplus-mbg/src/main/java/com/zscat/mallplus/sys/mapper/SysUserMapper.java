@@ -17,4 +17,8 @@ import org.apache.ibatis.annotations.Mapper;
 public interface SysUserMapper extends BaseMapper<SysUser> {
 
     SysUserVo selectByUserName(String username);
+
+    public boolean updateUsernameById(String username,Long id);
+
+    boolean updatePhoneById(String newPhone, Long id);
 }

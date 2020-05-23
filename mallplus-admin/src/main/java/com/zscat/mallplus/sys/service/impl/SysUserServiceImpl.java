@@ -9,10 +9,10 @@ import com.zscat.mallplus.config.MallplusProperties;
 import com.zscat.mallplus.exception.BusinessMallException;
 import com.zscat.mallplus.sys.entity.*;
 import com.zscat.mallplus.sys.mapper.*;
-import com.zscat.mallplus.sys.service.ISysRolePermissionService;
-import com.zscat.mallplus.sys.service.ISysUserPermissionService;
-import com.zscat.mallplus.sys.service.ISysUserRoleService;
-import com.zscat.mallplus.sys.service.ISysUserService;
+import com.zscat.mallplus.sys.service.*;
+import com.zscat.mallplus.ums.entity.Sms;
+import com.zscat.mallplus.ums.entity.UmsMember;
+import com.zscat.mallplus.ums.mapper.UmsMemberMapper;
 import com.zscat.mallplus.ums.service.RedisService;
 import com.zscat.mallplus.util.JsonUtil;
 import com.zscat.mallplus.util.JwtTokenUtil;
@@ -21,6 +21,7 @@ import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.CreateNamePicture;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import com.zscat.mallplus.vo.Rediskey;
+import com.zscat.mallplus.vo.SmsCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,9 +43,8 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -75,6 +75,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Resource
     private SysUserMapper adminMapper;
     @Resource
+    private SysUserStaffMapper sysUserStaffMapper;
+    @Resource
+    private UmsMemberMapper memberMapper;
+    @Resource
     private SysUserRoleMapper adminRoleRelationMapper;
     @Resource
     private ISysUserRoleService adminRoleRelationService;
@@ -92,7 +96,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private SysPermissionMapper permissionMapper;
     @Resource
     private RedisService redisService;
-
+    @Resource
+    private SmsService smsService;
     @Resource
     private MallplusProperties mallplusProperties;
 
@@ -126,6 +131,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
             token = jwtTokenUtil.generateToken(userDetails);
+//            redisService.set("prefix-"+username,token);
             System.out.println(JSONObject.toJSONString(UserUtils.getCurrentMember()));
             log.info(JSONObject.toJSONString(UserUtils.getCurrentMember()));
             this.removePermissRedis(UserUtils.getCurrentMember().getId());
@@ -216,9 +222,20 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         umsAdmin.setCreateTime(new Date());
         umsAdmin.setStatus(1);
         //查询是否有相同用户名的用户
-
         SysUser umsAdminList = adminMapper.selectByUserName(umsAdmin.getUsername());
         if (umsAdminList != null) {
+            return false;
+        }
+        SysUserStaff staff = new SysUserStaff();
+        staff.setUsername(umsAdmin.getUsername());
+        SysUserStaff staff1 =sysUserStaffMapper.selectOne(new QueryWrapper<>(staff));
+        if (staff1!=null){
+            return false;
+        }
+        UmsMember member = new UmsMember();
+        member.setUsername(umsAdmin.getUsername());
+        UmsMember member1 =memberMapper.selectOne(new QueryWrapper<>(member));
+        if (member1!=null){
             return false;
         }
         //将密码进行加密操作
@@ -327,30 +344,30 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         adminRoleRelationMapper.insert(roleRelation);
         return new CommonResult().failed("注册成功");
     }
-//    @Override
-//    public SmsCode generateCode(String phone) {
-//        //生成流水号
-//        String uuid = UUID.randomUUID().toString();
-//        StringBuilder sb = new StringBuilder();
-//        Random random = new Random();
-//        for (int i = 0; i < 6; i++) {
-//            sb.append(random.nextInt(10));
-//        }
-//        Map<String, String> map = new HashMap<>(2);
-//        map.put("code", sb.toString());
-//        map.put("phone", phone);
-//
-//        //短信验证码缓存15分钟，
-//        redisService.set(REDIS_KEY_PREFIX_AUTH_CODE + phone, sb.toString());
-//        redisService.expire(REDIS_KEY_PREFIX_AUTH_CODE + phone, 60);
-//        log.info("缓存验证码：{}", map);
-//
-//        //存储sys_sms
-//        saveSmsAndSendCode(phone, sb.toString());
-//        SmsCode smsCode = new SmsCode();
-//        smsCode.setKey(uuid);
-//        return smsCode;
-//    }
+    @Override
+    public SmsCode generateCode(String phone) {
+        //生成流水号
+        String uuid = UUID.randomUUID().toString();
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < 6; i++) {
+            sb.append(random.nextInt(10));
+        }
+        Map<String, String> map = new HashMap<>(2);
+        map.put("code", sb.toString());
+        map.put("phone", phone);
+
+        //短信验证码缓存15分钟，
+        redisService.set(REDIS_KEY_PREFIX_AUTH_CODE + phone, sb.toString());
+        redisService.expire(REDIS_KEY_PREFIX_AUTH_CODE + phone, 60);
+        log.info("缓存验证码：{}", map);
+
+        //存储sys_sms
+        saveSmsAndSendCode(phone, sb.toString());
+        SmsCode smsCode = new SmsCode();
+        smsCode.setKey(uuid);
+        return smsCode;
+    }
 
     //对输入的验证码进行校验
     public boolean verifyAuthCode(String authCode, String telephone) {
@@ -415,35 +432,36 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      *
      * @param phone
      */
-//    private void saveSmsAndSendCode(String phone, String code) {
-//        checkTodaySendCount(phone);
-//
-//        Sms sms = new Sms();
-//        sms.setPhone(phone);
-//        sms.setParams(code);
-//        Map<String, String> params = new HashMap<>();
-//        params.put("code", code);
-//        params.put("admin", "admin");
-//        smsService.save(sms, params);
-//
-//        //异步调用阿里短信接口发送短信
-//        CompletableFuture.runAsync(() -> {
-//            try {
-//                smsService.sendSmsMsg(sms);
-//            } catch (Exception e) {
-//                params.put("err",  e.getMessage());
-//                smsService.save(sms, params);
-//                e.printStackTrace();
-//                log.error("发送短信失败：{}", e.getMessage());
-//            }
-//
-//        });
-//
-//        // 当天发送验证码次数+1
-//        String countKey = countKey(phone);
-//        redisService.increment(countKey, 1L);
-//        redisService.expire(countKey, 1*3600*24);
-//    }
+    private void saveSmsAndSendCode(String phone, String code) {
+        checkTodaySendCount(phone);
+
+        Sms sms = new Sms();
+        sms.setPhone(phone);
+        sms.setParams(code);
+        Map<String, String> params = new HashMap<>();
+        params.put("code", code);
+        params.put("admin", "admin");
+        //TODO 忘记密码模板以及短信签名
+        smsService.save(sms, params);
+
+        //异步调用阿里短信接口发送短信
+        CompletableFuture.runAsync(() -> {
+            try {
+                smsService.sendSmsMsg(sms);
+            } catch (Exception e) {
+                params.put("err",  e.getMessage());
+                smsService.save(sms, params);
+                e.printStackTrace();
+                log.error("发送短信失败：{}", e.getMessage());
+            }
+
+        });
+
+        // 当天发送验证码次数+1
+        String countKey = countKey(phone);
+        redisService.increment(countKey, 1L);
+        redisService.expire(countKey, 1*3600*24);
+    }
     private String countKey(String phone) {
         return "sms:admin:count:" + LocalDate.now().toString() + ":" + phone;
     }
@@ -508,5 +526,33 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return new CommonResult().success(adminMapper.updateById(user));
+    }
+
+    @Override
+    public Object resetPassword(String phone, String password, String confimpassword, String authCode) {
+        if (ValidatorUtils.notEmpty(authCode) && !verifyAuthCode(authCode, phone)) {
+            return new CommonResult().failed("验证码错误");
+        }
+        if (!password.equals(confimpassword)) {
+            return new CommonResult().failed("密码不一致");
+        }
+        SysUser user = new SysUser();
+        user.setPassword(passwordEncoder.encode(password));
+        adminMapper.update(user, new QueryWrapper<SysUser>().eq("phone", phone));
+        return true;
+    }
+
+    @Override
+    public boolean updateUsernameById(String username, Long id) {
+        return adminMapper.updateUsernameById(username,id);
+    }
+
+    @Override
+    public Object updatePhoneById(String oldPhone, String newPhone, String authCode, Long id) {
+        //校验手机号验证码
+        if (!verifyAuthCode(authCode,newPhone)) {
+            return new CommonResult().failed("验证码错误");
+        }
+        return adminMapper.updatePhoneById(newPhone,id);
     }
 }

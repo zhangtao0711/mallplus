@@ -5,6 +5,9 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.zscat.mallplus.ums.entity.UmsMember">
         <id column="id" property="id"/>
+        <result column="uniacid" property="uniacid"/>
+        <result column="uid" property="uid"/>
+        <result column="groupid" property="groupid"/>
         <result column="member_level_id" property="memberLevelId"/>
         <result column="username" property="username"/>
         <result column="password" property="password"/>
@@ -32,7 +35,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, member_level_id, username, password, nickname, phone, status, create_time, icon, gender, birthday, city,
+        id, uniacid, uid, groupid, member_level_id, username, password, nickname, phone, status, create_time, icon, gender, birthday, city,
         job, personalized_signature, source_type, integration, growth, luckey_count, history_integration, avatar,
         weixin_openid, invitecode, blance, school_id
     </sql>
@@ -60,5 +63,48 @@
         a12
         FROM ums_member
         WHERE YEAR(create_time) = YEAR(#{date})
+    </select>
+
+    <select id="selectByUsernameLeader" resultMap="BaseResultMap">
+        select
+            id,
+            uniacid,
+            uid,
+            groupid,
+            username,
+            password,
+            icon,
+            nick_name,
+            create_time,
+            login_time,
+            status,
+            store_id,
+            store_name,
+            phone,
+            weixin_openid,
+            avatar
+        from sys_user where apply_status = '2' and username = #{username}
+    </select>
+
+    <select id="selectByUsernameStaff" resultMap="BaseResultMap">
+        select
+            id,
+            uniacid,
+            uid,
+            groupid,
+            username,
+            password,
+            nick_name,
+            phone,
+            create_time,
+            login_time,
+            status,
+            store_id,
+            store_name,
+            weixin_openid,
+            avatar,
+            weixin,
+            icon
+        from sys_user_staff where username = #{username}
     </select>
 </mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.sys.mapper.SysUserStaffMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zscat.mallplus.sys.entity.SysUserStaff">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="phone" property="phone"/>
+        <result column="device_group_id" property="deviceGroupId"/>
+        <result column="staff_name" property="staffName"/>
+        <result column="province" property="province"/>
+        <result column="city" property="city"/>
+        <result column="county" property="county"/>
+        <result column="create_time" property="createTime"/>
+        <result column="login_time" property="loginTime"/>
+        <result column="status" property="status"/>
+        <result column="supply_id" property="supplyId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, username, password, phone,device_group_id,staff_name,province,city,county, create_time, login_time, status, supply_id
+    </sql>
+
+    <select id="selectByUserName" resultType="com.zscat.mallplus.sys.entity.SysUserVo">
+        select
+         id as "id",
+         username as "username",
+         password as "password",
+         phone as "phone",
+         device_group_id as "deviceGroupId",
+         staff_name as "realname",
+        create_time,
+        login_time,
+        status,
+        supply_id,
+        store_id,
+        store_name
+        from sys_user_staff
+        where username = #{username}
+    </select>
+
+    <!-- 修改密码接口 -->
+    <update id="updatePasswordById">
+        update sys_user_staff set password = #{password} where id = #{id}
+    </update>
+    
+    <!-- 在员工页面绑定微信号接口（根据手机号/昵称/微信号查找） 查找条件不完善后期设置-->
+    <select id="bindWeChant" resultType="Map">
+        select weixin_openid,avatar from ums_member where uniacid = #{uniacid}
+        and store_id = #{storeId}
+        and (phone like '%${value}%' or nickname like '%${value}%' or weixin like '%${value}%')
+    </select>
+</mapper>
