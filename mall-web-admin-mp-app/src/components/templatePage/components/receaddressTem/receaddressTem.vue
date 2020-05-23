@@ -10,6 +10,7 @@
     <div class="tabs-content" v-if="current == index" v-for="(item,index) in colorGroup" :key="index">
       <div class="tabsimg" v-for="(citem,cindex) in item.tabContent" :key="cindex">
         <img class="tabimg" :src="citem.tabImg" alt="">
+        <div></div>
       </div>
     </div>
   </div>

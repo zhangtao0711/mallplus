@@ -4,6 +4,9 @@ import 'normalize.css/normalize.css'// A modern alternative to CSS resets
 
 import { Card } from 'vant';
 import { Button } from 'vant';
+import { SwipeCell } from 'vant';
+
+Vue.use(SwipeCell);
 Vue.use(Card);
 Vue.use(Button);
 
