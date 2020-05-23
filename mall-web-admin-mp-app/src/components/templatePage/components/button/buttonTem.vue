@@ -1,9 +1,10 @@
 <template>
   <div style="text-align:center">
-    <van-button
-      :type="type"
-      :size="size"
-    >{{ btnName }}</van-button>
+    <div
+      :style="{marginTop:udPadding+'px',marginBottom:udPadding+'px',marginLeft:lrPadding+'px',marginRight:lrPadding+'px'}"
+    >
+      <van-button :type="type" :size="size">{{ btnName }}</van-button>
+    </div>
   </div>
 </template>
 
@@ -16,7 +17,9 @@ export default {
 
       btnName: "按钮",
       type: "default",
-	    size: "normal",
+      size: "normal",
+      udPadding: 0,
+      lrPadding: 0
     };
   },
   watch: {
@@ -41,13 +44,13 @@ export default {
         _this.btnName = options.btnName;
         _this.type = options.type;
         _this.size = options.size;
-
-
+        _this.udPadding = options.udPadding || 0
+        _this.lrPadding = options.lrPadding || 0
       }
     },
     // 点击tab
-    clickTab(index){
-      this.current = index
+    clickTab(index) {
+      this.current = index;
     },
     // 恢复初始
     restore() {
@@ -55,6 +58,8 @@ export default {
       _this.btnName = "按钮";
       _this.type = "default";
       _this.size = "normal";
+      _this.udPadding = 0;
+      _this.lrPadding = 0;
     }
   }
 };

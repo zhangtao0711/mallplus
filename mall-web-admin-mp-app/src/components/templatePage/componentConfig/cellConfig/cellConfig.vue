@@ -6,26 +6,56 @@
     <el-tabs value="content" class="d-tab">
       <el-tab-pane label="TabBar设置" name="content">
         <div class="pannelcontent">
-
           <div class="pannelItemspe">
             <div class="pannelcontent">
               <div class="colorGroup">
                 <div class="colorItem" v-for="(item,index) in colorGroup" :key="index">
                   <div class="colorImg">
-                    <span v-if="item.adImg" :class="['icon iconfont colorIcon',item.adImg]" :src="item.adImg"></span>
-                    <img v-else class="colorIcon" src="../../static/img/default_onegoods.jpg" alt>
-                    <el-button class="chooseIcon" @click="showIconSelect(index)" :disabled="editable != 'enable'">选择图标</el-button>
+                    <span
+                      v-if="item.adImg"
+                      :class="['icon iconfont colorIcon',item.adImg]"
+                      :src="item.adImg"
+                    ></span>
+                    <img v-else class="colorIcon" src="../../static/img/default_onegoods.jpg" alt />
+                    <el-button
+                      class="chooseIcon"
+                      @click="showIconSelect(index)"
+                      :disabled="editable != 'enable'"
+                    >选择图标</el-button>
                   </div>
 
                   <div class="colorInput">
-                    <el-input v-model="item.adText" class="itemInput" :maxlength="10" placeholder="请输入标题"></el-input>
-                    <el-input v-model="item.adLink" class="itemInput" disabled placeholder="请选择或填写小程序路径">
-                      <el-button slot="append" @click="showLinkSelect(index)" :disabled="editable != 'enable'">选择跳转</el-button>
+                    <el-input
+                      v-model="item.adText"
+                      class="itemInput"
+                      :maxlength="10"
+                      placeholder="请输入标题"
+                    ></el-input>
+                    <el-input
+                      v-model="item.adLink"
+                      class="itemInput"
+                      disabled
+                      placeholder="请选择或填写小程序路径"
+                    >
+                      <el-button
+                        slot="append"
+                        @click="showLinkSelect(index)"
+                        :disabled="editable != 'enable'"
+                      >选择跳转</el-button>
                     </el-input>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          <div class="colorAdd" @click="addCell" v-if="editable == 'enable'">
+            +
+            <span class="colortips">添加选项卡</span>
+          </div>
+          <div class="colorAdd" @click="delCell" v-if="editable == 'enable'">
+            -
+            <span class="colortips">删除选项卡</span>
           </div>
         </div>
       </el-tab-pane>
@@ -35,21 +65,17 @@
 
 <script>
 export default {
-  props: ["options","editable"],
+  props: ["options", "editable"],
   data() {
     return {
-      order_num: "4",
-      order_bg: "#fff",
-      order_iconcolor: "#000",
-      order_textcolor: "#000",
-      order_badgecolor: "#000",
+      order_num: "1",
       newOptions: {},
       colorGroup: []
     };
   },
   created() {
     let _this = this;
-    console.log(this.editable)
+    console.log(this.editable);
     _this.init(_this.options);
   },
   watch: {
@@ -58,8 +84,8 @@ export default {
       _this.newOptions = _this.options;
       _this.init(_this.newOptions);
     },
-    editable(){
-      console.log(this.editable)
+    editable() {
+      console.log(this.editable);
     }
   },
   methods: {
@@ -70,30 +96,22 @@ export default {
       if (JSON.stringify(optionsParams) == "{}") {
         _this.restore();
       } else {
-        _this.order_num = optionsParams.order_num || '4';
-        _this.order_bg = optionsParams.order_bg || '';
-        _this.order_iconcolor = optionsParams.order_iconcolor || '#000';
-        _this.order_textcolor = optionsParams.order_textcolor || '#000';
-        _this.order_badgecolor = optionsParams.order_badgecolor || '#000';
+        _this.order_num = optionsParams.order_num || "1";
         _this.colorGroup = optionsParams.colorGroup || [];
       }
     },
     // 恢复初始状态
     restore() {
       let _this = this;
-      _this.order_num = "4"
-      _this.order_bg = "#fff"
-      _this.order_iconcolor = "#000"
-      _this.order_textcolor = "#000"
-      _this.order_badgecolor = "#000"
-      _this.colorGroup = []
-      for(let i = 0; i < _this.order_num; i++) {
+      _this.order_num = "1";
+      _this.colorGroup = [];
+      for (let i = 0; i < _this.order_num; i++) {
         let newObj = {
           adImg: "",
-          adText:"",
+          adText: "我的",
           adLink: ""
-        }
-        _this.colorGroup.push(newObj)
+        };
+        _this.colorGroup.push(newObj);
       }
       _this.changeForm();
     },
@@ -105,26 +123,37 @@ export default {
       let changeData;
       if (index) {
         changeData = {
-          order_num : _this.order_num,
-          order_bg : _this.order_bg,
-          order_iconcolor : _this.order_iconcolor,
-          order_textcolor : _this.order_textcolor,
-          order_badgecolor : _this.order_badgecolor,
+          order_num: _this.order_num,
           colorGroup: _this.colorGroup,
           addIndex: index - 1
         };
       } else {
         changeData = {
-          order_num : _this.order_num,
-          order_bg : _this.order_bg,
-          order_iconcolor : _this.order_iconcolor,
-          order_textcolor : _this.order_textcolor,
-          order_badgecolor : _this.order_badgecolor,
-          colorGroup : _this.colorGroup
+          order_num: _this.order_num,
+          colorGroup: _this.colorGroup
         };
       }
 
       _this.$emit("listenToForm", changeData);
+    },
+
+    addCell() {
+      let _this = this;
+      _this.colorGroup.push({
+        adImg: "",
+        adText: "",
+        adLink: ""
+      });
+      _this.changeForm();
+    },
+    delCell() {
+      let _this = this;
+      let length = _this.colorGroup.length;
+      if (length==1) {
+        return false;
+      }
+      _this.colorGroup.pop()
+      _this.changeForm();
     },
 
     // 点击显示图片的选择弹框

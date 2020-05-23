@@ -16,7 +16,7 @@
     </div> -->
 
     <van-cell-group>
-      <van-cell v-for="(item,index) in colorGroup" :key="index" :title="item.adText" is-link />
+      <van-cell v-for="(item,index) in colorGroup" :key="index" :title="item.adText" :to="item.adLink" is-link />
     </van-cell-group>
   </div>
 </template>
@@ -26,7 +26,7 @@ export default {
   props: ["options"],
   data() {
     return {
-      order_num: "4",
+      order_num: "1",
       newOptions: {},
       colorGroup: []
     };
@@ -56,12 +56,12 @@ export default {
     // 恢复初始
     restore() {
       let _this = this;
-      _this.order_num = "4";
+      _this.order_num = "1";
       _this.colorGroup = [];
       for (let i = 0; i < _this.order_num; i++) {
         let newObj = {
           adImg: "",
-          adText: "",
+          adText: "我的",
           adLink: ""
         };
         _this.colorGroup.push(newObj);
