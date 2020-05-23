@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.water.mapper.WtProductGroupMapper">
+
+
+
+    <!-- 获取分组下面是绑定的设备 -->
+    <select id="getProduct" resultType="com.zscat.mallplus.water.entity.WtEquipment">
+       select * from wt_equipment
+       WHERE eq_group_id=#{eqGroupId}
+       AND del_flag =#{delFlag}
+    </select>
+
+</mapper>

@@ -37,6 +37,7 @@
                   <ImgTem v-if="item.components == 'imgGroup'" :options="item.options" />
                   <DoubleImgTem v-if="item.components == 'doubleimgGroup'" :options="item.options" />
                   <TabTem v-if="item.components == 'xuanxiangqia'" :options="item.options" />
+                  <!-- <OtherTypes v-if="item.components == 'qitaleixing'" :options="item.options" /> -->
                   <SearchTem v-if="item.components == 'search'" :options="item.options" />
                   <VideoTem v-if="item.components == 'video'" :options="item.options" />
                   <MemberTem
@@ -45,6 +46,7 @@
                     :options="item.options"
                   />
                   <OrderTem v-if="item.components == 'order'" :options="item.options" />
+                  <BottomenuTem v-if="item.components == 'bottomenu'" :options="item.options" />
                   <ListTem v-if="item.components == 'list'" :options="item.options" />
                   <BlankTem v-if="item.components == 'blank'" :options="item.options" />
                   <LineTem v-if="item.components == 'line'" :options="item.options" />
@@ -87,6 +89,8 @@ import DoubleImgTem from "./components/doubleImgTem/doubleImgTem";
 import DoubleImgConfig from "./componentConfig/doubleImgConfig/doubleImgConfig";
 import TabTem from "./components/tabTem/tabTem";
 import TabConfig from "./componentConfig/tabConfig/tabConfig";
+// import OtherTypes from './components/otherTypes/otherTypes';
+// import OtherConfig from './componentConfig/otherConfig/otherConfig';
 import SearchTem from "./components/searchTem/searchTem";
 import SearchConfig from "./componentConfig/searchConfig/searchConfig";
 import BlankTem from "./components/blankTem/blankTem";
@@ -99,6 +103,8 @@ import MemberTem from "./components/memberTem/memberTem";
 import MemberConfig from "./componentConfig/memberConfig/memberConfig";
 import OrderTem from "./components/orderTem/orderTem";
 import OrderConfig from "./componentConfig/orderConfig/orderConfig";
+import BottomenuTem from "./components/bottomenuTem/bottomenuTem";
+import BottomenuConfig from "./componentConfig/bottomenuConfig/bottomenuConfig";
 import ListTem from "./components/listTem/listTem";
 import ListConfig from "./componentConfig/listConfig/listConfig";
 import IconLists from "./otherComponents/IconList/IconList";
@@ -132,6 +138,8 @@ export default {
     DoubleImgConfig,
     TabTem,
     TabConfig,
+    // OtherTypes,
+    // OtherConfig,
     SearchTem,
     SearchConfig,
     BlankTem,
@@ -144,6 +152,8 @@ export default {
     MemberConfig,
     OrderTem,
     OrderConfig,
+    BottomenuTem,
+    BottomenuConfig,
     ListTem,
     ListConfig,
     DefaultConfig,

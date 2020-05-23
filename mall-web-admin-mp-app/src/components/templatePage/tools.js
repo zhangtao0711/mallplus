@@ -166,6 +166,20 @@ const tools = {
         all:0,
         components:'line'
       }]
+    },{
+      'toolsName': '其他类',
+      'toolsOrder': '4',
+      'toolsId':'picture',
+      'toolsHeight': 0,
+      'toolsCollapse': 'open',
+      'toolsChildren': [{
+        id: 1,
+        name: '按钮',
+        icon: 'icon-mofang',
+        current: 0,
+        all: 0,
+        components: 'anniu'
+      }]
     }
   ]
 }
