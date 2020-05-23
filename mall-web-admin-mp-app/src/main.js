@@ -2,13 +2,14 @@ import Vue from 'vue'
 
 import 'normalize.css/normalize.css'// A modern alternative to CSS resets
 
-import { Card } from 'vant';
-import { Button } from 'vant';
-import { SwipeCell } from 'vant';
-
-Vue.use(SwipeCell);
+import { Cell, CellGroup, Button, Card, Icon, SwipeCell } from 'vant';
 Vue.use(Card);
 Vue.use(Button);
+Vue.use(Cell);
+Vue.use(CellGroup); 
+Vue.use(Icon);
+Vue.use(SwipeCell);
+
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'

@@ -35,6 +35,13 @@ const tools = {
           current:0,
           all:1,
           components:'wodedingdan'
+        },{
+          id:5,
+          name:'我的列表',
+          icon:'icon-wodedingdan',
+          current:0,
+          all:1,
+          components:'mine'
         }
         // {
         //   id:3,
