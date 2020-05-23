@@ -5,11 +5,32 @@
 <template>
   <div class="tabs diyitem" style="min-height:100px;">
     <div class="tabs-tab" v-if="colorGroup.length > 1 || colorGroup[0].tabs">
-      <div class="tab-item" :style="{color:index == current ? tab_activetext : tab_text,background:index == current ? tab_activebg : tab_bg}" @click.stop="clickTab(index)" v-for="(item,index) in colorGroup" :key="index">{{item.tabs}}</div>
+      <div
+        class="tab-item"
+        :style="{color:index == current ? tab_activetext : tab_text,background:index == current ? tab_activebg : tab_bg}"
+        @click.stop="clickTab(index)"
+        v-for="(item,index) in colorGroup"
+        :key="index"
+      >{{item.tabs}}</div>
     </div>
-    <div class="tabs-content" v-if="current == index" v-for="(item,index) in colorGroup" :key="index">
+    <div
+      class="tabs-content"
+      v-if="current == index"
+      v-for="(item,index) in colorGroup"
+      :key="index"
+    >
       <div class="tabsimg" v-for="(citem,cindex) in item.tabContent" :key="cindex">
-        <img class="tabimg" :src="citem.tabImg" alt="">
+        <img class="tabimg" :src="citem.tabImg" alt />
+        <div class="text1">
+          <div>
+            <p class="fonts">{{citem.textFot}}</p>
+            <p class="fontz">{{citem.ribe}}</p>
+            <div style="padding:0px 2px">
+              <p class="pri" >￥{{citem.num}}</p>
+              <p class="numb">x{{citem.nom}}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -20,19 +41,23 @@ export default {
   props: ["options"],
   data() {
     return {
-      tab_bg:'#fff',
-      tab_text:'#666',
-      tab_activebg:'#fff',
-      tab_activetext:'#FF0000',
+      tab_bg: "#fff",
+      tab_text: "#666",
+      tab_activebg: "#fff",
+      tab_activetext: "#FF0000",
       newOptions: {},
-      current:0,
+      current: 0,
       colorGroup: [
         {
           tabs: "",
           tabContent: [
             {
-              tabImg:'',
-              tabLink:''
+              tabImg: "",
+              tabLink: "",
+              textFot: "",
+              ribe: "",
+              num: "￥",
+              nom: ""
             }
           ]
         }
@@ -43,7 +68,7 @@ export default {
     options() {
       let _this = this;
       _this.newOptions = _this.options;
-      console.log('选项卡模板',_this.newOptions)
+      console.log("选项卡模板", _this.newOptions);
       _this.init(_this.newOptions);
     }
   },
@@ -66,28 +91,32 @@ export default {
       }
     },
     // 点击tab
-    clickTab(index){
-      console.log(index)
-      this.current = index
+    clickTab(index) {
+      console.log(index);
+      this.current = index;
     },
     // 恢复初始
     restore() {
       let _this = this;
-      _this.tab_bg = '#fff',
-      _this.tab_text = '#666',
-      _this.tab_activebg = '#fff',
-      _this.tab_activetext = '#FF0000',
-      _this.colorGroup = [
-        {
-          tabs: "",
-          tabContent: [
-            {
-              tabImg:'',
-              tabLink:''
-            }
-          ]
-        }
-      ]
+      (_this.tab_bg = "#fff"),
+        (_this.tab_text = "#666"),
+        (_this.tab_activebg = "#fff"),
+        (_this.tab_activetext = "#FF0000"),
+        (_this.colorGroup = [
+          {
+            tabs: "",
+            tabContent: [
+              {
+                tabImg: "",
+                tabLink: "",
+                textFot: "",
+                ribe: "",
+                num: "￥",
+                nom: ""
+              }
+            ]
+          }
+        ]);
     }
   }
 };

@@ -1,5 +1,5 @@
 <style lang="less" scoped>
-@import "./tabConfig.less";
+@import "./receaddressConfig.less";
 </style>
 <template :options="options">
   <div class="d-config">
@@ -59,12 +59,6 @@
                       v-for="(citem,cindex) in item.tabContent"
                       :key="cindex"
                     >
-                      <!-- <Icon
-                        type="ios-trash img-trash"
-                        size="24"
-                        @click="deleteColor(index,cindex)"
-                        v-if="index != 0"
-                      />-->
                       <i
                         type="ios-trash img-trash"
                         size="24"
@@ -86,34 +80,6 @@
                             :disabled="editable != 'enable'"
                           >选择图片</el-button>
                         </el-input>
-
-                        <el-input
-                          v-model="citem.textFot"
-                          @on-change="changeInputs"
-                          class="itemInput"
-                          placeholder="请输入商品标题"
-                        ></el-input>
-
-                        <el-input
-                          v-model="citem.ribe"
-                          @on-change="changeInputribe"
-                          class="itemInput"
-                          placeholder="请输入商品描述"
-                        ></el-input>
-
-                        <el-input
-                          v-model="citem.num"
-                          @on-change="changeInputnum"
-                          class="itemInput"
-                          placeholder="请输入价格"
-                        ></el-input>
-                        <el-input
-                          v-model="citem.nom"
-                          @on-change="changeInputnom"
-                          class="itemInput"
-                          placeholder="请输入数量"
-                        ></el-input>
-
                         <el-input
                           v-model="citem.tabLink"
                           class="itemInput"
@@ -164,11 +130,7 @@ export default {
           tabContent: [
             {
               tabImg: "",
-              tabLink: "",
-              textFot: "",
-              ribe: "",
-              num: "",
-              nom: ""
+              tabLink: ""
             }
           ]
         }
@@ -216,11 +178,7 @@ export default {
       }
       _this.colorGroup[index].tabContent.push({
         tabImg: "",
-        tabLink: "",
-        textFot: "",
-        ribe: "",
-        num: "",
-        nom: ""
+        tabLink: ""
       });
 
       _this.changeForm();
@@ -232,23 +190,6 @@ export default {
 
     // 改变内容
     changeInput(e) {
-      console.log(e.srcElement.value);
-      this.changeForm();
-    },
-    // 改变biaoti
-    changeInputs(e) {
-      console.log(e.srcElement.value);
-      this.changeForm();
-    },
-    changeInputribe(e) {
-      console.log(e.srcElement.value);
-      this.changeForm();
-    },
-    changeInputnum(e) {
-      console.log(e.srcElement.value);
-      this.changeForm();
-    },
-    changeInputnom(e) {
       console.log(e.srcElement.value);
       this.changeForm();
     },
@@ -265,11 +206,7 @@ export default {
             tabContent: [
               {
                 tabImg: "",
-                tabLink: "",
-                textFot: "",
-                ribe: "",
-                num: "",
-                nom: ""
+                tabLink: ""
               }
             ]
           }
@@ -327,11 +264,7 @@ export default {
         tabContent: [
           {
             tabImg: "",
-            tabLink: "",
-            textFot: "",
-            ribe: "",
-            num: "",
-            nom: ""
+            tabLink: ""
           }
         ]
       });

@@ -28,6 +28,28 @@ const tools = {
           current:0,
           all:1,
           components:'bottomenu'
+        },{
+          id:4,
+          name:'我的订单',
+          icon:'icon-wodedingdan',
+          current:0,
+          all:1,
+          components:'wodedingdan'
+        },{
+          id:5,
+          name:'我的列表',
+          icon:'icon-wodedingdan',
+          current:0,
+          all:1,
+          components:'mine'
+        }
+        ,{
+          id:6,
+          name:'收货地址',
+          icon:'icon-qitaleixing',
+          current:0,
+          all:1,
+          components:'shouhuodizhi'
         }
         // {
         //   id:3,
@@ -179,6 +201,20 @@ const tools = {
         current: 0,
         all: 0,
         components: 'anniu'
+      }]
+    },{
+      'toolsName': '表单类',
+      'toolsOrder': '5',
+      'toolsId':'picture',
+      'toolsHeight': 0,
+      'toolsCollapse': 'open',
+      'toolsChildren': [{
+        id: 1,
+        name: '登录模板',
+        icon: 'icon-mofang',
+        current: 0,
+        all: 0,
+        components: 'login'
       }]
     }
   ]
