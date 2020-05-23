@@ -2,8 +2,10 @@ import Vue from 'vue'
 
 import 'normalize.css/normalize.css'// A modern alternative to CSS resets
 
-import {Card } from 'vant';
+import { Card } from 'vant';
+import { Button } from 'vant';
 Vue.use(Card);
+Vue.use(Button);
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
