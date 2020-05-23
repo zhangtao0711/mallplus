@@ -28,6 +28,13 @@ const tools = {
           current:0,
           all:1,
           components:'bottomenu'
+        },{
+          id:4,
+          name:'我的订单',
+          icon:'icon-wodedingdan',
+          current:0,
+          all:1,
+          components:'wodedingdan'
         }
         // {
         //   id:3,
