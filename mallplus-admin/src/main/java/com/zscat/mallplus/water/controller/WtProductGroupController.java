@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
 import com.zscat.mallplus.util.ConstantUtil;
+import com.zscat.mallplus.water.entity.WtEquipment;
 import com.zscat.mallplus.water.entity.WtProductGroup;
 import com.zscat.mallplus.water.service.IWtProductGroupService;
 import com.zscat.mallplus.util.EasyPoiUtils;
@@ -19,8 +20,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author lyn
@@ -88,7 +91,7 @@ public class WtProductGroupController {
     @SysLog(MODULE = "water", REMARK = "删除设备分组")
     @ApiOperation("删除设备分组")
     @GetMapping(value = "/delete/{id}")
-//    @PreAuthorize("hasAuthority('water:wtProductGroup:delete')")
+    @PreAuthorize("hasAuthority('water:wtProductGroup:delete')")
     public Object deleteWtProductGroup(@ApiParam("设备分组id") @PathVariable Long id) {
         try {
             if (ValidatorUtils.empty(id)) {
@@ -118,13 +121,16 @@ public class WtProductGroupController {
             if (ValidatorUtils.empty(id)) {
                 return new CommonResult().paramFailed("设备分组id");
             }
+            Map<String,Object> data=new HashMap<>();
             WtProductGroup coupon = IWtProductGroupService.getById(id);
-            return new CommonResult().success(coupon);
+            data.put("WtProductGroup",coupon);
+            List<WtEquipment> wtEquipmentList = IWtProductGroupService.getProduct(id,ConstantUtil.delFlag);
+            data.put("WtProductGroup",wtEquipmentList);
+            return new CommonResult().success(data);
         } catch (Exception e) {
             log.error("查询设备分组明细：%s", e.getMessage(), e);
             return new CommonResult().failed();
         }
-
     }
 
 //    @ApiOperation(value = "批量删除设备分组")
@@ -157,6 +163,40 @@ public class WtProductGroupController {
     public void importUsers(@RequestParam MultipartFile file) {
         List<WtProductGroup> personList = EasyPoiUtils.importExcel(file, WtProductGroup.class);
         IWtProductGroupService.saveBatch(personList);
+    }
+
+    @SysLog(MODULE = "water", REMARK = "清空设备分组内设备")
+    @ApiOperation("清空设备分组内设备")
+    @GetMapping(value = "/removeProduct/{id}")
+    @PreAuthorize("hasAuthority('water:wtProductGroup:delete')")
+    public Object removeProduct(@ApiParam("设备分组id") @PathVariable Long id,@ApiParam("登录者id") @PathVariable Long updateUser) {
+        try {
+            if (ValidatorUtils.empty(id)) {
+                return new CommonResult().paramFailed("请选择设备分组！");
+            }
+
+            if (IWtProductGroupService.removeProduct(id,updateUser,ConstantUtil.delFlag)) {
+                return new CommonResult().success();
+            }
+        } catch (Exception e) {
+            log.error("清空设备分组内设备：%s", e.getMessage(), e);
+            return new CommonResult().failed(e.getMessage());
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "water", REMARK = "获取未分组的设备列表")
+    @ApiOperation("获取未分组的设备列表")
+    @GetMapping(value = "/getNoProductGroup")
+    @PreAuthorize("hasAuthority('water:wtProductGroup:update')")
+    public Object getNoProductGroup() {
+        try {
+            List<WtEquipment> wtEquipmentList = IWtProductGroupService.getProduct(null,ConstantUtil.delFlag);
+            return new CommonResult().success(wtEquipmentList);
+        } catch (Exception e) {
+            log.error("查询设备分组明细：%s", e.getMessage(), e);
+            return new CommonResult().failed();
+        }
     }
 }
 

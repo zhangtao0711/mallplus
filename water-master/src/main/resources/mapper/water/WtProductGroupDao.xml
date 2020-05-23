@@ -6,9 +6,24 @@
 
     <!-- 获取分组下面是绑定的设备 -->
     <select id="getProduct" resultType="com.zscat.mallplus.water.entity.WtEquipment">
-       select * from wt_equipment
+       SELECT * FROM wt_equipment
+       WHERE del_flag =#{delFlag}
+        <if test="eqGroupId != null ">
+            AND eq_group_id=#{eqGroupId}
+       </if>
+        <if test="eqGroupId == null ">
+            AND ifnull(eq_group_id,-1)=-1
+        </if>
+    </select>
+
+    <!-- 清空分组内绑定的设备 -->
+    <update id="removeProduct" >
+       UPDATE wt_equipment
+       SET eq_group_id=''
+       ,update_time=NOW()
+       ,update_by=#{updateUser}
        WHERE eq_group_id=#{eqGroupId}
        AND del_flag =#{delFlag}
-    </select>
+    </update>
 
 </mapper>

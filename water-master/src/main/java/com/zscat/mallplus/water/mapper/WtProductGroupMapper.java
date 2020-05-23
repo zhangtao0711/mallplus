@@ -9,10 +9,14 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
-* @author lyn
-* @date 2020-05-22
-*/
+ * @author lyn
+ * @date 2020-05-22
+ */
 public interface WtProductGroupMapper extends BaseMapper<WtProductGroup> {
     //获取分组下面是绑定的设备
-    List<WtEquipment> getProduct(@Param("eqGroupId")Long id,@Param("delFlag")String delFlag);
+    List<WtEquipment> getProduct(@Param("eqGroupId") Long id, @Param("delFlag") String delFlag);
+
+    //清空分组内绑定的设备
+    boolean removeProduct(@Param("eqGroupId") Long id, @Param("updateUser") Long updateUser
+            , @Param("delFlag") String delFlag);
 }

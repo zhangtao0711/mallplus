@@ -30,4 +30,12 @@ public class WtProductGroupServiceImpl extends ServiceImpl
         }
         return false;
     }
+    //清空分组内绑定的设备
+    public boolean removeProduct(Long id,Long updateUser,String delFlag){
+       return wtProductGroupMapper.removeProduct(id,updateUser,delFlag);
+    }
+    //查询分组内绑定的设备
+    public List<WtEquipment> getProduct(Long id, String delFlag){
+        return wtProductGroupMapper.getProduct(id,delFlag);
+    }
 }
