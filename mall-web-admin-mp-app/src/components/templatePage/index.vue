@@ -74,6 +74,8 @@
 									<ListTem v-if="item.components == 'list'" :options="item.options" />
 									<BlankTem v-if="item.components == 'blank'" :options="item.options" />
 									<LineTem v-if="item.components == 'line'" :options="item.options" />
+
+									<ButtonTem v-if="item.components == 'anniu'" :options="item.options" />
 								</div>
 							</transition-group>
 						</draggable>
@@ -209,6 +211,12 @@
 				/>
 				<BlankConfig v-if="currentClick.components == 'blank'" v-on:listenToForm="changeTemplate" :options="currentClick" />
 				<LineConfig v-if="currentClick.components == 'line'" v-on:listenToForm="changeTemplate" :options="currentClick" />
+				<ButtonConfig
+					v-if="currentClick.components == 'anniu'"
+					v-on:listenToForm="changeTemplate"
+					:options="currentClick"
+					:editable="editable"
+				/>
 			</div>
 		</div>
 	</div>
@@ -250,6 +258,10 @@ import OrderTem from './components/orderTem/orderTem';
 import OrderConfig from './componentConfig/orderConfig/orderConfig';
 import BottomenuTem from './components/bottomenuTem/bottomenuTem';
 import BottomenuConfig from './componentConfig/bottomenuConfig/bottomenuConfig';
+
+import ButtonTem from './components/button/buttonTem';
+import ButtonConfig from './componentConfig/buttonConfig/buttonConfig';
+
 import ListTem from './components/listTem/listTem';
 import ListConfig from './componentConfig/listConfig/listConfig';
 import IconLists from './otherComponents/IconList/IconList';
@@ -299,6 +311,10 @@ export default {
 		OrderConfig,
 		BottomenuTem,
 		BottomenuConfig,
+
+		ButtonTem,
+		ButtonConfig,
+
 		ListTem,
 		ListConfig,
 		DefaultConfig,
