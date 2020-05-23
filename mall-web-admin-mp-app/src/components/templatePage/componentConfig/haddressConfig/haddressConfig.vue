@@ -4,41 +4,49 @@
 <template :options="options">
   <div class="d-config">
     <el-tabs value="content" class="d-tab">
-      <el-tab-pane label="导航列表设置" name="content">
+      <el-tab-pane label="收货地址设置" name="content">
         <div class="pannelcontent">
           <div class="pannelItemspe">
             <div class="pannelcontent">
               <div class="colorGroup">
                 <div class="colorItem" v-for="(item,index) in colorGroup" :key="index">
-                  <i  type="ios-trash img-trash"
+                  <!-- <i  type="ios-trash img-trash"
                       size="24"
                       @click="deleteColor(index)"
                       v-if="index != 0"
-                      style="position:absolute;top:0px;right:25px;"></i>
-                 <!-- <Icon
-                      type="ios-trash img-trash"
-                      size="24"
-                      @click="deleteColor(index)"
-                      v-if="index != 0"
-                      style="position:absolute;top:0px;right:25px;"
-                    />-->
-                  <div class="colorImg">
-                    <span v-if="item.adImg" :class="['icon iconfont colorIcon',item.adImg]" :src="item.adImg"></span>
-                    <img v-else class="colorIcon" src="../../static/img/default_onegoods.jpg" alt>
-                    <el-button class="chooseIcon" @click="showIconSelect(index)" :disabled="editable != 'enable'">选择图标</el-button>
-                  </div>
-
+                  style="position:absolute;top:0px;right:25px;"></i>-->
                   <div class="colorInput">
-                    <el-input v-model="item.adText" class="itemInput" :maxlength="10" placeholder="请输入标题"></el-input>
-                    <el-input v-model="item.adLink" class="itemInput" disabled placeholder="请选择或填写小程序路径">
+                    <div class="pannelItem">
+                      <div class="titspe">收货人</div>
+                      <el-input v-model="item.adTextshouhuo" placeholder="请输入收货人"></el-input>
+                    </div>
+                    <div class="pannelItem">
+                      <div class="titspe">手机号</div>
+                      <el-input v-model="item.adTextcell" placeholder="请输入手机号"></el-input>
+                    </div>
+                    <div class="pannelItem">
+                      <div class="titspe">详细地址</div>
+                      <el-input v-model="item.adTextdizhi" placeholder="请输入详细地址"></el-input>
+                    </div>
+                    <div class="pannelItem">
+                      <div class="titspe">按钮类型</div>
+                      <el-switch
+                        @change="changeType"
+                        v-model="item.valuea"
+                        active-color="#13ce66"
+                        inactive-color="#ff4949"
+                      ></el-switch>
+                    </div>
+
+                    <!-- <el-input v-model="item.adLink" class="itemInput" disabled placeholder="请选择或填写小程序路径">
                       <el-button slot="append" @click="showLinkSelect(index)" :disabled="editable != 'enable'">选择跳转</el-button>
-                    </el-input>
+                    </el-input>-->
                   </div>
                 </div>
 
-                <div class="colorAdd" @click="addList">
+                <!-- <div class="colorAdd" @click="addList">
                     +<span class="colortips">添加</span>
-                </div>
+                </div>-->
               </div>
             </div>
           </div>
@@ -50,16 +58,18 @@
 
 <script>
 export default {
-  props: ["options","editable"],
+  props: ["options", "editable"],
   data() {
     return {
       newOptions: {},
-      colorGroup: []
+      colorGroup: [],
+      colorGrouz: [],
+      value: true
     };
   },
   created() {
     let _this = this;
-    console.log(this.editable)
+    console.log(this.editable);
     _this.init(_this.options);
   },
   watch: {
@@ -68,11 +78,14 @@ export default {
       _this.newOptions = _this.options;
       _this.init(_this.newOptions);
     },
-    editable(){
-      console.log(this.editable)
+    editable() {
+      console.log(this.editable);
     }
   },
   methods: {
+    changeType(e) {
+      this.changeForm();
+    },
     // 初始化
     init(op) {
       let _this = this;
@@ -85,13 +98,17 @@ export default {
     },
 
     // 添加列表
-    addList(){
+    addList() {
       let _this = this;
       _this.colorGroup.push({
+        btna: "",
         adImg: "",
-        adText:"",
-        adLink: ""
-      })
+        adLink: "",
+        adTextshouhuo: "",
+        adTextdizhi: "",
+        adTextcell: "",
+        valuea:""
+      });
     },
 
     //删除图片
@@ -104,14 +121,18 @@ export default {
     // 恢复初始状态
     restore() {
       let _this = this;
-      _this.colorGroup = []
-      for(let i = 0; i < 1; i++) {
+      _this.colorGroup = [];
+      for (let i = 0; i < 1; i++) {
         let newObj = {
+          btna: "",
           adImg: "",
-          adText:"",
-          adLink: ""
-        }
-        _this.colorGroup.push(newObj)
+          adLink: "",
+          adTextshouhuo: "",
+          adTextdizhi: "",
+          adTextcell: "",
+          valuea:""
+        };
+        _this.colorGroup.push(newObj);
       }
       _this.changeForm();
     },
@@ -128,7 +149,7 @@ export default {
         };
       } else {
         changeData = {
-          colorGroup : _this.colorGroup
+          colorGroup: _this.colorGroup
         };
       }
 
