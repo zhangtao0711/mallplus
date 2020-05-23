@@ -86,21 +86,21 @@ public class SysUserStaff extends BaseEntity implements Serializable {
      * 省
      **/
     @TableField("province")
-    private String province;
+    private Long province;
 
 
     /**
      * 市
      **/
     @TableField("city")
-    private String city;
+    private Long city;
 
 
     /**
      * 县
      **/
     @TableField("county")
-    private String county;
+    private Long county;
 
 
     /**

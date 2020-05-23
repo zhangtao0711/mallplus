@@ -238,6 +238,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if (member1!=null){
             return false;
         }
+        if (umsAdmin.getPid()==0){
+            umsAdmin.setGid((long) 0);
+        }else {
+            SysUser user = adminMapper.selectById(umsAdmin.getPid());
+            umsAdmin.setGid(user.getPid());
+        }
         //将密码进行加密操作
         if (StringUtils.isEmpty(umsAdmin.getPassword())) {
             umsAdmin.setPassword("123456");

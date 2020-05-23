@@ -107,18 +107,37 @@ public class SysUser implements Serializable {
 
     @TableField("dealer_name")
     private String dealerName;
-    @TableField("dealer_brief")
-    private String dealerBrief;
+    @TableField("dealer_phone")
+    private String dealerPhone;
     @TableField("realname")
     private String realname;
     @TableField("phone")
     private String phone;
+    /**
+     * 省
+     **/
+    @TableField("province")
+    private Long province;
+
+
+    /**
+     * 市
+     **/
+    @TableField("city")
+    private Long city;
+
+
+    /**
+     * 县
+     **/
+    @TableField("county")
+    private Long county;
     @TableField("address")
     private String address;
     @TableField("type")
     private Integer type;
-    @TableField("has_hnx")
-    private Integer hasHnx;
+    @TableField("self_pick")
+    private Integer selfPick;
     @TableField("weixin_openid")
     private String weixinOpenid;
     @TableField("avatar")
