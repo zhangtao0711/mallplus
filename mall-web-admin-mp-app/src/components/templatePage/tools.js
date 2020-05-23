@@ -43,6 +43,14 @@ const tools = {
           all:1,
           components:'mine'
         }
+        ,{
+          id:6,
+          name:'收货地址',
+          icon:'icon-qitaleixing',
+          current:0,
+          all:1,
+          components:'shouhuodizhi'
+        }
         // {
         //   id:3,
         //   name:'常用图标组',

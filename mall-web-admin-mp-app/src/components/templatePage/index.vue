@@ -103,6 +103,7 @@
                   <OrderTem v-if="item.components == 'order'" :options="item.options" />
                   <BottomenuTem v-if="item.components == 'bottomenu'" :options="item.options" />
                   <ListTem v-if="item.components == 'list'" :options="item.options" />
+                  <HaddressTem v-if="item.components == 'shouhuodizhi'" :options="item.options" />
                   <BlankTem v-if="item.components == 'blank'" :options="item.options" />
                   <LineTem v-if="item.components == 'line'" :options="item.options" />
                   <ReceaddressTem v-if="item.components == 'wodedingdan'" :options="item.options" />
@@ -251,6 +252,14 @@
           :options="currentClick"
           :editable="editable"
         />
+        <HaddressConfig
+          v-if="currentClick.components == 'shouhuodizhi'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenIconSelect="openIconSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
         <BlankConfig
           v-if="currentClick.components == 'blank'"
           v-on:listenToForm="changeTemplate"
@@ -337,6 +346,8 @@ import CellConfig from "./componentConfig/cellConfig/cellConfig";
 
 import ListTem from "./components/listTem/listTem";
 import ListConfig from "./componentConfig/listConfig/listConfig";
+import HaddressTem from "./components/haddressTem/haddressTem";
+import HaddressConfig from "./componentConfig/haddressConfig/haddressConfig";
 import IconLists from "./otherComponents/IconList/IconList";
 import ImgSelect from "../imgSelect/imgselect";
 import VideoSelect from "../videoSelect/videoselect";
@@ -396,6 +407,8 @@ export default {
 
     ListTem,
     ListConfig,
+    HaddressTem,
+    HaddressConfig,
     DefaultConfig,
     AddGood,
 
