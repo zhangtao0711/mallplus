@@ -2,13 +2,14 @@ import Vue from 'vue'
 
 import 'normalize.css/normalize.css'// A modern alternative to CSS resets
 
-import { Cell, CellGroup, Button, Card, Icon, SwipeCell } from 'vant';
+import { Cell, CellGroup, Button, Card, Icon, SwipeCell, Field } from 'vant';
 Vue.use(Card);
 Vue.use(Button);
 Vue.use(Cell);
 Vue.use(CellGroup); 
 Vue.use(Icon);
 Vue.use(SwipeCell);
+Vue.use(Field);
 
 
 import ElementUI from 'element-ui'
