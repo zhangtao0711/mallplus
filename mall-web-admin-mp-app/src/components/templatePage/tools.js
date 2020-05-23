@@ -202,6 +202,20 @@ const tools = {
         all: 0,
         components: 'anniu'
       }]
+    },{
+      'toolsName': '表单类',
+      'toolsOrder': '5',
+      'toolsId':'picture',
+      'toolsHeight': 0,
+      'toolsCollapse': 'open',
+      'toolsChildren': [{
+        id: 1,
+        name: '登录模板',
+        icon: 'icon-mofang',
+        current: 0,
+        all: 0,
+        components: 'login'
+      }]
     }
   ]
 }

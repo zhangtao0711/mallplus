@@ -2,7 +2,8 @@ import Vue from 'vue'
 
 import 'normalize.css/normalize.css'// A modern alternative to CSS resets
 
-import { Cell, CellGroup, Button, Card, Icon, SwipeCell, Field } from 'vant';
+import { Cell, CellGroup, Button, Card, Icon, SwipeCell, Field, Form } from 'vant';
+Vue.use(Form);
 Vue.use(Card);
 Vue.use(Button);
 Vue.use(Cell);

@@ -109,6 +109,7 @@
                   <ReceaddressTem v-if="item.components == 'wodedingdan'" :options="item.options" />
                   <ButtonTem v-if="item.components == 'anniu'" :options="item.options" />
                   <CellTem v-if="item.components == 'mine'" :options="item.options" />
+                  <FormTem v-if="item.components == 'login'" :options="item.options" />
                 </div>
               </transition-group>
             </draggable>
@@ -343,6 +344,7 @@ import ButtonTem from "./components/button/buttonTem";
 import ButtonConfig from "./componentConfig/buttonConfig/buttonConfig";
 import CellTem from "./components/cellTem/cellTem";
 import CellConfig from "./componentConfig/cellConfig/cellConfig";
+import FormTem from "./components/formTem/formTem";
 
 import ListTem from "./components/listTem/listTem";
 import ListConfig from "./componentConfig/listConfig/listConfig";
@@ -404,6 +406,7 @@ export default {
     ButtonConfig,
     CellTem,
     CellConfig,
+    FormTem,
 
     ListTem,
     ListConfig,
