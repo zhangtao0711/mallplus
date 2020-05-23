@@ -9,6 +9,7 @@
 		<IconLists ref="IconLists" v-on:listenicon="changeIcon"></IconLists>
 		<AddGood ref="goodselect" :settings="goodSettings" v-on:listentgoodData="changeGood" :selectGoods="isSelect"></AddGood>
 		<div class="decorate-content">
+			<!-- 左侧组件区 -->
 			<div class="decorate-content-left">
 				<div class="left-item" v-for="(item, index) in collists" :key="index">
 					<div class="item-listname pointer" @click="toggleList(index, item.toolsCollapse)">
@@ -29,6 +30,7 @@
 					</div>
 				</div>
 			</div>
+			<!-- 中间编辑区 -->
 			<div class="decorate-content-center" @click="cancelClick">
 				<div class="diy-phone">
 					<div
@@ -82,6 +84,7 @@
 					<el-button class="btn" @click="back">取消</el-button>
 				</div>
 			</div>
+			<!-- 左侧功能区 -->
 			<div class="decorate-content-right">
 				<DefaultConfig
 					v-if="!currentClick.components"
