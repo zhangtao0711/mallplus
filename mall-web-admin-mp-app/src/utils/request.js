@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Message, MessageBox } from 'element-ui'
 import store from '../store'
-import { getToken,get } from '@/utils/auth'
+import { getToken, get } from '@/utils/auth'
 
 // 创建axios实例
 const service = axios.create({
@@ -13,16 +13,16 @@ const service = axios.create({
 service.interceptors.request.use(config => {
   if (store.getters.token) {
     let test = config.data;
-    if(test){
-      config.data['access_token']= getToken()
+    if (test) {
+      config.data['access_token'] = getToken()
     }
 
-    if (get('storeId') && 'undefined'!=get('storeId')){
+    if (get('storeId') && 'undefined' != get('storeId')) {
       config.headers['storeid'] = get('storeId')
     }
 
     config.headers['Authorization'] = getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
-  }else{
+  } else {
     config.headers['client_id'] = 'app';
     config.headers['client_secret'] = 'app';
   }
@@ -36,9 +36,9 @@ service.interceptors.request.use(config => {
 // respone拦截器
 service.interceptors.response.use(
   response => {
-  /**
-  * code为非200是抛错 可结合自己业务进行修改
-  */
+    /**
+    * code为非200是抛错 可结合自己业务进行修改
+    */
     const res = response.data
     if (res.code !== 200 && !res.access_token) {
       console.log(res);
@@ -49,7 +49,7 @@ service.interceptors.response.use(
       })
 
       // 401:未登录;
-      if (res.code === 401||res.code === 403) {
+      if (res.code === 401 || res.code === 403) {
         MessageBox.confirm('你已被登出，可以取消继续留在该页面，或者重新登录', '确定登出', {
           confirmButtonText: '重新登录',
           cancelButtonText: '取消',
@@ -67,11 +67,32 @@ service.interceptors.response.use(
   },
   error => {
     console.log(error);
-    Message({
-      message: error.message,
-      type: 'error',
-      duration: 3 * 1000
-    })
+
+    if (error && error.response) {
+      switch (error.response.code) {
+        case 403:
+          Message({
+            message: error.response.data,
+            type: 'error',
+            duration: 3 * 1000
+          })
+          break;
+        default:
+          Message({
+            message: '连接错误',
+            type: 'error',
+            duration: 3 * 1000
+          })
+      }
+    } else {
+      Message({
+        message: error.message,
+        type: 'error',
+        duration: 3 * 1000
+      })
+    }
+
+
     return Promise.reject(error)
   }
 )
