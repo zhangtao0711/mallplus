@@ -14,6 +14,33 @@
       :selectGoods="isSelect"
     ></AddGood>
     <div class="decorate-content">
+      <!-- 左侧组件区 -->
+      <div class="decorate-content-left">
+        <div class="left-item" v-for="(item, index) in collists" :key="index">
+          <div class="item-listname pointer" @click="toggleList(index, item.toolsCollapse)">
+            {{ item.toolsName }}
+            <!--  <Icon type="ios-arrow-down"/>-->
+            <i class="ios-arrow-down"></i>
+          </div>
+          <div
+            class="item-listcontent"
+            :style="{ height: item.toolsCollapse == 'close' ? '0px' : item.toolsHeight + 'px', padding: item.toolsCollapse == 'close' ? '0px 0px' : '36px 0px' }"
+          >
+            <div
+              class="listitem pointer"
+              v-for="(childItem, childIndex) in item.toolsChildren"
+              :key="childIndex"
+              @click="addGoodsItem(childItem)"
+            >
+              <IconSvg :svgid="childItem.icon"></IconSvg>
+              <span>{{ childItem.name }}</span>
+              <p v-if="childItem.all > 0">{{ childItem.current }}/{{ childItem.all }}</p>
+              <p v-else>{{ childItem.current }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 中间编辑区 -->
       <div class="decorate-content-center" @click="cancelClick">
         <div class="diy-phone">
           <div
@@ -22,7 +49,35 @@
           >
             <draggable v-model="currentTemplate" v-bind="dragOptions">
               <transition-group type="transition">
-                <div :hovera="item.hover" v-for="(item, index) in currentTemplate" :key="index">
+                <div
+                  :hovera="item.hover"
+                  :class="[item.hover ? 'drag-active' : '', item.click ? 'drag-active' : '', 'bodyitem']"
+                  v-for="(item, index) in currentTemplate"
+                  :key="index"
+                  @mouseout="hoverItem(item, index, 'out')"
+                  @click.stop="clickItem(item, index)"
+                >
+                  <div
+                    :class="[item.click ? 'body-delete-show' : item.hover ? 'body-delete-show' : 'body-delete']"
+                    @click.stop="showConfrimModel()"
+                  >
+                    <div class="icon-deletespe">×</div>
+                  </div>
+                  <div
+                    :class="[item.click ? (showConfrim ? 'confirmDelShow' : 'confirmDelHide') : 'confirmDelHide']"
+                    style="top: 10px; right: 10px;"
+                  >
+                    <div class="confirmword">确定删除吗</div>
+                    <div class="btn-group">
+                      <el-button
+                        type="primary"
+                        ghost
+                        size="small"
+                        @click.stop="confrimDelete(item, index)"
+                      >确定</el-button>
+                      <el-button type="default" ghost size="small" @click.stop="confrimCancel()">取消</el-button>
+                    </div>
+                  </div>
                   <DanLieShangPin
                     v-if="item.components == 'danlieshangpin'"
                     :options="item.options"
@@ -48,17 +103,208 @@
                   <OrderTem v-if="item.components == 'order'" :options="item.options" />
                   <BottomenuTem v-if="item.components == 'bottomenu'" :options="item.options" />
                   <ListTem v-if="item.components == 'list'" :options="item.options" />
+                  <HaddressTem v-if="item.components == 'shouhuodizhi'" :options="item.options" />
                   <BlankTem v-if="item.components == 'blank'" :options="item.options" />
                   <LineTem v-if="item.components == 'line'" :options="item.options" />
+                  <ReceaddressTem v-if="item.components == 'wodedingdan'" :options="item.options" />
+                  <HelpcenterTem
+                    v-if="item.components == 'bangzhuzhongxin'"
+                    :options="item.options"
+                  />
+                  <ButtonTem v-if="item.components == 'anniu'" :options="item.options" />
+                  <CellTem v-if="item.components == 'mine'" :options="item.options" />
+                  <FormTem v-if="item.components == 'login'" :options="item.options" />
                 </div>
               </transition-group>
             </draggable>
           </div>
         </div>
-        <!-- <div class="saveAction">
-					<el-button class="btn comfrimBtn" type="primary" :loading="loading" @click="saveTemplate1">保存</el-button>
-					<el-button class="btn" @click="back">取消</el-button>
-        </div>-->
+        <div class="saveAction">
+          <el-button
+            class="btn comfrimBtn"
+            type="primary"
+            :loading="loading"
+            @click="saveTemplate1"
+          >保存</el-button>
+          <el-button class="btn" @click="back">取消</el-button>
+        </div>
+      </div>
+      <!-- 左侧功能区 -->
+      <div class="decorate-content-right">
+        <DefaultConfig
+          v-if="!currentClick.components"
+          v-on:listenToOption="changeOptions"
+          :options="basicOption"
+          v-on:listenToOpenImgSelect="openImgSelect"
+          :editable="editable"
+        ></DefaultConfig>
+        <DanConfig
+          v-if="currentClick.components == 'danlieshangpin'"
+          v-on:deleteGoodSelect="deleteGood"
+          v-on:listenToOpenGoodSelect="openGoodSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <ShuangConfig
+          v-if="currentClick.components == 'shuanglieshangpin'"
+          v-on:deleteGoodSelect="deleteGood"
+          v-on:listenToOpenGoodSelect="openGoodSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <MofangConfig
+          v-if="currentClick.components == 'mofang'"
+          v-on:listenToOpenImgSelect="openImgSelect"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <BannerConfig
+          v-if="currentClick.components == 'banner'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenImgSelect="openImgSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <ShopInfoConfig
+          v-if="currentClick.components == 'shangpinxiangqing'"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <ImgConfig
+          v-if="currentClick.components == 'imgGroup'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenImgSelect="openImgSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <DoubleImgConfig
+          v-if="currentClick.components == 'doubleimgGroup'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenImgSelect="openImgSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <TabConfig
+          v-if="currentClick.components == 'xuanxiangqia'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenImgSelect="openImgSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <!-- <OtherConfig
+					v-if="currentClick.components == 'qitaleixing'"
+					v-on:listenToOpenLinkSelect="openLinkSelect"
+					v-on:listenToOpenImgSelect="openImgSelect"
+					v-on:listenToForm="changeTemplate"
+					:options="currentClick"
+					:editable="editable"
+        />-->
+        <SearchConfig
+          v-if="currentClick.components == 'search'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenImgSelect="openImgSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <VideoConfig
+          v-if="currentClick.components == 'video'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenImgSelect="openImgSelect"
+          v-on:listenToOpenVideoSelect="openVideoSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <MemberConfig
+          v-if="currentClick.components == 'member'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenImgSelect="openImgSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <OrderConfig
+          v-if="currentClick.components == 'order'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenIconSelect="openIconSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <BottomenuConfig
+          v-if="currentClick.components == 'bottomenu'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenIconSelect="openIconSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <ListConfig
+          v-if="currentClick.components == 'list'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenIconSelect="openIconSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <HaddressConfig
+          v-if="currentClick.components == 'shouhuodizhi'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenIconSelect="openIconSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <BlankConfig
+          v-if="currentClick.components == 'blank'"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+        />
+        <LineConfig
+          v-if="currentClick.components == 'line'"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+        />
+        <ButtonConfig
+          v-if="currentClick.components == 'anniu'"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <CellConfig
+          v-if="currentClick.components == 'mine'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenIconSelect="openIconSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <ReceaddressConfig
+          v-if="currentClick.components == 'wodedingdan'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenIconSelect="openIconSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
+        <HelpcenterConfig
+          v-if="currentClick.components == 'bangzhuzhongxin'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenIconSelect="openIconSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
       </div>
     </div>
   </div>
@@ -105,14 +351,29 @@ import OrderTem from "./components/orderTem/orderTem";
 import OrderConfig from "./componentConfig/orderConfig/orderConfig";
 import BottomenuTem from "./components/bottomenuTem/bottomenuTem";
 import BottomenuConfig from "./componentConfig/bottomenuConfig/bottomenuConfig";
+
+import ButtonTem from "./components/button/buttonTem";
+import ButtonConfig from "./componentConfig/buttonConfig/buttonConfig";
+import CellTem from "./components/cellTem/cellTem";
+import CellConfig from "./componentConfig/cellConfig/cellConfig";
+import FormTem from "./components/formTem/formTem";
+
 import ListTem from "./components/listTem/listTem";
 import ListConfig from "./componentConfig/listConfig/listConfig";
+import HaddressTem from "./components/haddressTem/haddressTem";
+import HaddressConfig from "./componentConfig/haddressConfig/haddressConfig";
 import IconLists from "./otherComponents/IconList/IconList";
 import ImgSelect from "../imgSelect/imgselect";
 import VideoSelect from "../videoSelect/videoselect";
 import UrlButton from "../urlbutton/urlbutton";
 import AddGood from "../addGood/addGood";
 import draggable from "vuedraggable";
+
+import ReceaddressTem from "./components/receaddressTem/receaddressTem";
+import ReceaddressConfig from "./componentConfig/receaddressConfig/receaddressConfig";
+import HelpcenterTem from "./components/helpcenterTem/helpcenterTem";
+import HelpcenterConfig from "./componentConfig/helpcenterConfig/helpcenterConfig";
+
 export default {
   name: "templatePage",
   components: {
@@ -154,10 +415,24 @@ export default {
     OrderConfig,
     BottomenuTem,
     BottomenuConfig,
+
+    ButtonTem,
+    ButtonConfig,
+    CellTem,
+    CellConfig,
+    FormTem,
+
     ListTem,
     ListConfig,
+    HaddressTem,
+    HaddressConfig,
     DefaultConfig,
-    AddGood
+    AddGood,
+
+    ReceaddressTem,
+    ReceaddressConfig,
+    HelpcenterTem,
+    HelpcenterConfig
   },
   computed: {
     dragOptions() {

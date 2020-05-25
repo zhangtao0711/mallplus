@@ -1,33 +1,17 @@
 <style lang="less" scoped>
-@import "./orderTem.less";
+@import "./helpcenterTem.less";
 </style>
-
-<template>
-  <div class="order diyitem">
-    <div class="order-title">我的订单</div>
-    <div class="order-group" :style="{background:order_bg}">
-      <div class="order-item" v-for="(item,index) in colorGroup" :key="index">
-        <div class="iconImg">
-          <div class="badge" :style="{background:order_badgecolor,color:order_textcolor}">1</div>
-          <span :class="['icon iconfont',item.adImg]" :style="{color:order_iconcolor,fontSize:'20px'}"></span>
-        </div>
-        <div class="iconText" :style="{color:order_textcolor}">{{item.adText}}</div>
-      </div>
-    </div>
-    
-  </div>
-</template>
 
 <script>
 export default {
   props: ["options"],
   data() {
     return {
-      order_num: "5",
+      order_num: "4",
       order_bg: "#fff",
-      order_iconcolor: "#000",
-      order_textcolor: "#000",
-      order_badgecolor: "red",
+      order_iconcolor: "#fff",
+      order_textcolor: "#fff",
+      order_badgecolor: "#fff",
       newOptions: {},
       colorGroup: []
     };
@@ -61,11 +45,11 @@ export default {
     // 恢复初始
     restore() {
       let _this = this;
-      _this.order_num = "5"
+      _this.order_num = "4"
       _this.order_bg = "#fff"
-      _this.order_iconcolor = "#000"
-      _this.order_textcolor = "#000"
-      _this.order_badgecolor = "red"
+      _this.order_iconcolor = "#fff"
+      _this.order_textcolor = "#fff"
+      _this.order_badgecolor = "#fff"
       _this.colorGroup = []
       for(let i = 0; i < _this.order_num; i++) {
         let newObj = {
