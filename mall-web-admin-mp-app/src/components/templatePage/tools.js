@@ -51,7 +51,7 @@ const tools = {
           components: 'shouhuodizhi'
         }, {
           id: 7,
-          name: '帮助中心',
+          name: '步骤条',
           icon: 'icon-danlieshangpin',
           current: 0,
           all: 1,

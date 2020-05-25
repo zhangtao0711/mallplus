@@ -1,17 +1,20 @@
 <style lang="less" scoped>
 @import "./helpcenterTem.less";
 </style>
+<template>
+  <div>
+    <el-steps simple>
+      <el-step v-for="(item,index) in colorGroup" :key="index" :title="item.adText" :to="item.adLink" is-link></el-step>
+    </el-steps>
+  </div>
+</template>
 
 <script>
 export default {
   props: ["options"],
   data() {
     return {
-      order_num: "4",
-      order_bg: "#fff",
-      order_iconcolor: "#fff",
-      order_textcolor: "#fff",
-      order_badgecolor: "#fff",
+      order_num: "1",
       newOptions: {},
       colorGroup: []
     };
@@ -35,29 +38,21 @@ export default {
         _this.restore();
       } else {
         _this.order_num = options.order_num;
-        _this.order_bg = options.order_bg;
-        _this.order_iconcolor = options.order_iconcolor;
-        _this.order_textcolor = options.order_textcolor;
-        _this.order_badgecolor = options.order_badgecolor;
         _this.colorGroup = options.colorGroup;
       }
     },
     // 恢复初始
     restore() {
       let _this = this;
-      _this.order_num = "4"
-      _this.order_bg = "#fff"
-      _this.order_iconcolor = "#fff"
-      _this.order_textcolor = "#fff"
-      _this.order_badgecolor = "#fff"
-      _this.colorGroup = []
-      for(let i = 0; i < _this.order_num; i++) {
+      _this.order_num = "1";
+      _this.colorGroup = [];
+      for (let i = 0; i < _this.order_num; i++) {
         let newObj = {
           adImg: "",
-          adText:"",
+          adText: "小程序",
           adLink: ""
-        }
-        _this.colorGroup.push(newObj)
+        };
+        _this.colorGroup.push(newObj);
       }
     },
     // 更换banner
