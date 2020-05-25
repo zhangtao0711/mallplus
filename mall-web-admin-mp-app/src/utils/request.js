@@ -1,3 +1,4 @@
+// import router from '@/router'
 import axios from 'axios'
 import { Message, MessageBox } from 'element-ui'
 import store from '../store'
@@ -66,15 +67,16 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log(error);
-
     if (error && error.response) {
-      switch (error.response.code) {
-        case 403:
-          Message({
-            message: error.response.data,
-            type: 'error',
-            duration: 3 * 1000
+      switch (error.response.data.code) {
+        case 506:
+          MessageBox.alert(error.response.data.msg, '确定登出', {
+            confirmButtonText: '重新登录',
+            type: 'warning'
+          }).then(() => {
+            store.dispatch('FedLogOut').then(() => {
+              location.reload()
+            })
           })
           break;
         default:
@@ -91,8 +93,6 @@ service.interceptors.response.use(
         duration: 3 * 1000
       })
     }
-
-
     return Promise.reject(error)
   }
 )
