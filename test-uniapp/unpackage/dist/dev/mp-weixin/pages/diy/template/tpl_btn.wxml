@@ -1,0 +1,1 @@
+<view style="text-align:center;"><view style="{{'margin-top:'+(udPadding+'px')+';'+('margin-bottom:'+(udPadding+'px')+';')+('margin-left:'+(lrPadding+'px')+';')+('margin-right:'+(lrPadding+'px')+';')}}"><u-button vue-id="3ab2617a-1" type="{{type}}" size="{{size}}" bind:__l="__l" vue-slots="{{['default']}}">{{btnName}}</u-button></view></view>

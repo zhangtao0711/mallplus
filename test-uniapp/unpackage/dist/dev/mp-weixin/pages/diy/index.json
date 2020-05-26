@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+    "tpl": "/pages/diy/template/tel"
+  }
+}
