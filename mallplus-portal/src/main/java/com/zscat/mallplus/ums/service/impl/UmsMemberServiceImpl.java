@@ -333,6 +333,9 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
      */
     @Override
     public void addIntegration(Long id, Integer integration, int changeType, String note, int sourceType, String operateMan) {
+        //todo 这里是每个经销商都不一样，看那个经销商的小程序
+//        UmsIntegrationConsumeSetting consumeSetting = new UmsIntegrationConsumeSetting();
+//        consumeSetting.setDealerId();
         UmsIntegrationConsumeSetting setting = integrationConsumeSettingMapper.selectOne(new QueryWrapper<>());
         if (setting == null) {
             return;
@@ -341,14 +344,18 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
         history.setMemberId(id);
         if (sourceType == AllEnum.ChangeSource.register.code()) {
             history.setChangeCount(setting.getRegister());
+            integration = setting.getRegister();
         } else if (sourceType == AllEnum.ChangeSource.login.code()) {
             history.setChangeCount(setting.getLogin());
+            integration = setting.getLogin();
         }
         if (sourceType == AllEnum.ChangeSource.order.code()) {
             history.setChangeCount(setting.getOrders() * integration);
+            integration = setting.getOrders() * integration;
         }
         if (sourceType == AllEnum.ChangeSource.sign.code()) {
             history.setChangeCount(setting.getSign());
+            integration = setting.getSign();
         }
 
         history.setCreateTime(new Date());
@@ -365,6 +372,8 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
             if (member != null && ValidatorUtils.empty(member.getIntegration())) {
                 member.setIntegration(0);
             }
+            //1.首先比较添加的积分是否比经销商的多，多的话，积分为冻结状态
+            //2.扣除经销商积分，更新数据
             member.setIntegration(member.getIntegration() + integration);
             memberMapper.updateById(member);
             redisService.set(String.format(Rediskey.MEMBER, member.getUsername()), JsonUtils.objectToJson(member));

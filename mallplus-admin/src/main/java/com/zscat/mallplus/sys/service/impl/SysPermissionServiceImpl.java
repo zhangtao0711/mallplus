@@ -4,13 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.zscat.mallplus.bo.Tree;
-import com.zscat.mallplus.sys.entity.SysPermission;
-import com.zscat.mallplus.sys.entity.SysPermissionNode;
-import com.zscat.mallplus.sys.entity.SysRolePermission;
-import com.zscat.mallplus.sys.entity.SysUser;
+import com.zscat.mallplus.sys.entity.*;
 import com.zscat.mallplus.sys.mapper.SysPermissionMapper;
 import com.zscat.mallplus.sys.mapper.SysRoleMapper;
 import com.zscat.mallplus.sys.mapper.SysRolePermissionMapper;
+import com.zscat.mallplus.sys.mapper.SysUserPermissionMapper;
 import com.zscat.mallplus.sys.service.ISysPermissionService;
 import com.zscat.mallplus.sys.service.ISysUserService;
 import com.zscat.mallplus.ums.service.RedisService;
@@ -48,6 +46,8 @@ public class SysPermissionServiceImpl extends ServiceImpl<SysPermissionMapper, S
     private RedisService redisService;
     @Resource
     private SysRolePermissionMapper rolePermissionMapper;
+    @Resource
+    private SysUserPermissionMapper userPermissionMapper;
 
     @Override
     public List<SysRolePermission> leftMenu(Long userId) {
@@ -82,6 +82,20 @@ public class SysPermissionServiceImpl extends ServiceImpl<SysPermissionMapper, S
     @Override
     public Set<String> selectMenuPermsByUserId(Long userId) {
         List<String> perms = permissionMapper.selectMenuPermsByUserId(userId);
+        //获取user_permission的数据list,这是过期的，过期的权限去掉
+        List<SysUserPermission> list = userPermissionMapper.selectPerms(userId);
+        for (SysUserPermission permission:list){
+            userPermissionMapper.deleteById(permission);
+            SysPermission sysPermission = new SysPermission();
+            sysPermission.setPid(permission.getId());
+            List<SysPermission> list1 = permissionMapper.selectList(new QueryWrapper<>(sysPermission));
+            for (SysPermission permission1:list1){
+                userPermissionMapper.deleteById(permission1);
+            }
+        }
+        //没过期的添加上
+        List<String> per = userPermissionMapper.selectMenuPerms(userId);
+        perms.addAll(per);
         Set<String> permsSet = new HashSet<>();
         for (String perm : perms) {
             if (StringUtils.isNotEmpty(perm)) {

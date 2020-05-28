@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -70,6 +71,9 @@ public class UmsIntegrationConsumeSetting extends BaseEntity implements Serializ
      * 下单 送积分比例
      */
     private Integer orders;
+
+    private BigDecimal waterFee;
+    private Long dealerId;
 
 
 }

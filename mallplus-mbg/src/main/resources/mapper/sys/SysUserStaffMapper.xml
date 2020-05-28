@@ -32,12 +32,12 @@
          phone as "phone",
          device_group_id as "deviceGroupId",
          staff_name as "realname",
-        create_time,
-        login_time,
-        status,
-        supply_id,
-        store_id,
-        store_name
+        create_time as "createTime",
+        login_time as "loginTime",
+        status as "status",
+        supply_id as "supplyId",
+        store_id as "storeId",
+        store_name as "storeName"
         from sys_user_staff
         where username = #{username}
     </select>

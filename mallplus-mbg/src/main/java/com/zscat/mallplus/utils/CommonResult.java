@@ -17,6 +17,8 @@ public class CommonResult {
     public static final int UNAUTHORIZED = 401;
     //未授权
     public static final int FORBIDDEN = 403;
+    //被踢
+    public static final int FORCE = 506;
     private int code;
     private String msg;
     private Object data;
@@ -119,6 +121,18 @@ public class CommonResult {
     public CommonResult forbidden(String msg) {
         this.code = FORBIDDEN;
         this.msg = "没有相关权限";
+        this.data = msg;
+        return this;
+    }
+
+    /**
+     * 未授权时使用
+     *
+     *  错误信息
+     */
+    public CommonResult force() {
+        this.code = FORCE;
+        this.msg = "您已在另一台设备登录，请重新登录!";
         this.data = msg;
         return this;
     }

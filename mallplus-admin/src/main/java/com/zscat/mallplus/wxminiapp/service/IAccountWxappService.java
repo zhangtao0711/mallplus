@@ -1,6 +1,6 @@
 package com.zscat.mallplus.wxminiapp.service;
 
-import com.zscat.mallplus.wxminiapp.entity.ImsAccountWxapp;
+import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -8,6 +8,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 * @date 2020-05-23
 */
 
-public interface IImsAccountWxappService extends IService<ImsAccountWxapp> {
+public interface IAccountWxappService extends IService<AccountWxapp> {
 
 }

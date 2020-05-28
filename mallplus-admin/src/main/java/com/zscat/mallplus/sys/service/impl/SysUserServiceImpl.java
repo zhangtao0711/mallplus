@@ -100,6 +100,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private SmsService smsService;
     @Resource
     private MallplusProperties mallplusProperties;
+    @Resource
+    private SysUserPermissionMapper userPermissionMapper;
 
     @Value("${aliyun.sms.expire-minute:1}")
     private Integer expireMinute;
@@ -283,6 +285,20 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public List<SysPermission> listUserPerms(Long id) {
         if (!redisService.exists(String.format(Rediskey.menuList, id))) {
             List<SysPermission> list = permissionMapper.listUserPerms(id);
+            //获取user_permission的数据list,这是过期的，过期的权限去掉
+            List<SysUserPermission> list1 = userPermissionMapper.selectPerms(id);
+            for (SysUserPermission permission:list1){
+                userPermissionMapper.deleteById(permission);
+                SysPermission sysPermission = new SysPermission();
+                sysPermission.setPid(permission.getId());
+                List<SysPermission> list2 = permissionMapper.selectList(new QueryWrapper<>(sysPermission));
+                for (SysPermission permission1:list2){
+                    userPermissionMapper.deleteById(permission1);
+                }
+            }
+            //没过期的添加上
+            List<SysPermission> permissionList = userPermissionMapper.listPerms(id);
+            list.addAll(permissionList);
             String key = String.format(Rediskey.menuList, id);
             redisService.set(key, JsonUtil.objectToJson(list));
             return list;

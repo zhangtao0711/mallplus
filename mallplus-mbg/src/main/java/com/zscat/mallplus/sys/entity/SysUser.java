@@ -11,6 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -153,5 +154,17 @@ public class SysUser implements Serializable {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm")
     @ApiModelProperty(value = "创建日期")
     private Date applyTime;
+
+    /**
+     * 余额
+     */
+    @TableField("balance")
+    private BigDecimal balance;
+
+    /**
+     * 积分
+     */
+    @TableField("integration")
+    private Integer integration;
 
 }

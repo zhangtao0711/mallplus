@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zscat.mallplus.wxminiapp.mapper.ImsAccountWxappMapper">
+<mapper namespace="com.zscat.mallplus.wxminiapp.mapper.AccountWxappMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.zscat.mallplus.wxminiapp.entity.ImsAccountWxapp">
+    <resultMap id="BaseResultMap" type="com.zscat.mallplus.wxminiapp.entity.AccountWxapp">
         <id column="acid" property="acid"/>
         <result column="uniacid" property="uniacid"/>
         <result column="token" property="token"/>
@@ -20,10 +20,12 @@
         <result column="create_time" property="createTime"/>
         <result column="store_id" property="storeId"/>
         <result column="store_name" property="storeName"/>
+        <result column="logo" property="logo"/>
+        <result column="qr_code" property="qrCode"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        acid,uniacid,token,encodingaeskey,level,account,original,key,secret,name,appdomain,auth_refresh_token,create_by,create_time,store_id,store_name
+        acid,uniacid,token,encodingaeskey,level,account,original,key,secret,name,appdomain,auth_refresh_token,create_by,create_time,store_id,store_name,logo,qr_code
     </sql>
 </mapper>

@@ -4,8 +4,8 @@ package com.zscat.mallplus.weixinmp.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
-import com.zscat.mallplus.weixinmp.entity.ImsAccountWechats;
-import com.zscat.mallplus.weixinmp.service.IImsAccountWechatsService;
+import com.zscat.mallplus.weixinmp.entity.AccountWechats;
+import com.zscat.mallplus.weixinmp.service.IAccountWechatsService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
@@ -28,22 +28,22 @@ import java.util.Date;
  */
 @Slf4j
 @RestController
-@RequestMapping("/weixin/imsAccountWechats")
-public class ImsAccountWechatsController {
+@RequestMapping("/weixin/accountWechats")
+public class AccountWechatsController {
 
     @Resource
-    private IImsAccountWechatsService IImsAccountWechatsService;
+    private IAccountWechatsService IAccountWechatsService;
 
     @SysLog(MODULE = "weixin", REMARK = "根据条件查询所有微信公众号列表")
     @ApiOperation("根据条件查询所有微信公众号列表")
     @GetMapping(value = "/list")
     @PreAuthorize("hasAuthority('weixin:imsAccountWechats:read')")
-    public Object getImsAccountWechatsByPage(ImsAccountWechats entity,
+    public Object getImsAccountWechatsByPage(AccountWechats entity,
                                              @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                                              @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         try {
-            return new CommonResult().success(IImsAccountWechatsService.page(new Page<ImsAccountWechats>(pageNum, pageSize), new QueryWrapper<>(entity)));
+            return new CommonResult().success(IAccountWechatsService.page(new Page<AccountWechats>(pageNum, pageSize), new QueryWrapper<>(entity)));
         } catch (Exception e) {
             log.error("根据条件查询所有微信公众号列表：%s", e.getMessage(), e);
         }
@@ -54,12 +54,18 @@ public class ImsAccountWechatsController {
     @ApiOperation("保存微信公众号")
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('weixin:imsAccountWechats:create')")
-    public Object saveImsAccountWechats(@RequestBody ImsAccountWechats entity) {
-//        WxPayApi.entrustWeb()
+    public Object saveImsAccountWechats(@RequestBody AccountWechats entity) {
+        //经销商和公众号直接是一对一关系
+        AccountWechats accountWechats = new AccountWechats();
+        accountWechats.setCreateBy(entity.getCreateBy());
+        AccountWechats wechats = IAccountWechatsService.getOne(new QueryWrapper<>(accountWechats));
+        if (wechats != null){
+            return new CommonResult().failed("该经销商已经关联过公众号，请勿重复关联！");
+        }
         try {
             entity.setCreateTime(new Date());
 
-            if (IImsAccountWechatsService.save(entity)) {
+            if (IAccountWechatsService.save(entity)) {
                 return new CommonResult().success();
             }
         } catch (Exception e) {
@@ -73,9 +79,9 @@ public class ImsAccountWechatsController {
     @ApiOperation("更新微信公众号")
     @PostMapping(value = "/update/{id}")
     @PreAuthorize("hasAuthority('weixin:imsAccountWechats:update')")
-    public Object updateImsAccountWechats(@RequestBody ImsAccountWechats entity) {
+    public Object updateImsAccountWechats(@RequestBody AccountWechats entity) {
         try {
-            if (IImsAccountWechatsService.updateById(entity)) {
+            if (IAccountWechatsService.updateById(entity)) {
                 return new CommonResult().success();
             }
         } catch (Exception e) {
@@ -94,7 +100,7 @@ public class ImsAccountWechatsController {
             if (ValidatorUtils.empty(id)) {
                 return new CommonResult().paramFailed("微信公众号id");
             }
-            if (IImsAccountWechatsService.removeById(id)) {
+            if (IAccountWechatsService.removeById(id)) {
                 return new CommonResult().success();
             }
         } catch (Exception e) {
@@ -113,7 +119,9 @@ public class ImsAccountWechatsController {
             if (ValidatorUtils.empty(id)) {
                 return new CommonResult().paramFailed("微信公众号id");
             }
-            ImsAccountWechats coupon = IImsAccountWechatsService.getById(id);
+            AccountWechats wechats = new AccountWechats();
+            wechats.setCreateBy(id);
+            AccountWechats coupon = IAccountWechatsService.getOne(new QueryWrapper<>(wechats));
             return new CommonResult().success(coupon);
         } catch (Exception e) {
             log.error("查询微信公众号明细：%s", e.getMessage(), e);
@@ -128,7 +136,7 @@ public class ImsAccountWechatsController {
     @PreAuthorize("hasAuthority('weixin:imsAccountWechats:delete')")
     public Object deleteBatch(@RequestParam("ids") List
             <Long> ids) {
-        boolean count = IImsAccountWechatsService.removeByIds(ids);
+        boolean count = IAccountWechatsService.removeByIds(ids);
         if (count) {
             return new CommonResult().success(count);
         } else {
@@ -139,19 +147,19 @@ public class ImsAccountWechatsController {
 
     @SysLog(MODULE = "weixin", REMARK = "导出社区数据")
     @GetMapping("/exportExcel")
-    public void export(HttpServletResponse response, ImsAccountWechats entity) {
+    public void export(HttpServletResponse response, AccountWechats entity) {
         // 模拟从数据库获取需要导出的数据
-        List<ImsAccountWechats> personList = IImsAccountWechatsService.list(new QueryWrapper<>(entity));
+        List<AccountWechats> personList = IAccountWechatsService.list(new QueryWrapper<>(entity));
         // 导出操作
-        EasyPoiUtils.exportExcel(personList, "导出社区数据", "社区数据", ImsAccountWechats.class, "导出社区数据.xls", response);
+        EasyPoiUtils.exportExcel(personList, "导出社区数据", "社区数据", AccountWechats.class, "导出社区数据.xls", response);
 
     }
 
     @SysLog(MODULE = "weixin", REMARK = "导入社区数据")
     @PostMapping("/importExcel")
     public void importUsers(@RequestParam MultipartFile file) {
-        List<ImsAccountWechats> personList = EasyPoiUtils.importExcel(file, ImsAccountWechats.class);
-        IImsAccountWechatsService.saveBatch(personList);
+        List<AccountWechats> personList = EasyPoiUtils.importExcel(file, AccountWechats.class);
+        IAccountWechatsService.saveBatch(personList);
     }
 }
 

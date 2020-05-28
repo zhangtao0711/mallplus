@@ -31,6 +31,19 @@ public class MerchatFacilitatorConfig implements Serializable {
     @NotEmpty(message = "用于证书解密的密钥不能为空！")
     private String apiv3key;
 
+    /**
+     * 用于支付的appid
+     **/
+    @TableField("appid")
+    @NotEmpty(message = "用于支付的appid不能为空！")
+    private String appid;
+
+    /**
+     * 用于支付的秘钥
+     **/
+    @TableField("key")
+    @NotEmpty(message = "用于支付的秘钥不能为空！")
+    private String key;
 
     /**
      * 商户号

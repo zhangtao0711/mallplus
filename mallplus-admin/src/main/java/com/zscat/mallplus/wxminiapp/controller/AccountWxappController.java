@@ -4,8 +4,8 @@ package com.zscat.mallplus.wxminiapp.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
-import com.zscat.mallplus.wxminiapp.entity.ImsAccountWxapp;
-import com.zscat.mallplus.wxminiapp.service.IImsAccountWxappService;
+import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
+import com.zscat.mallplus.wxminiapp.service.IAccountWxappService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
@@ -28,22 +28,22 @@ import java.util.Date;
  */
 @Slf4j
 @RestController
-@RequestMapping("/wxminiapp/imsAccountWxapp")
-public class ImsAccountWxappController {
+@RequestMapping("/wxminiapp/accountWxapp")
+public class AccountWxappController {
 
     @Resource
-    private IImsAccountWxappService IImsAccountWxappService;
+    private IAccountWxappService IAccountWxappService;
 
     @SysLog(MODULE = "wxminiapp", REMARK = "根据条件查询所有小程序列表")
     @ApiOperation("根据条件查询所有小程序列表")
     @GetMapping(value = "/list")
     @PreAuthorize("hasAuthority('wxminiapp:imsAccountWxapp:read')")
-    public Object getImsAccountWxappByPage(ImsAccountWxapp entity,
+    public Object getImsAccountWxappByPage(AccountWxapp entity,
                                            @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                                            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         try {
-            return new CommonResult().success(IImsAccountWxappService.page(new Page<ImsAccountWxapp>(pageNum, pageSize), new QueryWrapper<>(entity)));
+            return new CommonResult().success(IAccountWxappService.page(new Page<AccountWxapp>(pageNum, pageSize), new QueryWrapper<>(entity)));
         } catch (Exception e) {
             log.error("根据条件查询所有小程序列表：%s", e.getMessage(), e);
         }
@@ -54,10 +54,16 @@ public class ImsAccountWxappController {
     @ApiOperation("保存小程序")
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('wxminiapp:imsAccountWxapp:create')")
-    public Object saveImsAccountWxapp(@RequestBody ImsAccountWxapp entity) {
+    public Object saveImsAccountWxapp(@RequestBody AccountWxapp entity) {
+        AccountWxapp accountWxapp = new AccountWxapp();
+        accountWxapp.setCreateBy(entity.getCreateBy());
+        AccountWxapp wxapp = IAccountWxappService.getOne(new QueryWrapper<>(accountWxapp));
+        if (wxapp!=null){
+            return new CommonResult().failed("该经销商已经关联过小程序，请勿重复关联！");
+        }
         try {
             entity.setCreateTime(new Date());
-            if (IImsAccountWxappService.save(entity)) {
+            if (IAccountWxappService.save(entity)) {
                 return new CommonResult().success();
             }
         } catch (Exception e) {
@@ -71,9 +77,9 @@ public class ImsAccountWxappController {
     @ApiOperation("更新小程序")
     @PostMapping(value = "/update/{id}")
     @PreAuthorize("hasAuthority('wxminiapp:imsAccountWxapp:update')")
-    public Object updateImsAccountWxapp(@RequestBody ImsAccountWxapp entity) {
+    public Object updateImsAccountWxapp(@RequestBody AccountWxapp entity) {
         try {
-            if (IImsAccountWxappService.updateById(entity)) {
+            if (IAccountWxappService.updateById(entity)) {
                 return new CommonResult().success();
             }
         } catch (Exception e) {
@@ -92,7 +98,7 @@ public class ImsAccountWxappController {
             if (ValidatorUtils.empty(id)) {
                 return new CommonResult().paramFailed("小程序id");
             }
-            if (IImsAccountWxappService.removeById(id)) {
+            if (IAccountWxappService.removeById(id)) {
                 return new CommonResult().success();
             }
         } catch (Exception e) {
@@ -111,7 +117,9 @@ public class ImsAccountWxappController {
             if (ValidatorUtils.empty(id)) {
                 return new CommonResult().paramFailed("小程序id");
             }
-            ImsAccountWxapp coupon = IImsAccountWxappService.getById(id);
+            AccountWxapp wxapp = new AccountWxapp();
+            wxapp.setCreateBy(id);
+            AccountWxapp coupon = IAccountWxappService.getOne(new QueryWrapper<>(wxapp));
             return new CommonResult().success(coupon);
         } catch (Exception e) {
             log.error("查询小程序明细：%s", e.getMessage(), e);
@@ -126,7 +134,7 @@ public class ImsAccountWxappController {
     @PreAuthorize("hasAuthority('wxminiapp:imsAccountWxapp:delete')")
     public Object deleteBatch(@RequestParam("ids") List
             <Long> ids) {
-        boolean count = IImsAccountWxappService.removeByIds(ids);
+        boolean count = IAccountWxappService.removeByIds(ids);
         if (count) {
             return new CommonResult().success(count);
         } else {
@@ -137,19 +145,19 @@ public class ImsAccountWxappController {
 
     @SysLog(MODULE = "wxminiapp", REMARK = "导出社区数据")
     @GetMapping("/exportExcel")
-    public void export(HttpServletResponse response, ImsAccountWxapp entity) {
+    public void export(HttpServletResponse response, AccountWxapp entity) {
         // 模拟从数据库获取需要导出的数据
-        List<ImsAccountWxapp> personList = IImsAccountWxappService.list(new QueryWrapper<>(entity));
+        List<AccountWxapp> personList = IAccountWxappService.list(new QueryWrapper<>(entity));
         // 导出操作
-        EasyPoiUtils.exportExcel(personList, "导出社区数据", "社区数据", ImsAccountWxapp.class, "导出社区数据.xls", response);
+        EasyPoiUtils.exportExcel(personList, "导出社区数据", "社区数据", AccountWxapp.class, "导出社区数据.xls", response);
 
     }
 
     @SysLog(MODULE = "wxminiapp", REMARK = "导入社区数据")
     @PostMapping("/importExcel")
     public void importUsers(@RequestParam MultipartFile file) {
-        List<ImsAccountWxapp> personList = EasyPoiUtils.importExcel(file, ImsAccountWxapp.class);
-        IImsAccountWxappService.saveBatch(personList);
+        List<AccountWxapp> personList = EasyPoiUtils.importExcel(file, AccountWxapp.class);
+        IAccountWxappService.saveBatch(personList);
     }
 }
 

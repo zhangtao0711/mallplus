@@ -64,6 +64,10 @@ public class MerchatFacilitatorConfigController {
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('merchat:merchatFacilitatorConfig:create')")
     public Object saveMerchatFacilitatorConfig(@RequestBody @Valid MerchatFacilitatorConfig entity) {
+        List<MerchatFacilitatorConfig> configs = IMerchatFacilitatorConfigService.list(new QueryWrapper<>(new MerchatFacilitatorConfig()));
+        if (configs !=null||configs.size()!=0){
+            return new CommonResult().failed("已设置服务商服务，不能再添加新的服务商！");
+        }
         try {
             entity.setCreateTime(new Date());
             if (IMerchatFacilitatorConfigService.save(entity)) {

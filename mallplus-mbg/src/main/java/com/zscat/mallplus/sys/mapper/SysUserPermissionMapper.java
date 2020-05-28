@@ -1,7 +1,10 @@
 package com.zscat.mallplus.sys.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.zscat.mallplus.sys.entity.SysPermission;
 import com.zscat.mallplus.sys.entity.SysUserPermission;
+
+import java.util.List;
 
 /**
  * <p>
@@ -12,5 +15,11 @@ import com.zscat.mallplus.sys.entity.SysUserPermission;
  * @since 2019-04-14
  */
 public interface SysUserPermissionMapper extends BaseMapper<SysUserPermission> {
+
+    List<SysUserPermission> selectPerms(Long id);
+
+    List<SysPermission> listPerms(Long id);
+
+    List<String> selectMenuPerms(Long id);
 
 }

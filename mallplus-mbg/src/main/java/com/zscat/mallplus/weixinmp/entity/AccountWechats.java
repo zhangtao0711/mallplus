@@ -14,8 +14,8 @@ import java.io.Serializable;
  * 微信公众号
  */
 @Data
-@TableName("ims_account_wechats")
-public class ImsAccountWechats extends BaseEntity implements Serializable {
+@TableName("account_wechats")
+public class AccountWechats extends BaseEntity implements Serializable {
 
 
     /**
@@ -103,17 +103,17 @@ public class ImsAccountWechats extends BaseEntity implements Serializable {
 
 
     /**
-     * 使用者姓名
+     * 头像
      **/
-    @TableField("username")
-    private String username;
+    @TableField("logo")
+    private String logo;
 
 
     /**
-     * 密码
+     * 二维码
      **/
-    @TableField("password")
-    private String password;
+    @TableField("qr_code")
+    private String qrCode;
 
 
     /**
