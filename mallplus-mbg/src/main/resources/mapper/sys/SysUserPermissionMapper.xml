@@ -15,4 +15,36 @@
         id, admin_id, permission_id, type
     </sql>
 
+    <!-- 根据userId获取权限，先查看有没有到期的，如果到期了，在权限表里面去掉权限-->
+    <select id="selectPerms" parameterType="Long" resultType="com.zscat.mallplus.sys.entity.SysUserPermission">
+        select
+        rm.*
+        from
+        sys_user_permission rm
+	    left JOIN sys_permission m ON m.id = rm.permission_id
+	    LEFT JOIN sys_user u ON rm.admin_id = u.id
+	    Left join set_sales_buy sb on sb.perssion_id = rm.permission_id and sb.dealer_id = rm.admin_id
+	    where ur.admin_id = #{id} and m.status=1
+        and unix_timestamp(sb.end_time) &lt; unix_timestamp(NOW())
+    </select>
+
+    <!-- 不过期的-->
+    <select id="listPerms" resultType="com.zscat.mallplus.sys.entity.SysPermission">
+        select distinct
+        m.id , m.pid, m.name, m.uri,
+        m.`value`,m.`type`,m.icon,m.sort,m.create_time
+        from sys_user_permission rm
+        right JOIN sys_permission m ON m.id = rm.permission_id
+	    LEFT JOIN sys_user u ON rm.admin_id = u.id where ur.admin_id = #{id} and m.status=1
+
+    </select>
+
+    <!-- 不过期的-->
+    <select id="selectMenuPerms" parameterType="Long" resultType="String">
+        select distinct
+        m.`value`
+        from sys_user_permission rm
+        right JOIN sys_permission m ON m.id = rm.permission_id
+	    LEFT JOIN sys_user u ON rm.admin_id = u.id where ur.admin_id = #{id} and m.status=1
+    </select>
 </mapper>

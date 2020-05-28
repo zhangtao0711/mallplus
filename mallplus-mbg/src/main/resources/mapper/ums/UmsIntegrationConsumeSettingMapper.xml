@@ -9,11 +9,18 @@
         <result column="max_percent_per_order" property="maxPercentPerOrder"/>
         <result column="use_unit" property="useUnit"/>
         <result column="coupon_status" property="couponStatus"/>
+        <result column="store_id" property="storeId"/>
+        <result column="login" property="login"/>
+        <result column="register" property="register"/>
+        <result column="sign" property="sign"/>
+        <result column="orders" property="orders"/>
+        <result column="water_fee" property="waterFee"/>
+        <result column="dealer_id" property="dealerId"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, deduction_per_amount, max_percent_per_order, use_unit, coupon_status
+        id, deduction_per_amount, max_percent_per_order, use_unit, coupon_status,store_id,login,register,sign,orders,water_fee,dealer_id
     </sql>
 
 </mapper>

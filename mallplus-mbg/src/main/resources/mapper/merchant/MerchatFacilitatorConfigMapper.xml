@@ -6,6 +6,8 @@
     <resultMap id="BaseResultMap" type="com.zscat.mallplus.merchant.entity.MerchatFacilitatorConfig">
         <id column="id" property="id"/>
         <result column="apiV3key" property="apiV3key"/>
+        <result column="appid" property="appid" />
+        <result column="key" property="key" />
         <result column="mch_id" property="mchId"/>
         <result column="apiclient_cert" property="apiclientCert"/>
         <result column="private_key_path" property="privateKeyPath"/>
@@ -19,7 +21,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, apiV3key, mch_id, apiclient_cert, private_key_path, apiclient_cert_p12, public_key_path, create_by, create_time, update_by, update_time
+        id, apiV3key, appid, `key`, mch_id, apiclient_cert, private_key_path, apiclient_cert_p12, public_key_path, create_by, create_time, update_by, update_time
 </sql>
 
     <select id="queryList" resultMap="BaseResultMap">

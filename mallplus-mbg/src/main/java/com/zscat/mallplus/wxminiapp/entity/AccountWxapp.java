@@ -22,8 +22,8 @@ import java.io.Serializable;
  * 小程序
  */
 @Data
-@TableName("ims_account_wxapp")
-public class ImsAccountWxapp extends BaseEntity implements Serializable {
+@TableName("account_wxapp")
+public class AccountWxapp extends BaseEntity implements Serializable {
 
 
     /**
@@ -136,6 +136,20 @@ public class ImsAccountWxapp extends BaseEntity implements Serializable {
      **/
     @TableField("store_name")
     private String storeName;
+
+    /**
+     * 头像
+     **/
+    @TableField("logo")
+    private String logo;
+
+
+    /**
+     * 二维码
+     **/
+    @TableField("qr_code")
+    private String qrCode;
+
 
 
 }

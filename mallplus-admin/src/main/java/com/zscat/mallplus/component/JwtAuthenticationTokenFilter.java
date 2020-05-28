@@ -98,7 +98,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             LOGGER.info("checking username:{}", username);
             if (fullUrl.contains("logout") || fullUrl.contains("login")) {
                 if (fullUrl.contains("logout")) {
-                    redisService.remove("prefix-"+username);
+//                    redisService.remove("prefix-"+username);
                     SecurityContextHolder.getContext().setAuthentication(null);
                 }
             } else {
@@ -113,18 +113,20 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         LOGGER.info("checking username:{}", username);
                         SecurityContextHolder.getContext().setAuthentication(authentication);
-//                        String token = redisService.get("prefix-"+username);
-//                        if (ValidatorUtils.empty(token)||authToken.equals(token)){
-//                            chain.doFilter(request, response);
-//                            return;
-//                        }else {
+                        String token = redisService.get("prefix-"+username);
+                        if (ValidatorUtils.empty(token)||authToken.equals(token)){
+                            chain.doFilter(request, response);
+                            return;
+                        }else {
 //                            response.setCharacterEncoding("UTF-8");
 //                            response.setContentType("application/json; charset=utf-8");
+//                            response.setHeader("Access-Control-Allow-Origin","*");
 //                            response.setStatus(506);
-//                            response.getWriter().println(JsonUtil.objectToJson(new CommonResult().forbidden("您已在另一台设备登录，请重新登录!")));
+//                            response.getWriter().write(JsonUtil.objectToJson(new CommonResult().force()));
 //                            response.getWriter().flush();
+//                            response.getWriter().close();
 //                            return;
-//                        }
+                        }
                     }
                 }
             }

@@ -77,6 +77,12 @@ public class SysPermission implements Serializable {
      * 排序
      */
     private Integer sort;
+
+    @TableField("is_market")
+    private String isMarket;
+    @TableField("image")
+    private String image;
+
     @TableField(exist = false)
     private Long parentId;
     @TableField(exist = false)
