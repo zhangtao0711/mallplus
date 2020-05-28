@@ -107,6 +107,10 @@
                   <BlankTem v-if="item.components == 'blank'" :options="item.options" />
                   <LineTem v-if="item.components == 'line'" :options="item.options" />
                   <ReceaddressTem v-if="item.components == 'wodedingdan'" :options="item.options" />
+                  <HelpcenterTem
+                    v-if="item.components == 'bangzhuzhongxin'"
+                    :options="item.options"
+                  />
                   <ButtonTem v-if="item.components == 'anniu'" :options="item.options" />
                   <CellTem v-if="item.components == 'mine'" :options="item.options" />
                   <FormTem v-if="item.components == 'login'" :options="item.options" />
@@ -293,6 +297,14 @@
           :options="currentClick"
           :editable="editable"
         />
+        <HelpcenterConfig
+          v-if="currentClick.components == 'bangzhuzhongxin'"
+          v-on:listenToOpenLinkSelect="openLinkSelect"
+          v-on:listenToOpenIconSelect="openIconSelect"
+          v-on:listenToForm="changeTemplate"
+          :options="currentClick"
+          :editable="editable"
+        />
       </div>
     </div>
   </div>
@@ -359,6 +371,8 @@ import draggable from "vuedraggable";
 
 import ReceaddressTem from "./components/receaddressTem/receaddressTem";
 import ReceaddressConfig from "./componentConfig/receaddressConfig/receaddressConfig";
+import HelpcenterTem from "./components/helpcenterTem/helpcenterTem";
+import HelpcenterConfig from "./componentConfig/helpcenterConfig/helpcenterConfig";
 
 export default {
   name: "templatePage",
@@ -416,7 +430,9 @@ export default {
     AddGood,
 
     ReceaddressTem,
-    ReceaddressConfig
+    ReceaddressConfig,
+    HelpcenterTem,
+    HelpcenterConfig
   },
   computed: {
     dragOptions() {

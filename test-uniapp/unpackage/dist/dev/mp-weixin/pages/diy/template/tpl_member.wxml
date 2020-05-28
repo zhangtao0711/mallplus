@@ -1,0 +1,1 @@
+<view class="member"><view><u-avatar vue-id="717df92c-1" src="{{src}}" size="{{140}}" mode="square" bind:__l="__l"></u-avatar></view><view class="info"><view><view><text class="nickname">{{nickname}}</text><u-tag style="margin-left:30rpx;" vue-id="717df92c-2" type="warning" text="{{level}}" bind:__l="__l"></u-tag></view></view><view class="note">{{note}}</view></view></view>

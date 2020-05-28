@@ -6,14 +6,31 @@
   <div class="list diyitem">
     <div class="list-group">
       <div class="list-item" v-for="(item,index) in colorGroup" :key="index">
-        <div class="iconImg">
+        <!-- <div class="iconImg">
           <span :class="['icon iconfont',item.adImg]" :style="{fontSize:'20px'}"></span>
+        </div>-->
+        <div class="iconText">
+          <span class="titspe">收 货 人</span>
+          {{item.adTextshouhuo}}
         </div>
-        <div class="iconText">{{item.adText}}</div>
+        <el-divider></el-divider>
+        <div class="iconText">
+          <span class="titspe">手 机 号</span>
+          {{item.adTextcell}}
+        </div>
+        <el-divider></el-divider>
+        <div class="iconText">
+          <span class="titspe">详细地址</span>
+          {{item.adTextdizhi}}
+        </div>
+        <el-divider></el-divider>
+        <div class="iconText">
+          <span class="titspe">设置为默认地址</span>
+          <el-switch style="float: right;margin-top:5px" v-model="item.valuea" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+        </div>
         <span class="icon iconfont icon-right"></span>
       </div>
     </div>
-    
   </div>
 </template>
 
@@ -23,7 +40,8 @@ export default {
   data() {
     return {
       newOptions: {},
-      colorGroup: []
+      colorGroup: [],
+      colorGrouz: []
     };
   },
   watch: {
@@ -50,14 +68,17 @@ export default {
     // 恢复初始
     restore() {
       let _this = this;
-      _this.colorGroup = []
-      for(let i = 0; i < 1; i++) {
+      _this.colorGroup = [];
+      for (let i = 0; i < 1; i++) {
         let newObj = {
-          adImg: "",
-          adText:"",
-          adLink: ""
-        }
-        _this.colorGroup.push(newObj)
+          btna: "",
+          adLink: "",
+          adTextshouhuo: "",
+          adTextdizhi: "",
+          adTextcell: "",
+          valuea: ""
+        };
+        _this.colorGroup.push(newObj);
       }
     },
     // 更换banner

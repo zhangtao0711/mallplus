@@ -1,0 +1,9 @@
+{
+  "component": true,
+  "usingComponents": {
+    "tpl-btn": "/pages/diy/template/tpl_btn",
+    "tpl-member": "/pages/diy/template/tpl_member",
+    "tpl-myorder": "/pages/diy/template/tpl_myorder",
+    "tpl-cell": "/pages/diy/template/tpl_cell"
+  }
+}

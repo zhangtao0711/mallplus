@@ -4,7 +4,7 @@
 
 <template>
   <div class="order diyitem">
-    <div class="order-title">订单中心</div>
+    <div class="order-title">我的订单</div>
     <div class="order-group" :style="{background:order_bg}">
       <div class="order-item" v-for="(item,index) in colorGroup" :key="index">
         <div class="iconImg">
