@@ -27,7 +27,7 @@ export const constantRouterMap = [
   { path: '/contactAdmin', component: () => import('@/views/login/contactAdmin'), hidden: true },
   { path: '/index1', component: () => import('@/views/home/index1'), hidden: true },
   { path: '/404', component: () => import('@/views/404'), hidden: true },
-  
+
   {
     path: '/store',
     component: () => import('@/views/home/store'),
@@ -908,7 +908,31 @@ export const constantRouterMap = [
         component: () => import('@/views/ums/memberLevel/update'),
         meta: { title: '编辑会员等级' },
         hidden: true
-      }, {
+      },
+
+      {
+        path: 'umsMemberLevel',
+        name: 'umsMemberLevel',
+        component: () => import('@/views/ums/umsMemberLevel/index'),
+        meta: { title: '会员等级列表', icon: 'product-list' }
+      },
+      {
+        path: 'addUmsMemberLevel',
+        name: 'addUmsMemberLevel',
+        component: () => import('@/views/ums/umsMemberLevel/add'),
+        meta: { title: '添加会员等级' },
+        hidden: true
+      },
+      {
+        path: 'updateUmsMemberLevel',
+        name: 'updateUmsMemberLevel',
+        component: () => import('@/views/ums/umsMemberLevel/update'),
+        meta: { title: '编辑会员等级' },
+        hidden: true
+      },
+
+
+       {
         path: 'school',
         name: 'school',
         component: () => import('@/views/ums/school/index'),
@@ -1521,14 +1545,14 @@ export const constantRouterMap = [
         path: 'addMerchatBusinessMaterials',
         name: 'addMerchatBusinessMaterials',
         component: () => import('@/views/merchat/add'),
-        meta: {title: '添加商户号', icon: 'product-list'},
+        meta: { title: '添加商户号', icon: 'product-list' },
         hidden: true
       },
       {
         path: 'updateMerchatBusinessMaterials',
         name: 'updateMerchatBusinessMaterials',
         component: () => import('@/views/merchat/update'),
-        meta: {title: '修改商户号', icon: 'product-list'},
+        meta: { title: '修改商户号', icon: 'product-list' },
         hidden: true
       },
     ]
