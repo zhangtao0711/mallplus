@@ -29,4 +29,9 @@ public class ConstantUtil {
     public static final Integer payStatus_5 = 5;
     public static final Integer payStatus_6 = 6;
     public static final String SHOP_CACHE_NAME = "queryRepeatNum";
+
+    //制卡最大值
+    public static final Long max_card_no = 4294967295L;
+
+
 }
