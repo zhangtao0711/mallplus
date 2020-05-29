@@ -35,23 +35,29 @@
       >
         <el-table-column type="selection" width="60" align="center"></el-table-column>
 
-        <el-table-column prop="id" label="id">
+        <el-table-column prop="id" label="编号" align="center">
           <template slot-scope="scope">{{scope.row.id }}</template>
         </el-table-column>
-        <el-table-column prop="name" label="等级名称">
+        <el-table-column prop="name" label="等级名称" align="center">
           <template slot-scope="scope">{{scope.row.name }}</template>
         </el-table-column>
-        <el-table-column prop="price" label="成为会员的价格">
+        <el-table-column prop="price" label="成为会员的价格" align="center">
           <template slot-scope="scope">{{scope.row.price }}</template>
         </el-table-column>
-        <el-table-column prop="priviledgeMemberPrice" label="会员折扣(0.1-10)">
+        <el-table-column prop="priviledgeMemberPrice" label="会员折扣(0.1-10)" align="center">
           <template slot-scope="scope">{{scope.row.priviledgeMemberPrice }}</template>
         </el-table-column>
-        <el-table-column prop="state" label="状态（0启用1禁用）">
-          <template slot-scope="scope">{{scope.row.state }}</template>
+        <el-table-column prop="state" label="状态" align="center">
+            <!-- （0启用1禁用） -->
+          <template slot-scope="scope" v-if="scope.row.state=='0'">启用</template>
+          <template slot-scope="scope" v-if="scope.row.state=='1'">禁用</template>
+          <!-- <template slot-scope="scope">{{scope.row.state }}</template> -->
         </el-table-column>
-        <el-table-column prop="applyScene" label="适用场景（0平台商品1平台积分商城）">
-          <template slot-scope="scope">{{scope.row.applyScene }}</template>
+        <el-table-column prop="applyScene" label="适用场景" align="center">
+            <!-- （0平台商品1平台积分商城） -->
+            <template slot-scope="scope" v-if="scope.row.applyScene=='0'">平台商品</template>
+          <template slot-scope="scope" v-if="scope.row.applyScene=='1'">平台积分商城</template>
+          <!-- <template slot-scope="scope">{{scope.row.applyScene }}</template> -->
         </el-table-column>
 
         <el-table-column label="操作" align="center">
