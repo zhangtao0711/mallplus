@@ -4,43 +4,35 @@
     <breadcrumb></breadcrumb>
     <el-dropdown class="avatar-container" trigger="click">
       <div class="avatar-wrapper">
-        <img class="user-avatar" :src="avatar">
+        <img class="user-avatar" :src="avatar" />
         <i class="el-icon-caret-bottom"></i>
       </div>
 
       <el-dropdown-menu class="user-dropdown" slot="dropdown">
         <router-link class="inlineBlock" to="/index1">
-          <el-dropdown-item>
-            首页
-          </el-dropdown-item>
+          <el-dropdown-item>首页</el-dropdown-item>
         </router-link>
         <router-link class="inlineBlock" to="/">
-          <el-dropdown-item>
-            {{storeName}}
-          </el-dropdown-item>
+          <el-dropdown-item>{{storeName}}</el-dropdown-item>
         </router-link>
-        <router-link class="inlineBlock" to="/" v-for="item in communityUser"
-                     :key="item.key">
-          <el-dropdown-item>
-            {{item.name}}
-          </el-dropdown-item>
+        <router-link class="inlineBlock" to="/" v-for="item in communityUser" :key="item.key">
+          <el-dropdown-item>{{item.name}}</el-dropdown-item>
         </router-link>
-        <el-dropdown-item divided>
+        
+        <router-link class="inlineBlock" to="/Info">
+          <el-dropdown-item divided>修改基础信息</el-dropdown-item>
+        </router-link>
+        <!-- <el-dropdown-item divided>
           <span @click="updatePassword" style="display:block;">修改密码</span>
-        </el-dropdown-item>
+        </el-dropdown-item> -->
         <el-dropdown-item divided>
           <span @click="logout" style="display:block;">退出</span>
         </el-dropdown-item>
       </el-dropdown-menu>
-
     </el-dropdown>
     <div>
-      <el-dialog
-              title="修改密码"
-              :visible.sync="blance.dialogVisible"
-              width="40%">
-        <el-form :model="blance"   :rules="loginRules" ref="brandFrom" label-width="150px">
-
+      <el-dialog title="修改密码" :visible.sync="blance.dialogVisible" width="40%">
+        <el-form :model="blance" :rules="loginRules" ref="brandFrom" label-width="150px">
           <el-form-item label="旧密码：" prop="detail">
             <el-input v-model="blance.password"></el-input>
           </el-form-item>
@@ -56,66 +48,58 @@
             <el-button type="primary" @click="handleEditBlance">确 定</el-button>
           </el-form-item>
         </el-form>
-
       </el-dialog>
     </div>
   </el-menu>
-
 </template>
 
 <script>
-  import wechatImg from "@/assets/img/wechat.jpg";
-  import qqImg from "@/assets/img/qq.png";
-  import logoImg from "@/assets/img/logo.png";
-  import chinaImg from "@/assets/img/china.svg";
-  import americaImg from "@/assets/img/america.svg";
-  import { github } from "@/utils/env";
+import wechatImg from "@/assets/img/wechat.jpg";
+import qqImg from "@/assets/img/qq.png";
+import logoImg from "@/assets/img/logo.png";
+import chinaImg from "@/assets/img/china.svg";
+import americaImg from "@/assets/img/america.svg";
+import { github } from "@/utils/env";
 
-  import { mapGetters } from 'vuex'
-import { get } from '@/utils/auth'
-import Breadcrumb from '@/components/Breadcrumb'
-import Hamburger from '@/components/Hamburger'
-import { communityUser ,updatePassword} from '@/api/admin'
+import { mapGetters } from "vuex";
+import { get } from "@/utils/auth";
+import Breadcrumb from "@/components/Breadcrumb";
+import Hamburger from "@/components/Hamburger";
+import { communityUser, updatePassword } from "@/api/admin";
 export default {
   components: {
     Breadcrumb,
     Hamburger
   },
   data() {
-
     return {
-      logo:logoImg,
-      chinaImg:chinaImg,
-      americaImg:americaImg,
-      wechat:{
-        wechatImg:wechatImg,
-        isWechat:false
+      logo: logoImg,
+      chinaImg: chinaImg,
+      americaImg: americaImg,
+      wechat: {
+        wechatImg: wechatImg,
+        isWechat: false
       },
-      qq:{
-        qqImg:qqImg,
-        isQq:false,
+      qq: {
+        qqImg: qqImg,
+        isQq: false
       },
-      github:github,
+      github: github,
       loginRules: {
-        password: [{required: true, trigger: 'blur'}],
-        renewPassword: [{required: true, trigger: 'blur'}],
-        newPassword: [{required: true, trigger: 'blur'}]
+        password: [{ required: true, trigger: "blur" }],
+        renewPassword: [{ required: true, trigger: "blur" }],
+        newPassword: [{ required: true, trigger: "blur" }]
       },
-      blance:{
-        dialogVisible:false,
-        id:null,
-
+      blance: {
+        dialogVisible: false,
+        id: null
       },
       redList: null,
-      communityUser: null,
-    }
+      communityUser: null
+    };
   },
   computed: {
-    ...mapGetters([
-      'sidebar',
-      'storeName',
-      'avatar'
-    ])
+    ...mapGetters(["sidebar", "storeName", "avatar"])
   },
   created() {
     /*communityUser(get('USRTID')).then(res => {
@@ -123,44 +107,41 @@ export default {
     });*/
   },
   methods: {
-    handleEditBlance(){
-      this.$confirm('是否要修改密码', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(()=>{
+    handleEditBlance() {
+      this.$confirm("是否要修改密码", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
         let params = new URLSearchParams();
-        params.append('password', this.blance.password);
-        params.append('renewPassword', this.blance.renewPassword);
-        params.append('newPassword', this.blance.newPassword);
+        params.append("password", this.blance.password);
+        params.append("renewPassword", this.blance.renewPassword);
+        params.append("newPassword", this.blance.newPassword);
 
         updatePassword(params).then(response => {
           this.$message({
-            message: '修改密码成功',
-            type: 'success',
+            message: "修改密码成功",
+            type: "success",
             duration: 1000
           });
         });
-        this.blance.dialogVisible=false;
-
+        this.blance.dialogVisible = false;
       });
     },
 
-    updatePassword(){
-      this.blance.dialogVisible=true;
-
-
+    updatePassword() {
+      this.blance.dialogVisible = true;
     },
     toggleSideBar() {
-      this.$store.dispatch('ToggleSideBar')
+      this.$store.dispatch("ToggleSideBar");
     },
     logout() {
-      this.$store.dispatch('LogOut').then(() => {
-        location.reload() // 为了重新实例化vue-router对象 避免bug
-      })
+      this.$store.dispatch("LogOut").then(() => {
+        location.reload(); // 为了重新实例化vue-router对象 避免bug
+      });
     }
   }
-}
+};
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
@@ -203,10 +184,10 @@ export default {
     }
   }
 }
-.notify-row{
-  line-height:60px;
-  flex:1;
-  ul{
+.notify-row {
+  line-height: 60px;
+  flex: 1;
+  ul {
     display: flex;
     justify-content: space-around;
   }

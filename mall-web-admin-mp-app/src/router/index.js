@@ -45,6 +45,17 @@ export const constantRouterMap = [
     }]
   },
   {
+    path: '/Info',
+    component: Layout,
+    redirect: '/Info/updateInfo',
+    children: [{
+      path: 'updateInfo',
+      name: 'updateInfo',
+      component: () => import('@/views/sys/updateInfo'),
+      meta: { title: '修改基础信息', icon: 'home' }
+    }]
+  },
+  {
     path: '/@/components/templatePage',
     name: 'templateComponents',
     meta: {
