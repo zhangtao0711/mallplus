@@ -163,6 +163,7 @@ export default {
             }
           );
         } else {
+          this.isEdit = false;
           this.merchatFacilitatorConfig = Object.assign(
             {},
             defaultMerchatFacilitatorConfig

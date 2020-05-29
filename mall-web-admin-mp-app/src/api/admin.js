@@ -64,6 +64,23 @@ export function updatePassword(data) {
     data:data
   })
 }
+
+export function updatePhone(id, data) {
+  return request({
+    url:'/sys/sysUser/resetPhone'+id,
+    method:'post',
+    data:data
+  })
+}
+
+export function updateUsername(id, data) {
+  return request({
+    url:'/sys/sysUser/resetUsername'+id,
+    method:'post',
+    data:data
+  })
+}
+
 export function updateAdmin(id,data) {
   return request({
     url:'/sys/sysUser/update/'+id,

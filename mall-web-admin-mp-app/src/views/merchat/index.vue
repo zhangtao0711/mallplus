@@ -545,11 +545,7 @@ accountNumber" label="银行账号">
   </div>
 </template>
 <script>
-//将$都替换为$
-import {
-  fetchList,
-  deleteMerchatBusinessMaterials
-} from "@/api/merchat/merchatBusinessMaterials";
+import { fetchList, deleteMerchatBusinessMaterials} from "@/api/merchat/merchatBusinessMaterials";
 import { formatDate } from "@/utils/date";
 import axios from "axios";
 import { getToken } from "@/utils/auth";
@@ -603,19 +599,17 @@ export default {
         url: this.url,
         params: this.listQuery,
         headers: {
-          Authorization: getToken(),
+          Authorization: getToken()
         }
       }).then(response => {
-		this.listLoading = false;
-		const res = response.data;
+        this.listLoading = false;
+        const res = response.data;
         this.list = res.records;
         this.total = res.total;
         this.totalPage = res.pages;
         this.pageSize = res.size;
 
-        
         if (res.code !== 200 && !res.access_token) {
-          console.log(res);
           Message({
             message: res.msg,
             type: "error",
