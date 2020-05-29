@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -54,6 +55,7 @@ public class UmsMemberLevelController {
     @PreAuthorize("hasAuthority('ums:UmsMemberLevel:create')")
     public Object saveUmsMemberLevel(@RequestBody UmsMemberLevel entity) {
         try {
+            entity.setCreateTime(new Date());
             if (IUmsMemberLevelService.save(entity)) {
                 return new CommonResult().success();
             }
@@ -70,6 +72,8 @@ public class UmsMemberLevelController {
     @PreAuthorize("hasAuthority('ums:UmsMemberLevel:update')")
     public Object updateUmsMemberLevel(@RequestBody UmsMemberLevel entity) {
         try {
+
+            entity.setUpdateTime(new Date());
             if (IUmsMemberLevelService.updateById(entity)) {
                 return new CommonResult().success();
             }
