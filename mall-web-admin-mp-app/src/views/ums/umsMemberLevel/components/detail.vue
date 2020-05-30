@@ -127,6 +127,7 @@ export default {
             type: "warning"
           }).then(() => {
             if (this.isEdit) {
+              this.umsMemberLevel.updateBy = get("userId");
               updateUmsMemberLevel(
                 this.$route.query.id,
                 this.umsMemberLevel
