@@ -49,15 +49,19 @@
         </el-table-column>
         <el-table-column prop="state" label="状态" align="center">
             <!-- （0启用1禁用） -->
-          <template slot-scope="scope" v-if="scope.row.state=='0'">启用</template>
-          <template slot-scope="scope" v-if="scope.row.state=='1'">禁用</template>
-          <!-- <template slot-scope="scope">{{scope.row.state }}</template> -->
+          <template slot-scope="scope">
+            <!-- {{scope.row.state }} -->
+            <div v-if="scope.row.state==='0'">启用</div>
+            <div v-if="scope.row.state==='1'">禁用</div>
+          </template>
         </el-table-column>
         <el-table-column prop="applyScene" label="适用场景" align="center">
             <!-- （0平台商品1平台积分商城） -->
-            <template slot-scope="scope" v-if="scope.row.applyScene=='0'">平台商品</template>
-          <template slot-scope="scope" v-if="scope.row.applyScene=='1'">平台积分商城</template>
-          <!-- <template slot-scope="scope">{{scope.row.applyScene }}</template> -->
+          <template slot-scope="scope">
+            <div v-if="scope.row.applyScene==='0'">平台商品</div>
+            <div v-if="scope.row.applyScene==='1'">平台积分商城</div>
+            <!-- {{scope.row.applyScene }} -->
+          </template>
         </el-table-column>
 
         <el-table-column label="操作" align="center">
