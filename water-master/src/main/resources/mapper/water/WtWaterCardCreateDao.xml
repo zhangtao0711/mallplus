@@ -6,7 +6,7 @@
     <select id="getNum" resultType="com.zscat.mallplus.water.entity.WtWaterCardCreate">
         SELECT * FROM
         wt_water_card_create a
-        where #{sta} &lt; a.end_no and #{end} &gt; a.start_no
+        where #{sta} &lt; CAST(a.end_no AS SIGNED) and #{end} &gt; CAST(a.start_no AS SIGNED)
     </select>
 
     <!-- 获取制卡内容下载 -->

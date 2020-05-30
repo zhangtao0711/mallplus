@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.water.mapper.WtWaterCardCreateMapper">
+
+    <!-- 卡号是否重复 -->
+    <select id="getNum" resultType="com.zscat.mallplus.water.entity.WtWaterCardActivate">
+        SELECT * FROM
+        wt_water_card_activate a
+        where #{sta} &lt; CAST(a.end_no AS SIGNED) and #{end} &gt; CAST(a.start_no AS SIGNED)
+    </select>
+
+    <!-- 获取开卡开号存在数 卡号关联公众号 -->
+    <select id="getNumInfo" resultType="Map">
+        SELECT b.id
+        ,count(a.id) AS num
+        FROM wt_water_card a
+        LEFT JOIN sys_user b ON a.card_create_id=b.uniacid
+        WHERE CAST(a.card_no AS SIGNED) BETWEEN #{sta} and #{end}
+        AND b.id= #{userId}
+        GROUP BY b.id
+    </select>
+</mapper>

@@ -13,6 +13,7 @@ import java.util.Date;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 import java.io.Serializable;
 
@@ -50,6 +51,18 @@ public class WtWaterCard extends BaseEntity implements Serializable {
     @TableField("qr_code")
     private String qrCode;
 
+    /**
+     * 卡状态 字典water_code_state
+     **/
+    @TableField("state")
+    private String state;
+
+    /**
+     * 备注
+     **/
+    @TableField("remarks")
+    @Length(min=0, max=255, message="备注长度必须在255以内!")
+    private String remarks;
 
     /**
      * 创建日期

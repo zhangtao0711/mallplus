@@ -10,14 +10,11 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
-
-//import javax.persistence.Transient;
 import java.util.Date;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
@@ -25,25 +22,16 @@ import java.io.Serializable;
 
 /**
  * @author lyn
- * @date 2020-05-29
- * 制卡
+ * @date 2020-05-30
+ * 批量开卡
  */
 @Data
-@TableName("wt_water_card_create")
-public class WtWaterCardCreate extends BaseEntity implements Serializable {
+@TableName("wt_water_card_activate")
+public class WtWaterCardActivate extends BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
-
-
-    /**
-     * 代号（英文字符大写）
-     **/
-    @TableField("code")
-    @NotEmpty(message="代号必须输入")
-    @Length(min=2, max=2, message="代号必须是两位英文字符！")
-    private String code;
 
 
     /**
@@ -67,36 +55,17 @@ public class WtWaterCardCreate extends BaseEntity implements Serializable {
 
 
     /**
-     * 数量
+     * 设备号
      **/
-    @TableField("number")
-    private String number;
-
+    @TableField("eqcode")
+    @NotEmpty(message="设备号必须输入")
+    @Length(min=1, max=16, message="设备号长度必须介于 1 和 16 之间")
+    private String eqcode;
 
     /**
-     * 关联公众号id
+     * 经销商名称
      **/
-    @TableField("acid")
-    @NotEmpty(message="请选择公众号名称！")
-    private Integer acid;
-
-//    /**
-//     * 关联公众号key
-//     **/
-//    @NotEmpty(message="此公众号没有对应的key，请选择信息完整的公众号！")
-//    private String ackey;
-
-    /**
-     * 识别码（自动生成）
-     **/
-    @TableField("distinguish_num")
-    private String distinguishNum;
-
-    /**
-     * 制卡状态
-     **/
-    @TableField("state")
-    private String state;
+    private String storeName;
 
     /**
      * 创建日期
@@ -112,17 +81,4 @@ public class WtWaterCardCreate extends BaseEntity implements Serializable {
     @TableField("create_by")
     private Long createBy;
 
-    /**
-     * 更新日期
-     **/
-    @TableField("update_time")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date updateTime;
-
-
-    /**
-     * 更新人
-     **/
-    @TableField("update_by")
-    private Long updateBy;
 }
