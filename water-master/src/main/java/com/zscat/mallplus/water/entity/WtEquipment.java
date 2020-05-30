@@ -23,6 +23,7 @@ import java.io.Serializable;
 @TableName("wt_equipment")
 public class WtEquipment extends BaseEntity implements Serializable {
 
+    private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;

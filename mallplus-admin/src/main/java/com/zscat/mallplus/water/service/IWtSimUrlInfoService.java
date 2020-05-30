@@ -12,6 +12,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface IWtSimUrlInfoService extends IService<WtSimUrlInfo> {
 
-    //查询账号余额
-    SimEntity gerAmount(Long id);
+    //物联网卡余量查询
+    SimEntity getChaxun(Long id,String cardno);
 }

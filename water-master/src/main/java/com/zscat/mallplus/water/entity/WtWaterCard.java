@@ -1,11 +1,13 @@
 package com.zscat.mallplus.water.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zscat.mallplus.util.BaseEntity;
 import lombok.Data;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.util.Date;
 
@@ -16,45 +18,43 @@ import java.io.Serializable;
 
 /**
  * @author lyn
- * @date 2020-05-22
- * 设备分组
+ * @date 2020-05-30
+ * 水卡
  */
 @Data
-@TableName("wt_product_group")
-public class WtProductGroup extends BaseEntity implements Serializable {
+@TableName("wt_water_card")
+public class WtWaterCard extends BaseEntity implements Serializable {
 
-    private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
 
     /**
-     * 设备分组名称
+     * 生成id
      **/
-    @TableField("product_group_name")
-    private String productGroupName;
+    @TableField("card_create_id")
+    private Long cardCreateId;
 
 
     /**
-     * 客服电话
+     * 卡号
      **/
-    @TableField("customer_service_tp")
-    private String customerServiceTp;
+    @TableField("card_no")
+    private String cardNo;
 
 
     /**
-     * 售后人员联系方式
+     * 二维码
      **/
-    @TableField("after_sales_tp")
-    private String afterSalesTp;
+    @TableField("qr_code")
+    private String qrCode;
 
 
     /**
      * 创建日期
      **/
     @TableField("create_time")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
 
@@ -69,7 +69,6 @@ public class WtProductGroup extends BaseEntity implements Serializable {
      * 更新日期
      **/
     @TableField("update_time")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
 
@@ -84,7 +83,6 @@ public class WtProductGroup extends BaseEntity implements Serializable {
      * 删除状态(1-正常,0-已删除)
      **/
     @TableField("del_flag")
-    @TableLogic
     private String delFlag;
 
 

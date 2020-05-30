@@ -24,6 +24,7 @@ import java.io.Serializable;
 @TableName("wt_sim_card")
 public class WtSimCard extends BaseEntity implements Serializable {
 
+    private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;

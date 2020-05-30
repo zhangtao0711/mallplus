@@ -20,6 +20,7 @@ import java.util.Date;
 @TableName("wt_filter_element")
 public class WtFilterElement extends BaseEntity implements Serializable {
 
+    private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
@@ -29,7 +30,7 @@ public class WtFilterElement extends BaseEntity implements Serializable {
      * 滤芯类型id
      **/
     @TableField("filter_element_type_id")
-    @NotEmpty
+    @NotEmpty(message = "滤芯类型不能为空")
     private Long filterElementTypeId;
 
 
@@ -37,7 +38,7 @@ public class WtFilterElement extends BaseEntity implements Serializable {
      * 滤芯级别
      **/
     @TableField("filter_element_level")
-    @NotEmpty
+    @NotEmpty(message = "滤芯级别不能为空")
 //    @Length(min=1, max=50, message="滤芯级别长度必须介于 1 和 50 之间!")
     private String filterElementLevel;
 
@@ -46,7 +47,7 @@ public class WtFilterElement extends BaseEntity implements Serializable {
      * 计费模式
      **/
     @TableField("billing_mode")
-    @NotEmpty
+    @NotEmpty(message = "计费模式不能为空")
 //    @Length(min=1, max=100, message="计费模式长度必须介于 1 和 100 之间!")
     private String billingMode;
 
@@ -55,7 +56,7 @@ public class WtFilterElement extends BaseEntity implements Serializable {
      * 滤芯更换时间
      **/
     @TableField("change_time")
-    @NotEmpty
+    @NotEmpty(message = "滤芯更换时间不能为空")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date changeTime;
 
@@ -64,7 +65,6 @@ public class WtFilterElement extends BaseEntity implements Serializable {
      * 备注
      **/
     @TableField("remarks")
-    @NotEmpty
 //    @Length(min=1, max=255, message="计费模式长度必须介于 1 和 255 之间!")
     private String remarks;
 
