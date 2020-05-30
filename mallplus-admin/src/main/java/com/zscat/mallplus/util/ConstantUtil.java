@@ -32,6 +32,11 @@ public class ConstantUtil {
 
     //制卡最大值
     public static final Long max_card_no = 4294967295L;
+    //微信公众号前缀
+    public static final String weiXin_Subscription="http://weixin.qq.com/r/";
+    //制卡状态
+    public static final String card_create_state_0="0";//0未制卡
+    public static final String card_create_state_1="1";//1已制卡
 
 
 }
