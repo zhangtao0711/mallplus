@@ -2,11 +2,28 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zscat.mallplus.water.mapper.WtWaterCardCreateMapper">
 
-    <!-- 获取分组下面是绑定的设备 -->
+    <!-- 卡号是否重复 -->
     <select id="getNum" resultType="com.zscat.mallplus.water.entity.WtWaterCardCreate">
         SELECT * FROM
         wt_water_card_create a
         where #{sta} &lt; a.end_no and #{end} &gt; a.start_no
+    </select>
+
+    <!-- 获取制卡内容下载 -->
+    <select id="getExport" resultType="com.zscat.mallplus.water.entity.WtWaterCardExcel">
+        SELECT
+        a.code AS "code"
+        ,b.card_no AS "cardNo"
+        ,c.name AS "acName"
+        ,a.distinguish_num AS "distinguishNum"
+        ,b.qr_code AS "qrCode"
+        FROM
+        wt_water_card_create a
+        LEFT JOIN wt_water_card b ON a.id=b.card_create_id
+        AND b.del_flag=#{delFlag}
+        LEFT JOIN account_wechats c ON a.acid=c.acid
+
+        WHERE a.id=#{id}
     </select>
 
 </mapper>

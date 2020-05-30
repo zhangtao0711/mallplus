@@ -3,15 +3,18 @@ package com.zscat.mallplus.water.service.impl;
 import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.water.entity.WtWaterCard;
 import com.zscat.mallplus.water.entity.WtWaterCardCreate;
+import com.zscat.mallplus.water.entity.WtWaterCardExcel;
 import com.zscat.mallplus.water.mapper.WtWaterCardCreateMapper;
 import com.zscat.mallplus.water.mapper.WtWaterCardMapper;
 import com.zscat.mallplus.water.service.IWtWaterCardCreateService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zscat.mallplus.weixinmp.mapper.AccountWechatsMapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import com.zscat.mallplus.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author lyn
@@ -56,5 +59,9 @@ public class WtWaterCardCreateServiceImpl extends ServiceImpl
             return false;
         }
         return true;
+    }
+    //制卡信息下载
+    public List<WtWaterCardExcel> getExport(String delFlag, Long id){
+        return wtWaterCardCreateMapper.getExport(delFlag,id);
     }
 }

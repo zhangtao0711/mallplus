@@ -3,10 +3,17 @@ package com.zscat.mallplus.water.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.client.j2se.MatrixToImageConfig;
+import com.google.zxing.common.BitMatrix;
 import com.zscat.mallplus.annotation.SysLog;
 import com.zscat.mallplus.util.ConstantUtil;
+import com.zscat.mallplus.util.MatrixToImageWriter;
 import com.zscat.mallplus.util.StringUtils;
 import com.zscat.mallplus.water.entity.WtWaterCardCreate;
+import com.zscat.mallplus.water.entity.WtWaterCardExcel;
 import com.zscat.mallplus.water.service.IWtWaterCardCreateService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
@@ -16,12 +23,16 @@ import com.zscat.mallplus.wxminiapp.service.IAccountWxappService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Date;
 
@@ -172,14 +183,33 @@ public class WtWaterCardCreateController {
     }
 
 
-    @SysLog(MODULE = "water", REMARK = "导出社区数据")
+    @SysLog(MODULE = "water", REMARK = "导出制卡信息")
     @GetMapping("/exportExcel")
     public void export(HttpServletResponse response, WtWaterCardCreate entity) {
-        // 模拟从数据库获取需要导出的数据
-        List<WtWaterCardCreate> personList = IWtWaterCardCreateService.list(new QueryWrapper<>(entity));
-        // 导出操作
-        EasyPoiUtils.exportExcel(personList, "导出社区数据", "社区数据", WtWaterCardCreate.class, "导出社区数据.xls", response);
+        response.setContentType("application/octet-stream");
+        int width = 300; // 二维码图片宽度
+        int height = 300; // 二维码图片高度
+        String format = "jpg";// 二维码的图片格式
+        Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();
+        hints.put(EncodeHintType.CHARACTER_SET, "utf-8"); // 内容所使用字符集编码
+        try{
+            // 模拟从数据库获取需要导出的数据
+            List<WtWaterCardExcel> personList = IWtWaterCardCreateService.getExport(ConstantUtil.delFlag,entity.getId());
 
+            for (WtWaterCardExcel wtWaterCardExcel: personList){
+                BitMatrix bitMatrix = new MultiFormatWriter().encode(wtWaterCardExcel.getQrCode(),
+                        BarcodeFormat.QR_CODE, width, height, hints);
+                // 生成二维码
+                MatrixToImageConfig config = new MatrixToImageConfig(0xFF000001, 0xFFFFFFFF);
+                BufferedImage bufImg = com.google.zxing.client.j2se.MatrixToImageWriter.toBufferedImage(bitMatrix, config);
+//                BufferedImage image = MatrixToImageWriter.toBufferedImage(bitMatrix, words);
+                wtWaterCardExcel.setQrCodeFile(bufImg);
+            }
+            // 导出操作
+            EasyPoiUtils.exportExcel(personList, "导出制卡信息", "制卡信息", WtWaterCardExcel.class, "制卡信息.xls", response);
+        }catch (Exception e){
+            log.error("导出制卡信息失败,请稍后再试!"+e.getMessage());
+        }
     }
 
     @SysLog(MODULE = "water", REMARK = "导入社区数据")
