@@ -38,5 +38,12 @@ public class ConstantUtil {
     public static final String card_create_state_0="0";//0未制卡
     public static final String card_create_state_1="1";//1已制卡
 
+    //水卡状态（0正常1复制卡2挂失卡3删除卡4非经销商卡）
+    public static final String water_code_state_0="0";//正常
+    public static final String water_code_state_1="1";//复制卡
+    public static final String water_code_state_2="2";//挂失卡
+    public static final String water_code_state_3="3";//删除卡
+    public static final String water_code_state_4="4";//非经销商卡
+
 
 }
