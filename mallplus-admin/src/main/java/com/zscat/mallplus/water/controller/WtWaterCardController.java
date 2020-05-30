@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
 import com.zscat.mallplus.util.ConstantUtil;
+import com.zscat.mallplus.util.UserUtils;
 import com.zscat.mallplus.water.entity.WtWaterCard;
 import com.zscat.mallplus.water.service.IWtWaterCardService;
 import com.zscat.mallplus.util.EasyPoiUtils;
@@ -111,7 +112,7 @@ public class WtWaterCardController {
     public Object getWtWaterCardById(@ApiParam("水卡id") @PathVariable Long id) {
         try {
             if (ValidatorUtils.empty(id)) {
-                return new CommonResult().paramFailed("水卡id");
+                return new CommonResult().paramFailed("水卡id不存在");
             }
             WtWaterCard coupon = IWtWaterCardService.getById(id);
             return new CommonResult().success(coupon);
@@ -169,6 +170,36 @@ public class WtWaterCardController {
                 wtWaterCardDb.setState(entity.getState());//状态
                 wtWaterCardDb.setRemarks(entity.getRemarks());//备注
                 if (IWtWaterCardService.updateById(wtWaterCardDb)) {
+                    return new CommonResult().success();
+                }
+            }else{
+                return new CommonResult().failed("卡号不存在!");
+            }
+        } catch (Exception e) {
+            log.error("添加问题卡：%s", e.getMessage(), e);
+            return new CommonResult().failed(e.getMessage());
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "water", REMARK = "删除问题卡")
+    @ApiOperation("删除问题卡")
+    @PostMapping(value = "/updateStateRemove/{id}")
+    @PreAuthorize("hasAuthority('water:wtWaterCard:update')")
+    public Object updateStateRemove(@ApiParam("水卡id") @PathVariable Long id) {
+        try {
+            //获取数据库中卡号信息
+            if (ValidatorUtils.empty(id)) {
+                return new CommonResult().paramFailed("水卡id不存在");
+            }
+            WtWaterCard coupon = IWtWaterCardService.getById(id);
+
+            if(coupon != null){
+                coupon.setUpdateTime(new Date());
+                coupon.setUpdateBy(UserUtils.getCurrentMember().getId());//当前登录者
+                coupon.setState(ConstantUtil.water_code_state_0);//状态正常
+                coupon.setRemarks("");//备注
+                if (IWtWaterCardService.updateById(coupon)) {
                     return new CommonResult().success();
                 }
             }else{
