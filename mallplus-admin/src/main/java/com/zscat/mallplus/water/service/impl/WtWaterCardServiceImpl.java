@@ -19,5 +19,8 @@ public class WtWaterCardServiceImpl extends ServiceImpl
     @Resource
     private WtWaterCardMapper wtWaterCardMapper;
 
-
+    //根据卡号获取数据库中卡号信息
+    public WtWaterCard getOneBy(WtWaterCard entity){
+        return wtWaterCardMapper.getOneBy(entity);
+    }
 }

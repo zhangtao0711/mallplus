@@ -33,8 +33,6 @@ public class WtWaterCardCreateServiceImpl extends ServiceImpl
 
     @Override
     public boolean saveAll(WtWaterCardCreate var,String acKey){
-        Long.valueOf(var.getStartNo());
-        Long.valueOf(var.getEndNo());
         if(super.save(var)){
             for(Long i =Long.valueOf(var.getStartNo());i<=Long.valueOf(var.getEndNo());i++){
                 //左补位到10位
@@ -47,6 +45,7 @@ public class WtWaterCardCreateServiceImpl extends ServiceImpl
                 wtWaterCard.setCreateBy(var.getCreateBy());
                 wtWaterCard.setCreateTime(var.getCreateTime());
                 wtWaterCard.setDelFlag(ConstantUtil.delFlag);
+                wtWaterCard.setState(ConstantUtil.water_code_state_0);//卡状态正常
                 wtWaterCard.setStoreId(null);
                 wtWaterCardMapper.insert(wtWaterCard);
             }

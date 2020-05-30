@@ -4,6 +4,7 @@ package com.zscat.mallplus.water.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.water.entity.WtWaterCard;
 import com.zscat.mallplus.water.service.IWtWaterCardService;
 import com.zscat.mallplus.util.EasyPoiUtils;
@@ -73,6 +74,7 @@ public class WtWaterCardController {
     @PreAuthorize("hasAuthority('water:wtWaterCard:update')")
     public Object updateWtWaterCard(@RequestBody WtWaterCard entity) {
         try {
+            entity.setUpdateTime(new Date());
             if (IWtWaterCardService.updateById(entity)) {
                 return new CommonResult().success();
             }
@@ -150,6 +152,33 @@ public class WtWaterCardController {
     public void importUsers(@RequestParam MultipartFile file) {
         List<WtWaterCard> personList = EasyPoiUtils.importExcel(file, WtWaterCard.class);
         IWtWaterCardService.saveBatch(personList);
+    }
+
+    @SysLog(MODULE = "water", REMARK = "添加问题卡")
+    @ApiOperation("添加问题卡")
+    @PostMapping(value = "/updateState/{id}")
+    @PreAuthorize("hasAuthority('water:wtWaterCard:update')")
+    public Object updateState(@RequestBody WtWaterCard entity) {
+        try {
+            //获取数据库中卡号信息
+            entity.setDelFlag(ConstantUtil.delFlag);
+            WtWaterCard wtWaterCardDb = IWtWaterCardService.getOneBy(entity);
+            if(wtWaterCardDb != null){
+                wtWaterCardDb.setUpdateTime(new Date());
+                wtWaterCardDb.setUpdateBy(entity.getUpdateBy());
+                wtWaterCardDb.setState(entity.getState());//状态
+                wtWaterCardDb.setRemarks(entity.getRemarks());//备注
+                if (IWtWaterCardService.updateById(wtWaterCardDb)) {
+                    return new CommonResult().success();
+                }
+            }else{
+                return new CommonResult().failed("卡号不存在!");
+            }
+        } catch (Exception e) {
+            log.error("添加问题卡：%s", e.getMessage(), e);
+            return new CommonResult().failed(e.getMessage());
+        }
+        return new CommonResult().failed();
     }
 }
 

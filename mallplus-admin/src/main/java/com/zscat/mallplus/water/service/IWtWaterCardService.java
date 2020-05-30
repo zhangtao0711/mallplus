@@ -9,5 +9,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 
 public interface IWtWaterCardService extends IService<WtWaterCard> {
-
+    //根据卡号获取数据库中卡号信息
+    WtWaterCard getOneBy(WtWaterCard entity);
 }
