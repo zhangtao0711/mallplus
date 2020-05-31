@@ -85,7 +85,7 @@ public class SetSalesOrderController {
                 .appId(config.getAppid())
                 .mchId(config.getMchId())
                 .slAppId(appletSet.getAppid())
-                .partnerKey(config.getKey())
+                .partnerKey(config.getSecret())
 //                .certPath(wxPayBean.getCertPath())
                 .domain("https://api.mch.weixin.qq.com")
                 .build();
@@ -126,7 +126,7 @@ public class SetSalesOrderController {
                     if (entity.getPrice()==null){
                         return new CommonResult().failed("订单金额不能为空！");
                     }
-                    BigDecimal price = entity.getPrice().multiply(new BigDecimal("100")).setScale(BigDecimal.ROUND_DOWN,2);
+                    BigDecimal price = entity.getPrice().multiply(new BigDecimal("100")).setScale(BigDecimal.ROUND_DOWN,0);
                     //2.获取IP
                     String ip = IpKit.getRealIp(request);
                     if (StrKit.isBlank(ip)) {
@@ -165,7 +165,7 @@ public class SetSalesOrderController {
                     //8.如果失败则判断状态存储起来
                     if (!WxPayKit.codeIsOk(returnCode)) {
                         //状态有这几种，1预支付成功，2预支付失败，3支付成功，4支付失败，5交易关闭
-                        entity.setPaystatus(ConstantUtil.payStatus_1);
+                        entity.setPaystatus(ConstantUtil.payStatus_2);
                         entity.setError(returnMsg);
                         ISetSalesOrderService.updateById(entity);
                         return new CommonResult().failed("error:" + returnMsg);
@@ -174,13 +174,13 @@ public class SetSalesOrderController {
                     String resultCode = result.get("result_code");
                     //如果失败则判断状态存储起来
                     if (!WxPayKit.codeIsOk(resultCode)) {
-                        entity.setPaystatus(ConstantUtil.payStatus_1);
+                        entity.setPaystatus(ConstantUtil.payStatus_2);
                         entity.setError(result.get("err_code")+": " + result.get("err_code_des"));
                         ISetSalesOrderService.updateById(entity);
                         return new CommonResult().failed("error:" + returnMsg);
                     }
                     //10.生成预付订单success,保存预支付信息
-                    entity.setPaystatus(ConstantUtil.payStatus_2);
+                    entity.setPaystatus(ConstantUtil.payStatus_1);
                     entity.setPrepayId(result.get("prepay_id"));
                     entity.setCodeUrl(result.get("code_url"));
                     ISetSalesOrderService.updateById(entity);

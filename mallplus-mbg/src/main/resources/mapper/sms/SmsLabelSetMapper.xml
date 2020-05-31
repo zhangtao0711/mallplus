@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.sms.mapper.SmsLabelSetMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zscat.mallplus.sms.entity.SmsLabelSet">
+        <id column="id" property="id"/>
+        <result column="dealer_id" property="dealerId"/>
+        <result column="label_name" property="labelName" />
+        <result  column="label_breif" property="labelBreif"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime" />
+        <result column="is_system" property="isSystem" />
+        <result column="frequency" property="frequency" />
+        <result column="store_id" property="storeId" />
+        <result column="greater" property="greater" />
+        <result column="equal" property="equal" />
+        <result column="limit" property="limit" />
+        <result column="message" property="message" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,label_name,label_breif,create_time,update_time,dealer_id,store_id,is_system,frequency,greater,equal,limit,message
+   </sql>
+
+    <!--获取系统设置的人数-->
+    <select id="selectBalanceCount" resultType="Map">
+        SELECT
+        sum(case when a.blance &gt;b.greater or a.blance = b.equal or a.blance &lt; b.limit then 1 else 0 end ) as total
+        FROM
+        ums_member a
+        left join sms_label_set b on b.is_system = 1 and b.store_id = 1 and b.label_name = #{labelName}
+    </select>
+    <!-- TODO 水卡的那个和推荐的卡进度-->
+
+    <!-- TODO 用户社区的卡设备的投放地 -->
+</mapper>

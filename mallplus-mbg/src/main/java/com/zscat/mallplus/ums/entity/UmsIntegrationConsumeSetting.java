@@ -56,24 +56,42 @@ public class UmsIntegrationConsumeSetting extends BaseEntity implements Serializ
     /**
      * 登录送积分
      */
+    @TableField("login")
     private Integer login;
 
     /**
      * 注册送积分
      */
+    @TableField("register")
     private Integer register;
     /**
      * 签到送积分
      */
+    @TableField("sign")
     private Integer sign;
 
     /**
      * 下单 送积分比例
      */
+    @TableField("orders")
     private Integer orders;
 
-    private BigDecimal waterFee;
-    private Long dealerId;
+    /**
+     * 是否开启下单送积分比例 0否1是
+     */
+    @TableField("orders_status")
+    private Integer ordersStatus;
 
+    /**
+     * 注册赠送的水费
+     */
+    @TableField("water_fee")
+    private BigDecimal waterFee;
+
+    /**
+     * 经销商id
+     */
+    @TableField("dealer_id")
+    private Long dealerId;
 
 }

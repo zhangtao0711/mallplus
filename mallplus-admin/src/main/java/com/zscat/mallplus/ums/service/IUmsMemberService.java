@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.zscat.mallplus.ums.entity.UmsMember;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,6 +20,8 @@ public interface IUmsMemberService extends IService<UmsMember> {
     void updataMemberOrderInfo();
 
     Map memberMonthStatic( String date);
+
+    List<UmsMember> getMemberByLabelId(Long labelId);
 
 
 }

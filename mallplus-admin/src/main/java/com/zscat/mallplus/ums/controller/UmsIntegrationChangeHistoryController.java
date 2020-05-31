@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * <p>
@@ -62,6 +64,36 @@ public class UmsIntegrationChangeHistoryController {
             return new CommonResult().failed();
         }
 
+    }
+
+    @SysLog(MODULE = "ums", REMARK = "根据条件查询所有积分变化历史记录表列表")
+    @ApiOperation("根据条件查询所有积分变化历史记录表列表")
+    @GetMapping(value = "/selectMemberRecord")
+    public Object selectMemberRecord(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                     @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
+                                     @RequestParam String dealerId,
+                                     @RequestParam Date startTime,
+                                     @RequestParam Date endTime,
+                                     @RequestParam String nickname,
+                                     @RequestParam String phone,
+                                     @RequestParam String dealerName,
+                                     @RequestParam Integer level,
+                                     @RequestParam String name,
+                                     @RequestParam String changeType,
+                                     @RequestParam String changeCount,
+                                     @RequestParam String integration,
+                                     @RequestParam String sourceType,
+                                     @RequestParam String integrationStatus,
+                                     @RequestParam String storeId
+    ) {
+        try {
+            return new CommonResult().success(IUmsIntegrationChangeHistoryService.selectMemberRecord(new Page<Map<String, Object>>(pageNum, pageSize),
+                    dealerId,startTime,endTime,nickname,phone,dealerName,level,name,changeType,changeCount,integration,sourceType,
+                    integrationStatus,storeId));
+        } catch (Exception e) {
+            log.error("根据条件查询所有积分变化历史记录表列表：%s", e.getMessage(), e);
+        }
+        return new CommonResult().failed();
     }
 
 

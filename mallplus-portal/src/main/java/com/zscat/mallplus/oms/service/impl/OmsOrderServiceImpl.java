@@ -1748,7 +1748,7 @@ public class OmsOrderServiceImpl extends ServiceImpl<OmsOrderMapper, OmsOrder> i
             memberService.updateById(member);
             // 插入积分日志表
             UmsIntegrationChangeHistory historyChange = new UmsIntegrationChangeHistory(member.getId(), new Date(), AllEnum.ChangeType.Min.code(), gifts.getPrice().intValue()
-                    , member.getUsername(), order.getId() + "", AllEnum.ChangeSource.order.code());
+                    ,new BigDecimal("0"), member.getUsername(), order.getId() + "", AllEnum.ChangeSource.order.code(),null);
             integrationChangeHistoryMapper.insert(historyChange);
             // 删除订单缓存
             String key = Rediskey.orderDetail + "orderid" + order.getId();

@@ -63,5 +63,4 @@ public class RyTask {
 
         log.info("商户统计end====：{}", DateUtils.getLastDayOfWeek());
     }
-
 }

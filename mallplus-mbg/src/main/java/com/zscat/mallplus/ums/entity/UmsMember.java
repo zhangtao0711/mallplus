@@ -178,4 +178,10 @@ public class UmsMember implements Serializable {
 
     @TableField("weixin")
     private String weixin;
+
+    /**
+     * 积分状态 积分状态0冻结1正常
+     */
+    @TableField("integration_status")
+    private Integer integrationStatus;
 }

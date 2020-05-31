@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.jifen.mapper.JifenDealerIntegrationChangeHistoryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zscat.mallplus.jifen.entity.JifenDealerIntegrationChangeHistory">
+        <id column="id" property="id"/>
+        <result column="dealer_id" property="dealerId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="change_type" property="changeType"/>
+        <result column="change_count" property="changeCount"/>
+        <result column="change_balance" property="changeBalance" />
+        <result column="operate_man" property="operateMan"/>
+        <result column="operate_note" property="operateNote"/>
+        <result column="source_type" property="sourceType"/>
+        <result column="store_id" property="storeId" />
+        <result column="integration" property="integration" />
+        <result column="balance" property="balance" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, dealer_id, create_time, change_type, change_count,change_balance, operate_man, operate_note, source_type,integration,balance
+    </sql>
+
+    <!-- 经销商记录（平台看的页面）-->
+    <select id="selectBusinessRecord" resultType="Map">
+        SELECT
+            a.create_time,
+            b.id as "dealerId",
+            b.dealer_name,
+            b.realname,
+            b.dealer_phone,
+            d.level,
+            a.change_type,
+            a.change_count,
+            a.integration,
+            a.source_type,
+            b.integration_status
+        FROM
+            jifen_dealer_integration_change_history a
+            Left join sys_user b on b.id = a.dealer_id
+            Left join sys_dealer_level d on d.id = b.level
+        WHERE
+            1=1
+            <if test="startTime != null and endTime != null">
+                and a.create_time between #{startTime} and #{endTime}
+            </if>
+            <if test="dealerName != null and dealerName != ''">
+                and b.dealer_name = #{dealerName}
+            </if>
+            <if test="realname != null and realname != ''">
+                and b.realname = #{realname}
+            </if>
+            <if test="dealerPhone != null and dealerPhone != ''">
+                and b.dealer_phone = #{dealerPhone}
+            </if>
+            <if test="level != null and level != ''">
+                and d.id = #{level}
+            </if>
+            <if test="changeType != null and changeType != ''">
+                and a.change_type = #{changeType}
+            </if>
+            <if test="changeCount != null and changeCount != ''">
+                and a.change_count = #{changeCount}
+            </if>
+            <if test="integration != null and integration != ''">
+                and a.integration = #{integration}
+            </if>
+            <if test="sourceType != null and sourceType != ''">
+                and a.source_type = #{sourceType}
+            </if>
+            <if test="integrationStatus != null and integrationStatus != ''">
+                and b.integration_status = #{integrationStatus}
+            </if>
+            <if test="storeId != null and storeId != ''">
+                and a.store_id = #{storeId}
+            </if>
+        order by a.create_time desc
+    </select>
+
+</mapper>

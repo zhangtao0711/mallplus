@@ -14,6 +14,7 @@ import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
 import me.chanjar.weixin.common.bean.result.WxMediaUploadResult;
 import me.chanjar.weixin.common.error.WxErrorException;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.annotation.PostConstruct;
@@ -49,7 +50,7 @@ public class WxMaConfiguration {
 
     @PostConstruct
     public void init() {
-        List<AccountWxapp> configs = jdbcTemplate.queryForList("select * from account_wxapp", AccountWxapp.class);
+        List<AccountWxapp> configs = jdbcTemplate.query("select * from account_wxapp",new BeanPropertyRowMapper<AccountWxapp>(AccountWxapp.class));
         if (configs == null||configs.size()==0) {
             AccountWxapp uniapp = new AccountWxapp();
             uniapp.setUniacid(1);

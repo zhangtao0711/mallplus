@@ -52,5 +52,7 @@ public class SysAppletSet extends BaseEntity implements Serializable {
 
     private String templateid6;
 
+    private Integer storeId;
+    private Long userId;
 
 }

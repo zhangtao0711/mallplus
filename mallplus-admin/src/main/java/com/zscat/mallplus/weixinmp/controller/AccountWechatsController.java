@@ -9,6 +9,7 @@ import com.zscat.mallplus.weixinmp.service.IAccountWechatsService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
+import com.zscat.mallplus.wxminiapp.service.IAccountWxappService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,8 @@ public class AccountWechatsController {
 
     @Resource
     private IAccountWechatsService IAccountWechatsService;
+    @Resource
+    private IAccountWxappService accountWxappService;
 
     @SysLog(MODULE = "weixin", REMARK = "根据条件查询所有微信公众号列表")
     @ApiOperation("根据条件查询所有微信公众号列表")
@@ -62,6 +65,8 @@ public class AccountWechatsController {
         if (wechats != null){
             return new CommonResult().failed("该经销商已经关联过公众号，请勿重复关联！");
         }
+        Integer count = accountWxappService.getCount();
+        entity.setUniacid(count);
         try {
             entity.setCreateTime(new Date());
 
