@@ -3,7 +3,7 @@
 <mapper namespace="com.zscat.mallplus.water.mapper.WtWaterCard">
 
     <!-- 更新卡列表的经销商信息 -->
-    <update id="updateStoreId" >
+    <update id="updateStoreId">
        UPDATE wt_water_card
        SET store_id=#{storeId}
        ,update_time=NOW()
@@ -21,5 +21,23 @@
         </if>
         LIMIT 1
     </select>
+
+    <!-- 更新卡内余额 -->
+    <update id="updateRecharge">
+       UPDATE wt_water_card
+       SET update_time=NOW()
+          ,update_by=#{data.createBy}
+        <if test="type != null and type == 'recharge' ">
+            ,card_money=ifnull(card_money,0) + #{data.receivedMoney}
+            ,give_money= #{data.rechargeMoney} - #{data.receivedMoney}
+        </if>
+        <if test="type != null and type == 'experience' ">
+		  ,experience_money = #{data.experienceMoney}
+		  ,experience_end_data = #{data.experienceEndData}
+        </if>
+       WHERE CAST(card_no AS SIGNED) BETWEEN #{data.startNo} and #{data.endNo}
+         AND del_flag =#{delFlag}
+		 AND state=#{state}
+    </update>
 
 </mapper>

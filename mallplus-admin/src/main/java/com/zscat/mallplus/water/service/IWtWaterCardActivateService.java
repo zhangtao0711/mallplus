@@ -15,7 +15,7 @@ public interface IWtWaterCardActivateService extends IService<WtWaterCardActivat
     //卡号是否重复
     boolean checkNum(Long str, Long end);
     //获取开卡开号存在数 卡号关联公众号
-    Map<String,Integer> getNumInfo(Long str, Long end,String userId);
+    Map<String,Integer> getNumInfo(Long str, Long end,Integer userId);
 
     boolean save(WtWaterCardActivate entity);
 }

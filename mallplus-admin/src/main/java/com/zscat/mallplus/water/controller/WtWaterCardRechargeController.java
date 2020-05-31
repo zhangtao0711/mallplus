@@ -1,0 +1,235 @@
+package com.zscat.mallplus.water.controller;
+
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.util.ConstantUtil;
+import com.zscat.mallplus.water.entity.WtWaterCardRecharge;
+import com.zscat.mallplus.water.service.IWtWaterCardRechargeService;
+import com.zscat.mallplus.util.EasyPoiUtils;
+import com.zscat.mallplus.utils.CommonResult;
+import com.zscat.mallplus.utils.ValidatorUtils;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Date;
+import java.util.Map;
+
+/**
+ * @author lyn
+ * @date 2020-05-31
+ * 充值
+ */
+@Slf4j
+@RestController
+@RequestMapping("/water/wtWaterCardRecharge")
+public class WtWaterCardRechargeController {
+
+    @Resource
+    private IWtWaterCardRechargeService IWtWaterCardRechargeService;
+
+    @SysLog(MODULE = "water", REMARK = "根据条件查询所有充值列表")
+    @ApiOperation("根据条件查询所有充值列表")
+    @GetMapping(value = "/list")
+    @PreAuthorize("hasAuthority('water:wtWaterCardRecharge:read')")
+    public Object getWtWaterCardRechargeByPage(WtWaterCardRecharge entity,
+                                               @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                               @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
+    ) {
+        try {
+            return new CommonResult().success(IWtWaterCardRechargeService.page(new Page<WtWaterCardRecharge>(pageNum, pageSize), new QueryWrapper<>(entity)));
+        } catch (Exception e) {
+            log.error("根据条件查询所有充值列表：%s", e.getMessage(), e);
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "water", REMARK = "保存充值")
+    @ApiOperation("保存充值")
+    @PostMapping(value = "/create")
+    @PreAuthorize("hasAuthority('water:wtWaterCardRecharge:create')")
+    public Object saveWtWaterCardRecharge(@RequestBody WtWaterCardRecharge entity) {
+        try {
+            //选择充值金额
+            if(entity.getRechargeMoneyType().equals(ConstantUtil.recharge_money_type_0)){
+                //必须输入校验
+                if(entity.getStartNo().isEmpty()||entity.getEndNo().isEmpty()
+                        ||entity.getRechargeMoney()==null|| entity.getReceivedMoney()==null){
+                    return new CommonResult().failed("选择充值金额时，起始卡号、终止卡号、充值金额、实收金额必须输入！");
+                }
+                //判断起始卡号和终止卡号合理性
+                if(Long.valueOf(entity.getStartNo())>Long.valueOf(entity.getEndNo())){
+                    return new CommonResult().failed("终止卡号必须大于等于起始卡号！");
+                }
+                if(Long.valueOf(entity.getEndNo())> ConstantUtil.max_card_no){
+                    return new CommonResult().failed("制卡卡号最大值是"+ ConstantUtil.max_card_no +"！");
+                }
+                //单次不能超过200张
+                if(Long.valueOf(entity.getEndNo())-Long.valueOf(entity.getStartNo())+1 <= 200){
+                    return new CommonResult().failed("单次不能超过200张！");
+                }
+                //获取卡号关联经销商和登录者经销商是否一致
+                if (!IWtWaterCardRechargeService.getStoreId(Long.valueOf(entity.getStartNo()),Long.valueOf(entity.getEndNo()),entity.getStoreId())) {
+                    return new CommonResult().failed("此区段内有卡没有绑定在您的账号下！");
+                }
+            //选择充值体验金额
+            }else{
+                //按卡号充值
+                if(entity.getRechargeType().equals(ConstantUtil.recharge_type_1)){
+                    //必须输入校验
+                    if(entity.getStartNo().isEmpty()||entity.getEndNo().isEmpty()
+                            ||entity.getExperienceMoney()==null|| entity.getReceivedMoney()==null){
+                        return new CommonResult().failed("选择充值金额时，起始卡号、终止卡号、体验金、实收金额、体验到期必须输入！");
+                    }
+                    //判断起始卡号和终止卡号合理性
+                    if(Long.valueOf(entity.getStartNo())>Long.valueOf(entity.getEndNo())){
+                        return new CommonResult().failed("终止卡号必须大于等于起始卡号！");
+                    }
+                    if(Long.valueOf(entity.getEndNo())> ConstantUtil.max_card_no){
+                        return new CommonResult().failed("卡号最大值是"+ ConstantUtil.max_card_no +"！");
+                    }
+                    //单次不能超过200张
+                    if(Long.valueOf(entity.getEndNo())-Long.valueOf(entity.getStartNo())+1 <= 200){
+                        return new CommonResult().failed("单次不能超过200张！");
+                    }
+                    //获取卡号关联经销商和登录者经销商是否一致
+                    if (!IWtWaterCardRechargeService.getStoreId(Long.valueOf(entity.getStartNo()),Long.valueOf(entity.getEndNo()),entity.getStoreId())) {
+                        return new CommonResult().failed("此区段内有卡没有绑定在您的账号下！");
+                    }
+                    //到期日和有效天数
+                    if(entity.getExperienceEndData()==null && entity.getExperienceEndDay()==null){
+                        return new CommonResult().failed("到期日或有效天数必须设定一个！");
+                    }
+                //筛选充值
+                }else{
+                    //筛选条件不能没有
+                    if(entity.getUmsBalanceMark().isEmpty() && entity.getUmsUseMark().isEmpty()
+                            && entity.getUmsRecommendMark().isEmpty() && entity.getUmsCommunity().isEmpty()
+                            && entity.getUmsMemberLevel()==null){
+                        return new CommonResult().failed("筛选条件至少设定一个！");
+                    }
+                    //会员卡余额
+                    if (!(entity.getUmsBalanceMark().isEmpty() && entity.getUmsBalanceWhere()==null )
+                            && !(!entity.getUmsBalanceMark().isEmpty() && entity.getUmsBalanceWhere()!=null)) {
+                         return new CommonResult().failed("筛选条件会员卡余额大小和余额数需要同时设定！");
+                    }
+
+                    //用水频次
+                    if (!(entity.getUmsUseMark().isEmpty() && entity.getUmsUseWhere()==null && entity.getUmsUsePeriod().isEmpty())
+                            && !(!entity.getUmsUseMark().isEmpty() && entity.getUmsUseWhere()!=null && !entity.getUmsUsePeriod().isEmpty())) {
+                        return new CommonResult().failed("筛选条件用水频次大小、频次数和周期需要同时设定！");
+                    }
+                    //用户推荐频次
+                    if (!(entity.getUmsRecommendMark().isEmpty() && entity.getUmsRecommendWhere()==null && entity.getUmsRecommendPeriod().isEmpty())
+                            && !(!entity.getUmsRecommendMark().isEmpty() && entity.getUmsRecommendWhere()!=null && !entity.getUmsRecommendPeriod().isEmpty())) {
+                        return new CommonResult().failed("筛选条件用户推荐频次大小、频次数和周期需要同时设定！");
+                    }
+                }
+            }
+            entity.setCreateTime(new Date());
+            if (IWtWaterCardRechargeService.save(entity)) {
+                return new CommonResult().success();
+            }
+        } catch (Exception e) {
+            log.error("保存充值：%s", e.getMessage(), e);
+            return new CommonResult().failed(e.getMessage());
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "water", REMARK = "更新充值")
+    @ApiOperation("更新充值")
+    @PostMapping(value = "/update/{id}")
+    @PreAuthorize("hasAuthority('water:wtWaterCardRecharge:update')")
+    public Object updateWtWaterCardRecharge(@RequestBody WtWaterCardRecharge entity) {
+        try {
+            if (IWtWaterCardRechargeService.updateById(entity)) {
+                return new CommonResult().success();
+            }
+        } catch (Exception e) {
+            log.error("更新充值：%s", e.getMessage(), e);
+            return new CommonResult().failed(e.getMessage());
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "water", REMARK = "删除充值")
+    @ApiOperation("删除充值")
+    @GetMapping(value = "/delete/{id}")
+    @PreAuthorize("hasAuthority('water:wtWaterCardRecharge:delete')")
+    public Object deleteWtWaterCardRecharge(@ApiParam("充值id") @PathVariable Long id) {
+        try {
+            if (ValidatorUtils.empty(id)) {
+                return new CommonResult().paramFailed("充值id");
+            }
+            if (IWtWaterCardRechargeService.removeById(id)) {
+                return new CommonResult().success();
+            }
+        } catch (Exception e) {
+            log.error("删除充值：%s", e.getMessage(), e);
+            return new CommonResult().failed(e.getMessage());
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "water", REMARK = "给充值分配充值")
+    @ApiOperation("查询充值明细")
+    @GetMapping(value = "/{id}")
+    @PreAuthorize("hasAuthority('water:wtWaterCardRecharge:read')")
+    public Object getWtWaterCardRechargeById(@ApiParam("充值id") @PathVariable Long id) {
+        try {
+            if (ValidatorUtils.empty(id)) {
+                return new CommonResult().paramFailed("充值id");
+            }
+            WtWaterCardRecharge coupon = IWtWaterCardRechargeService.getById(id);
+            return new CommonResult().success(coupon);
+        } catch (Exception e) {
+            log.error("查询充值明细：%s", e.getMessage(), e);
+            return new CommonResult().failed();
+        }
+
+    }
+
+    @ApiOperation(value = "批量删除充值")
+    @RequestMapping(value = "/delete/batch", method = RequestMethod.GET)
+    @SysLog(MODULE = "water", REMARK = "批量删除充值")
+    @PreAuthorize("hasAuthority('water:wtWaterCardRecharge:delete')")
+    public Object deleteBatch(@RequestParam("ids") List
+            <Long> ids) {
+        boolean count = IWtWaterCardRechargeService.removeByIds(ids);
+        if (count) {
+            return new CommonResult().success(count);
+        } else {
+            return new CommonResult().failed();
+        }
+    }
+
+
+    @SysLog(MODULE = "water", REMARK = "导出社区数据")
+    @GetMapping("/exportExcel")
+    public void export(HttpServletResponse response, WtWaterCardRecharge entity) {
+        // 模拟从数据库获取需要导出的数据
+        List<WtWaterCardRecharge> personList = IWtWaterCardRechargeService.list(new QueryWrapper<>(entity));
+        // 导出操作
+        EasyPoiUtils.exportExcel(personList, "导出社区数据", "社区数据", WtWaterCardRecharge.class, "导出社区数据.xls", response);
+
+    }
+
+    @SysLog(MODULE = "water", REMARK = "导入社区数据")
+    @PostMapping("/importExcel")
+    public void importUsers(@RequestParam MultipartFile file) {
+        List<WtWaterCardRecharge> personList = EasyPoiUtils.importExcel(file, WtWaterCardRecharge.class);
+        IWtWaterCardRechargeService.saveBatch(personList);
+    }
+}
+
+

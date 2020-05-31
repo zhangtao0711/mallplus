@@ -40,7 +40,7 @@ public class WtWaterCardActivateServiceImpl extends ServiceImpl
     }
 
     //获取开卡开号存在数 卡号关联公众号
-    public Map<String,Integer> getNumInfo(Long sta, Long end,String userId){
+    public Map<String,Integer> getNumInfo(Long sta, Long end,Integer userId){
         return wtWaterCardActivateMapper.getNumInfo(sta,end,userId);
     }
 
