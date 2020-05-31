@@ -140,5 +140,9 @@ public class WtWaterCard extends BaseEntity implements Serializable {
     @TableField("del_flag")
     private String delFlag;
 
-
+    /**
+     * 经销商
+     **/
+    @TableField("dealer_id")
+    private Long dealerId;
 }

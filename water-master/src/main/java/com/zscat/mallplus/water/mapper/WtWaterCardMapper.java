@@ -12,7 +12,7 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface WtWaterCardMapper extends BaseMapper<WtWaterCard> {
     //更新卡列表的经销商信息
-    boolean updateStoreId(@Param("sta")Long sta, @Param("end") Long end
+    boolean updateStoreId(@Param("sta")Long sta, @Param("end") Long end, @Param("dealerId")Long dealerId
             , @Param("storeId")Integer storeId,@Param("updateBy")Long updateBy, @Param("delFlag")String delFlag);
 
     //根据卡号获取数据库中卡号信息

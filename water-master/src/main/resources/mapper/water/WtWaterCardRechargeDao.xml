@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zscat.mallplus.water.mapper.WtWaterCardCreateMapper">
+<mapper namespace="com.zscat.mallplus.water.mapper.WtWaterCardRechargeMapper">
 
     <!-- 获取开卡开号存在数 卡号关联公众号 -->
-    <select id="getStoreId" resultType="Map">
+    <select id="getDealerId" resultType="Map">
         SELECT b.id
         ,count(a.id) AS num
         FROM wt_water_card a
@@ -11,4 +11,23 @@
         WHERE CAST(a.card_no AS SIGNED) BETWEEN #{sta} and #{end}
         GROUP BY b.id
     </select>
+
+    <!-- 获取经销商用户标签使用次数 -->
+    <select id="getSalesCount" resultType="Integer">
+        SELECT ifnull(count,0)
+        FROM set_sales_buy
+        WHERE dealer_id = #{data.dealerId}
+        AND perssion_id = #{perssionId}
+    </select>
+
+    <!-- 更新用户标签使用次数 -->
+    <update id="updateSalesCount" >
+       UPDATE set_sales_buy
+       SET count = count-1
+       ,total_count=total_count-1
+       ,update_time=NOW()
+        WHERE dealer_id = #{data.dealerId}
+        AND perssion_id = #{perssionId}
+    </update>
+
 </mapper>

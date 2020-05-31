@@ -215,4 +215,9 @@ public class WtWaterCardRecharge extends BaseEntity implements Serializable {
     @TableField("create_by")
     private Long createBy;
 
+    /**
+     * 经销商
+     **/
+    @TableField("dealer_id")
+    private Long dealerId;
 }

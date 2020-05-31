@@ -48,7 +48,7 @@ public class WtWaterCardActivateServiceImpl extends ServiceImpl
     public boolean save(WtWaterCardActivate entity){
         //更新卡列表的经销商信息
         if(!wtWaterCardMapper.updateStoreId(Long.valueOf(entity.getStartNo())
-                ,Long.valueOf(entity.getEndNo()),entity.getStoreId(),entity.getCreateBy(),ConstantUtil.delFlag)){
+                ,Long.valueOf(entity.getEndNo()),entity.getDealerId(),entity.getStoreId(),entity.getCreateBy(),ConstantUtil.delFlag)){
             return false;
         }
         //添加水卡和设备关联信息表

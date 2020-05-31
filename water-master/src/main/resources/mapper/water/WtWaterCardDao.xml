@@ -6,6 +6,7 @@
     <update id="updateStoreId">
        UPDATE wt_water_card
        SET store_id=#{storeId}
+       ,dealer_id=#{dealerId}
        ,update_time=NOW()
        ,update_by=#{updateBy}
        WHERE CAST(card_no AS SIGNED) BETWEEN #{sta} and #{end}

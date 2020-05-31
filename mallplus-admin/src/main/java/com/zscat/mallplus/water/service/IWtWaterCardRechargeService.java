@@ -13,7 +13,9 @@ import java.util.Map;
 public interface IWtWaterCardRechargeService extends IService<WtWaterCardRecharge> {
 
     //获取充值卡号是否是当前经销商下的
-    boolean getStoreId(Long aLong, Long aLong1, Integer storeId);
+    boolean getDealerId(Long aLong, Long aLong1, Long dalerId);
     //保存
     boolean save(WtWaterCardRecharge entity);
+    //获取经销商用户标签使用次数
+    Integer getSalesCount(WtWaterCardRecharge entity,String perssionId);
 }

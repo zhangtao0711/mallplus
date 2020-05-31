@@ -78,14 +78,14 @@ public class WtWaterCardActivateController {
                 Iterator<Map.Entry<String, Integer>> it =data.entrySet().iterator();
                 while(it.hasNext()){
                     Map.Entry<String, Integer> entry = it.next();
-                    if(entry.getKey().equals(entity.getStoreId())){
+                    if(entry.getKey().equals(entity.getDealerId())){
                         storeFlag=true;
                     }
                 }
                 if(!storeFlag){
                     return new CommonResult().failed("制卡时绑定的公众号和经销商绑定的公众号不一致！");
                 }else{
-                    if(data.get(entity.getStoreId())!=Long.valueOf(entity.getEndNo())-Long.valueOf(entity.getStartNo())+1){
+                    if(data.get(entity.getDealerId())!=Long.valueOf(entity.getEndNo())-Long.valueOf(entity.getStartNo())+1){
                         return new CommonResult().failed("此区段内有的卡号存在没有制卡的卡号！");
                     }
                 }

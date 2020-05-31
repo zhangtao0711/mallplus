@@ -78,7 +78,7 @@ public class WtWaterCardRechargeController {
                     return new CommonResult().failed("单次不能超过200张！");
                 }
                 //获取卡号关联经销商和登录者经销商是否一致
-                if (!IWtWaterCardRechargeService.getStoreId(Long.valueOf(entity.getStartNo()),Long.valueOf(entity.getEndNo()),entity.getStoreId())) {
+                if (!IWtWaterCardRechargeService.getDealerId(Long.valueOf(entity.getStartNo()),Long.valueOf(entity.getEndNo()),entity.getDealerId())) {
                     return new CommonResult().failed("此区段内有卡没有绑定在您的账号下！");
                 }
             //选择充值体验金额
@@ -102,7 +102,7 @@ public class WtWaterCardRechargeController {
                         return new CommonResult().failed("单次不能超过200张！");
                     }
                     //获取卡号关联经销商和登录者经销商是否一致
-                    if (!IWtWaterCardRechargeService.getStoreId(Long.valueOf(entity.getStartNo()),Long.valueOf(entity.getEndNo()),entity.getStoreId())) {
+                    if (!IWtWaterCardRechargeService.getDealerId(Long.valueOf(entity.getStartNo()),Long.valueOf(entity.getEndNo()),entity.getDealerId())) {
                         return new CommonResult().failed("此区段内有卡没有绑定在您的账号下！");
                     }
                     //到期日和有效天数
@@ -111,6 +111,11 @@ public class WtWaterCardRechargeController {
                     }
                 //筛选充值
                 }else{
+                    //判断有没有购买用户标签功能
+                    Integer count =IWtWaterCardRechargeService.getSalesCount(entity,ConstantUtil.ums_label_perssion_id);
+                    if(count == null || count<1){
+                        return new CommonResult().failed("您尚未购买此功能，或使用次数已到上线。请开通此功能后再次适用！");
+                    }
                     //筛选条件不能没有
                     if(entity.getUmsBalanceMark().isEmpty() && entity.getUmsUseMark().isEmpty()
                             && entity.getUmsRecommendMark().isEmpty() && entity.getUmsCommunity().isEmpty()

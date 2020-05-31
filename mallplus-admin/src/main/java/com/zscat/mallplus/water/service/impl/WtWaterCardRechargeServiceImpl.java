@@ -30,13 +30,13 @@ public class WtWaterCardRechargeServiceImpl extends ServiceImpl
     private WtWaterCardMapper wtWaterCardMapper;
 
     //获取充值卡号是否是当前经销商下的
-    public boolean getStoreId(Long sta, Long end, Integer storeId){
-        Map<String,Integer> data = wtWaterCardRechargeMapper.getStoreId(sta, end);
+    public boolean getDealerId(Long sta, Long end, Long dealerId){
+        Map<String,Integer> data = wtWaterCardRechargeMapper.getDealerId(sta, end);
         if (data!=null && data.size()==1) {
             Iterator<Map.Entry<String, Integer>> it =data.entrySet().iterator();
             while(it.hasNext()){
                 Map.Entry<String, Integer> entry = it.next();
-                if(entry.getKey().equals(storeId)){
+                if(entry.getKey().equals(dealerId)){
                     return true;
                 }
             }
@@ -58,6 +58,17 @@ public class WtWaterCardRechargeServiceImpl extends ServiceImpl
             if(entity.getRechargeType().equals(ConstantUtil.recharge_type_1)){
                 wtWaterCardMapper.updateRecharge(entity,ConstantUtil.water_code_state_0,"experience");
             }else{
+                //更新用户标签使用次数
+                wtWaterCardRechargeMapper.updateSalesCount(entity,ConstantUtil.ums_label_perssion_id);
+                //获取用户标签数据
+//                SELECT a.id FROM
+//                ums_member a
+//                LEFT JOIN wt_water_card b ON a.id = b.ums_member_id
+//                and b.state='0' and b.del_flag='0' and b.store_id='d'
+//                and b.card_money =50
+//                WHERE a.status='1'
+//                and a.store_id='d'
+//                and a.member_level_id='1'
 
             }
             //将到期日期清空
@@ -68,5 +79,10 @@ public class WtWaterCardRechargeServiceImpl extends ServiceImpl
 
         //保存充值记录
         return super.save(entity);
+    }
+
+    //获取经销商用户标签使用次数
+    public Integer getSalesCount(WtWaterCardRecharge entity,String perssionId){
+        return wtWaterCardRechargeMapper.getSalesCount(entity,perssionId);
     }
 }
