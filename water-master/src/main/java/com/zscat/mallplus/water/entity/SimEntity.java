@@ -17,6 +17,7 @@ import java.util.Date;
 @Data
 public class SimEntity implements Serializable {
 
+    private static final long serialVersionUID = 1L;
 
     /**
      * code

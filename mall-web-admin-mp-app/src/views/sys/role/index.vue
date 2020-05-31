@@ -8,8 +8,8 @@
       </div>
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
-          <el-form-item label="输入搜索：">
-            <el-input style="width: 203px" v-model="listQuery.keyword" placeholder="请输入角色名称"></el-input>
+          <el-form-item label="角色名称：">
+            <el-input style="width: 203px" v-model="listQuery.roleName" placeholder="按角色名称搜索"></el-input>
           </el-form-item>
         </el-form>
       </div>
@@ -17,13 +17,7 @@
     <el-card class="operate-container" shadow="never">
       <i class="el-icon-tickets"></i>
       <span>数据列表</span>
-      <!-- <el-button class="btn-add" @click="addRole()" size="mini">添加</el-button> -->
-      <el-button
-        type="primary"
-        class="btn-add"
-        @click="centerDialogVisible = true"
-        size="mini"
-      >+角色录入</el-button>
+      <el-button class="btn-add" @click="addRole()" size="mini">添加</el-button>
     </el-card>
     <div class="table-container">
       <el-table
@@ -35,21 +29,20 @@
         border
       >
         <el-table-column type="selection" width="60" align="center"></el-table-column>
-        <el-table-column label="角色名称" align="center">
-          <template slot-scope="scope">{{scope.row.name}}</template>
+        <el-table-column label="编号" width="180" align="center">
+          <template slot-scope="scope">{{scope.row.roleId}}</template>
         </el-table-column>
-        <el-table-column label="角色编号" width="180" align="center">
-          <template slot-scope="scope">{{scope.row.id}}</template>
+        <el-table-column label="角色编码" width="180" align="center">
+          <template slot-scope="scope">{{scope.row.roleKey}}</template>
         </el-table-column>
-        <el-table-column label="添加时间" width="180" align="center">
+        <!-- <el-table-column label="添加时间" width="180" align="center">
           <template slot-scope="scope">{{scope.row.createTime | formatTime}}</template>
+        </el-table-column>-->
+        <el-table-column label="角色名称" align="center">
+          <template slot-scope="scope">{{scope.row.roleName}}</template>
         </el-table-column>
-        
-        <!-- <el-table-column label="用户数量" width="180" align="center">
-          <template slot-scope="scope">{{scope.row.adminCount}}</template>
-        </el-table-column> -->
 
-        <!--  <el-table-column label="状态" width="100" align="center">
+        <!-- <el-table-column label="状态" width="100" align="center">
           <template slot-scope="scope">
             <el-switch
               @change="handleShowStatusChange(scope.$index, scope.row)"
@@ -62,33 +55,13 @@
 
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
-             <el-button size="mini" @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
-           <!-- <el-button size="mini" @click="handleUpdate(scope.$index, scope.row)">授权</el-button>
-            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button> -->
-            <!-- <el-button size="mini" @click="editDialogVisible = true">编辑</el-button> -->
-            <el-button size="mini" @click="handleUpdate(scope.$index, scope.row)">授权</el-button>
+            <el-button size="mini" @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
             <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
-    <!-- <div class="batch-operate-container">
-      <el-select size="small" v-model="operateType" placeholder="批量操作">
-        <el-option
-          v-for="item in operates"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        ></el-option>
-      </el-select>
-      <el-button
-        style="margin-left: 20px"
-        class="search-button"
-        @click="handleBatchOperate()"
-        type="primary"
-        size="small"
-      >确定</el-button>
-    </div> -->
+
     <div class="pagination-container">
       <el-pagination
         background
@@ -101,54 +74,6 @@
         :total="total"
       ></el-pagination>
     </div>
-    <!-- 添加弹框 -->
-    <el-dialog title="新增" :visible.sync="centerDialogVisible" width="30%" center>
-      <el-form
-        :model="ruleForm"
-        :rules="rules"
-        ref="ruleForm"
-        label-width="100px"
-        class="demo-ruleForm"
-      >
-        <el-form-item label="角色名称" prop="name">
-          <el-input v-model="ruleForm.name" placeholder="单行输入"></el-input>
-        </el-form-item>
-        <el-form-item label="角色编码" prop="region">
-          <el-input v-model="ruleForm.region" placeholder="单行输入"></el-input>
-        </el-form-item>
-        <el-form-item label="备注" prop="desc">
-          <el-input type="textarea" v-model="ruleForm.desc" placeholder="多行输入"></el-input>
-        </el-form-item>
-        <el-form-item>
-        <el-button type="primary" @click="submitForm('ruleForm')">确定</el-button>
-        <el-button @click="centerDialogVisible = false">关闭</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
-     <!-- 编辑弹框 -->
-    <el-dialog title="新增" :visible.sync="editDialogVisible" width="30%" center>
-      <el-form
-        :model="ruleForm"
-        :rules="rules"
-        ref="ruleForm"
-        label-width="100px"
-        class="demo-ruleForm"
-      >
-        <el-form-item label="角色名称" prop="name">
-          <el-input v-model="ruleForm.name" placeholder="单行输入"></el-input>
-        </el-form-item>
-        <el-form-item label="角色编码" prop="region">
-          <el-input v-model="ruleForm.region" placeholder="单行输入"></el-input>
-        </el-form-item>
-        <el-form-item label="备注" prop="desc">
-          <el-input type="textarea" v-model="ruleForm.desc" placeholder="多行输入"></el-input>
-        </el-form-item>
-        <el-form-item>
-        <el-button type="primary" @click="submitForm('ruleForm')">确定</el-button>
-        <el-button @click="editDialogVisible = false">关闭</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
   </div>
 </template>
 <script>
@@ -164,31 +89,6 @@ export default {
   name: "roleList",
   data() {
     return {
-      centerDialogVisible: false,//添加
-      editDialogVisible:false,//编辑
-      ruleForm: {
-        name: "",
-        region: "",
-        desc: ""
-      },
-      rules: {
-        name: [{ required: true, message: "请输入角色名称", trigger: "blur" }],
-        region: [
-          { required: true, message: "请输入角色编码", trigger: "blur" }
-        ],
-        desc: [{ required: true, message: "请填写", trigger: "blur" }]
-      },
-      operates: [
-        {
-          label: "显示会员",
-          value: "showRole"
-        },
-        {
-          label: "隐藏会员",
-          value: "hideRole"
-        }
-      ],
-      operateType: null,
       listQuery: {
         keyword: null,
         pageNum: 1,
@@ -223,19 +123,6 @@ export default {
     }
   },
   methods: {
-    submitForm(formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          alert("submit!");
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
-    },
-    resetForm(formName) {
-      this.$refs[formName].resetFields();
-    },
     getList() {
       this.listLoading = true;
       fetchList(this.listQuery).then(response => {
@@ -245,14 +132,13 @@ export default {
         //this.total = response.data.records.length;
         this.totalPage = response.data.pages;
         this.pageSize = response.data.size;
-        console.log(this.list);
       });
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
     handleUpdate(index, row) {
-      this.$router.push({ path: "/sys/updateRole", query: { id: row.id } });
+      this.$router.push({ path: "/sys/updateRole", query: { id: row.roleId } });
     },
     handleDelete(index, row) {
       this.$confirm("是否要删除该会员", "提示", {
@@ -260,7 +146,7 @@ export default {
         cancelButtonText: "取消",
         type: "warning"
       }).then(() => {
-        deleteRole(row.id).then(response => {
+        deleteRole(row.roleId).then(response => {
           this.$message({
             message: "删除成功",
             type: "success",
@@ -296,27 +182,24 @@ export default {
           }
         });
     },
-    handleShowStatusChange(index, row) {
-      let data = new URLSearchParams();
-
-      data.append("ids", row.id);
-      data.append("showStatus", row.status);
-      updateShowStatus(data)
-        .then(response => {
-          this.$message({
-            message: "修改成功",
-            type: "success",
-            duration: 1000
-          });
-        })
-        .catch(error => {
-          if (row.showStatus === 0) {
-            row.showStatus = 1;
-          } else {
-            row.showStatus = 0;
-          }
-        });
-    },
+    // handleShowStatusChange(index, row) {
+    //   let data = new URLSearchParams();
+    //   data.append("ids", row.id);
+    //   data.append("showStatus", row.status);
+    //   updateShowStatus(data).then(response => {
+    //     this.$message({
+    //       message: '修改成功',
+    //       type: 'success',
+    //       duration: 1000
+    //     });
+    //   }).catch(error => {
+    //     if (row.showStatus === 0) {
+    //       row.showStatus = 1;
+    //     } else {
+    //       row.showStatus = 0;
+    //     }
+    //   });
+    // },
     handleSizeChange(val) {
       this.listQuery.pageNum = 1;
       this.listQuery.pageSize = val;
@@ -329,45 +212,6 @@ export default {
     searchRoleList() {
       this.listQuery.pageNum = 1;
       this.getList();
-    },
-    handleBatchOperate() {
-      console.log(this.multipleSelection);
-      if (this.multipleSelection < 1) {
-        this.$message({
-          message: "请选择一条记录",
-          type: "warning",
-          duration: 1000
-        });
-        return;
-      }
-      let showStatus = 0;
-      if (this.operateType === "showRole") {
-        showStatus = 1;
-      } else if (this.operateType === "hideRole") {
-        showStatus = 0;
-      } else {
-        this.$message({
-          message: "请选择批量操作类型",
-          type: "warning",
-          duration: 1000
-        });
-        return;
-      }
-      let ids = [];
-      for (let i = 0; i < this.multipleSelection.length; i++) {
-        ids.push(this.multipleSelection[i].id);
-      }
-      let data = new URLSearchParams();
-      data.append("ids", ids);
-      data.append("showStatus", showStatus);
-      updateShowStatus(data).then(response => {
-        this.getList();
-        this.$message({
-          message: "修改成功",
-          type: "success",
-          duration: 1000
-        });
-      });
     },
     addRole() {
       this.$router.push({ path: "/sys/addRole" });

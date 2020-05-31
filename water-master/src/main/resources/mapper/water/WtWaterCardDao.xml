@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.water.mapper.WtWaterCard">
+
+    <!-- 更新卡列表的经销商信息 -->
+    <update id="updateStoreId" >
+       UPDATE wt_water_card
+       SET store_id=#{storeId}
+       ,update_time=NOW()
+       ,update_by=#{updateBy}
+       WHERE CAST(card_no AS SIGNED) BETWEEN #{sta} and #{end}
+       AND del_flag =#{delFlag}
+    </update>
+
+    <!-- 获取分组下面是绑定的设备 -->
+    <select id="getOneBy" resultType="com.zscat.mallplus.water.entity.WtWaterCard">
+        SELECT * FROM wt_water_card
+        WHERE del_flag =#{data.delFlag}
+        <if test="data.cardNo != null ">
+            AND card_no=#{data.cardNo}
+        </if>
+        LIMIT 1
+    </select>
+
+</mapper>

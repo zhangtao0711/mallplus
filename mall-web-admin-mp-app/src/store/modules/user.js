@@ -80,6 +80,9 @@ const user = {
           }
           set('userId',data.userId)
           set('storeId',data.storeId)
+          set('username',data.username)
+          set('phone',data.sysUser.phone)
+          set('pwd',data.sysUser.password)
           commit('SET_NAME', data.username)
           commit('SET_AVATAR', data.icon)
           commit('SET_STORENAME', data.storeName)

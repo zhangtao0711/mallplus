@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 
 /**
  * 字符串工具类, 继承org.apache.commons.lang3.StringUtils类
@@ -140,5 +141,68 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
             w = 0;
         }
         return weekDays[w];
+    }
+
+    /**
+     * 生成包含数字大写字母随机数
+     * length为产生的位数
+     */
+    public static String getRandomString(int length) throws NumberFormatException {
+        //定义一个字符串（A-Z，0-9）即36位；
+        String str = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890";
+
+        //由Random生成随机数
+        Random random = new Random();
+        StringBuffer sb = new StringBuffer();
+
+        //长度为几就循环几次
+        for (int i = 0; i < length; ++i) {
+
+            //产生0-35的数字
+            int number = random.nextInt(36);
+            //将产生的数字通过length次承载到sb中
+            sb.append(str.charAt(number));
+        }
+        //将承载的字符转换成字符串
+        return sb.toString();
+    }
+    /**
+     * 右补位，左对齐
+     *
+     * @param oriStr   原字符串
+     * @param len      目标字符串长度
+     * @param fillChar 补位字符
+     * @return 目标字符串
+     */
+    public static String padRight(String oriStr, int len, char fillChar) {
+        String str = "";
+        int strlen = oriStr.length();
+        if (strlen < len) {
+            for (int i = 0; i < len - strlen; i++) {
+                str = str + fillChar;
+            }
+        }
+        str = str + oriStr;
+        return str;
+    }
+
+    /**
+     * 左补位，右对齐
+     *
+     * @param oriStr   原字符串
+     * @param len      目标字符串长度
+     * @param fillChar 补位字符
+     * @return 目标字符串
+     */
+    public static String padLeft(String oriStr, int len, char fillChar) {
+        int strlen = oriStr.length();
+        String str = "";
+        if (strlen < len) {
+            for (int i = 0; i < len - strlen; i++) {
+                str = str + fillChar;
+            }
+        }
+        str = oriStr + str;
+        return str;
     }
 }

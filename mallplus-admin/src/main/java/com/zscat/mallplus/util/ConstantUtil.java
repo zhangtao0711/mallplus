@@ -30,7 +30,20 @@ public class ConstantUtil {
     public static final Integer payStatus_6 = 6;
     public static final String SHOP_CACHE_NAME = "queryRepeatNum";
 
-    //成功，失败通用
-    public static final Integer succeeded = 1;
-    public static final Integer fail =0;
+    //制卡最大值
+    public static final Long max_card_no = 4294967295L;
+    //微信公众号前缀
+    public static final String weiXin_Subscription="http://weixin.qq.com/r/";
+    //制卡状态
+    public static final String card_create_state_0="0";//0未制卡
+    public static final String card_create_state_1="1";//1已制卡
+
+    //水卡状态（0正常1复制卡2挂失卡3删除卡4非经销商卡）
+    public static final String water_code_state_0="0";//正常
+    public static final String water_code_state_1="1";//复制卡
+    public static final String water_code_state_2="2";//挂失卡
+    public static final String water_code_state_3="3";//删除卡
+    public static final String water_code_state_4="4";//非经销商卡
+
+
 }
