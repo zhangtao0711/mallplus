@@ -29,4 +29,8 @@ public class ConstantUtil {
     public static final Integer payStatus_5 = 5;
     public static final Integer payStatus_6 = 6;
     public static final String SHOP_CACHE_NAME = "queryRepeatNum";
+
+    //成功，失败通用
+    public static final Integer succeeded = 1;
+    public static final Integer fail =0;
 }

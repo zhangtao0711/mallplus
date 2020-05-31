@@ -9,6 +9,7 @@ import me.chanjar.weixin.mp.api.impl.WxMpServiceImpl;
 import me.chanjar.weixin.mp.config.impl.WxMpDefaultConfigImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.annotation.Resource;
@@ -39,7 +40,7 @@ public class WxMpConfiguration {
     @Bean
     public WxMpService wxMpService() {
         // 代码里 getConfigs()处报错的同学，请注意仔细阅读项目说明，你的IDE需要引入lombok插件！！！！
-        List<AccountWechats> configs = jdbcTemplate.queryForList("select * from account_wechats", AccountWechats.class);
+        List<AccountWechats> configs = jdbcTemplate.query("select * from account_wechats", new BeanPropertyRowMapper<AccountWechats>(AccountWechats.class));
         if (configs == null||configs.size()==0) {
             AccountWechats mp = new AccountWechats();
             mp.setUniacid(1);

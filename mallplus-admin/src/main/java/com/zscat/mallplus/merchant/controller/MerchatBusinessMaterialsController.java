@@ -329,11 +329,14 @@ public class MerchatBusinessMaterialsController {
 
     @SysLog(MODULE = "merchat", REMARK = "图片上传API")
     @PostMapping("/imageUpload")
-    public Object imageUpload(@RequestParam MultipartFile multipartFile) throws Exception {
+    public Object imageUpload(@RequestBody MultipartFile multipartFile) throws Exception {
+        if (multipartFile==null){
+            return new CommonResult().failed("上传图片不能为空！");
+        }
         String fileName = multipartFile.getOriginalFilename();
-        File file = File.createTempFile(fileName, fileName.substring(fileName.lastIndexOf(".")).substring(fileName.lastIndexOf(".")));
+        File file = File.createTempFile(fileName, fileName.substring(fileName.lastIndexOf(".")));
         multipartFile.transferTo(file);
-        MerchatFacilitatorConfig merchatFacilitatorConfig = IMerchatFacilitatorConfigService.getOne(new QueryWrapper<>(new MerchatFacilitatorConfig()));
+        MerchatFacilitatorConfig merchatFacilitatorConfig = IMerchatFacilitatorConfigService.getById(1);
         String merchantId = merchatFacilitatorConfig.getMchId();
         String privateKeyPath = merchatFacilitatorConfig.getPrivateKeyPath();
         String mediaId = ImgUploadUtil.getV3MediaID(file,merchantId,privateKeyPath,merchatFacilitatorConfig.getApiclientCertP12());

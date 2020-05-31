@@ -11,9 +11,7 @@ import com.zscat.mallplus.sys.entity.SysStore;
 import com.zscat.mallplus.sys.entity.SysUserVo;
 import com.zscat.mallplus.sys.mapper.SysStoreMapper;
 import com.zscat.mallplus.sys.mapper.SysUserMapper;
-import com.zscat.mallplus.sys.mapper.SysUserStaffMapper;
 import com.zscat.mallplus.sys.service.ISysUserService;
-import com.zscat.mallplus.sys.service.impl.RedisUtil;
 import com.zscat.mallplus.ums.service.RedisService;
 import com.zscat.mallplus.util.JsonUtil;
 import com.zscat.mallplus.vo.Rediskey;
@@ -22,6 +20,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,7 +32,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -54,7 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private ISysUserService sysUserService;
     @Resource
-    private SysUserStaffMapper sysUserStaffMapper;
+    private JdbcTemplate jdbcTemplate;
     @Resource
     private SysUserMapper userMapper;
     @Resource
@@ -143,7 +141,32 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 admin = userMapper.selectByUserName(username);
                 //在这里检索第二张表
                 if (admin==null){
-                    admin = sysUserStaffMapper.selectByUserName(username);
+                    try {
+                        List<SysUserVo> admins = jdbcTemplate.queryForList("select\n" +
+                                "         id as \"id\"\n" +
+                                "         ,username as \"username\",\n" +
+                                "         password as \"password\",\n" +
+                                "         phone as \"phone\",\n" +
+                                "         device_group_id as \"deviceGroupId\",\n" +
+                                "         staff_name as \"realname\",\n" +
+                                "        create_time as \"createTime\",\n" +
+                                "        login_time as \"loginTime\",\n" +
+                                "        status as \"status\",\n" +
+                                "        supply_id as \"supplyId\",\n" +
+                                "        store_id as \"storeId\",\n" +
+                                "        store_name as \"storeName\"\n" +
+                                "        from sys_user_staff\n" +
+                                "        where username =" +"'"+username +"'",SysUserVo.class);
+                        if (admins!=null&&admins.size()==1){
+                            admin = admins.get(0);
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                }
+                if (admin==null){
+                    throw new UsernameNotFoundException("用户名或密码错误");
                 }
                 redisService.set(String.format(Rediskey.user, username), JsonUtil.objectToJson(admin));
             }

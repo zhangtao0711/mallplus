@@ -420,7 +420,8 @@ public class SingelHomeController {
     @PostMapping(value = "/simpleReg")
     public Object simpleReg(@RequestParam String phone,
                             @RequestParam String password,
-                            @RequestParam String confimpassword, @RequestParam(required = false) String invitecode) {
+                            @RequestParam String confimpassword, @RequestParam(required = false) String invitecode,
+                            @RequestParam Integer uniacid) {
         if (phone == null || "".equals(phone)) {
             return new CommonResult().validateFailed("用户名或密码错误");
         }
@@ -430,7 +431,7 @@ public class SingelHomeController {
         if (confimpassword == null || "".equals(confimpassword)) {
             return new CommonResult().validateFailed("用户名或密码错误");
         }
-        return memberService.simpleReg(phone, password, confimpassword, invitecode);
+        return memberService.simpleReg(phone, password, confimpassword, invitecode,uniacid);
     }
 
     /**

@@ -14,13 +14,14 @@
         <result column="register" property="register"/>
         <result column="sign" property="sign"/>
         <result column="orders" property="orders"/>
+        <result column="orders_status" property="ordersStatus" />
         <result column="water_fee" property="waterFee"/>
         <result column="dealer_id" property="dealerId"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, deduction_per_amount, max_percent_per_order, use_unit, coupon_status,store_id,login,register,sign,orders,water_fee,dealer_id
+        id, deduction_per_amount, max_percent_per_order, use_unit, coupon_status,store_id,login,register,sign,orders,orders_status,water_fee,dealer_id
     </sql>
 
 </mapper>

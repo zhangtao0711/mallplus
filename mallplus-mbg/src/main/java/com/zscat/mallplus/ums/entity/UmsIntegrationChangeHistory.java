@@ -8,6 +8,7 @@ import com.zscat.mallplus.utils.BaseEntity;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -46,6 +47,12 @@ public class UmsIntegrationChangeHistory extends BaseEntity implements Serializa
     private Integer changeCount;
 
     /**
+     * 水费改变量
+     */
+    @TableField("change_fee")
+    private BigDecimal changeFee;
+
+    /**
      * 操作人员
      */
     @TableField("operate_man")
@@ -63,16 +70,30 @@ public class UmsIntegrationChangeHistory extends BaseEntity implements Serializa
     @TableField("source_type")
     private Integer sourceType;
 
+    /**
+     * 当前剩余积分
+     */
+    @TableField("integration")
+    private Integer integration;
+
+    /**
+     * 当前剩余余额
+     */
+    @TableField("balance")
+    private BigDecimal balance;
+
     public UmsIntegrationChangeHistory() {
     }
 
-    public UmsIntegrationChangeHistory(Long memberId, Date createTime, Integer changeType, Integer changeCount, String operateMan, String operateNote, Integer sourceType) {
+    public UmsIntegrationChangeHistory(Long memberId, Date createTime, Integer changeType, Integer changeCount,BigDecimal changeFee, String operateMan, String operateNote, Integer sourceType,Integer integration) {
         this.memberId = memberId;
         this.createTime = createTime;
         this.changeType = changeType;
         this.changeCount = changeCount;
+        this.changeFee = changeFee;
         this.operateMan = operateMan;
         this.operateNote = operateNote;
         this.sourceType = sourceType;
+        this.integration = integration;
     }
 }

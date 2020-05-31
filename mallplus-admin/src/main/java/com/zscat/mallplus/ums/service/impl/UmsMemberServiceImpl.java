@@ -58,4 +58,9 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     public  Map memberMonthStatic(@Param("date") String date){
         return memberMapper.memberMonthStatic(date);
     }
+
+    @Override
+    public List<UmsMember> getMemberByLabelId(Long labelId) {
+        return memberMapper.getMemberByLabelId(labelId);
+    }
 }

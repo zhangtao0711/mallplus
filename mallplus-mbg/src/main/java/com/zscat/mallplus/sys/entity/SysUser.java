@@ -167,4 +167,10 @@ public class SysUser implements Serializable {
     @TableField("integration")
     private Integer integration;
 
+    /**
+     * 积分状态 积分状态0冻结1正常
+     */
+    @TableField("integration_status")
+    private Integer integrationStatus;
+
 }

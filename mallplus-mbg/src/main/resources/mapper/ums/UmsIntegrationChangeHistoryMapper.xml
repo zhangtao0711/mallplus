@@ -9,14 +9,75 @@
         <result column="create_time" property="createTime"/>
         <result column="change_type" property="changeType"/>
         <result column="change_count" property="changeCount"/>
+        <result column="change_fee" property="changeFee" />
         <result column="operate_man" property="operateMan"/>
         <result column="operate_note" property="operateNote"/>
         <result column="source_type" property="sourceType"/>
+        <result column="integration" property="integration" />
+        <result column="balance" property="balance" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, member_id, create_time, change_type, change_count, operate_man, operate_note, source_type
+        id, member_id, create_time, change_type, change_count, change_fee, operate_man, operate_note, source_type,integration,balance
     </sql>
 
+    <!-- 用户的记录 经销商和平台-->
+    <select id="selectMemberRecord" parameterType="String" resultType="Map">
+        SELECT DISTINCT
+            a.create_time,
+            b.id as "memberId",
+            b.nickname,
+            b.phone,
+            e.dealer_name,
+            f.level,
+            d.name,
+            a.change_type,
+            a.change_count,
+            a.integration,
+            a.source_type,
+            b.integration_status
+        FROM
+            ums_integration_change_history a
+            Left join ums_member b on b.id = a.member_id
+            Left join account_wxapp d on d.acid = b.uid
+            LEFT join sys_user e on e.id = d.create_by
+            Left join sys_dealer_level f on f.id = e.level
+        WHERE
+        1=1
+        <if test="dealerId != null and dealerId != ''">
+            and e.id = #{dealerId}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and a.create_time between #{startTime} and #{endTime}
+        </if>
+        <if test="nickname != null and nickname != ''">
+            and b.nickname = #{nickname}
+        </if>
+        <if test="phone != null and phone != ''">
+            and b.phone = #{phone}
+        </if>
+        <if test="dealerName != null and dealerName != ''">
+            and e.dealer_name = #{dealerName}
+        </if>
+        <if test="level != null and level != ''">
+            and d.id = #{level}
+        </if>
+        <if test="changeType != null and changeType != ''">
+            and a.change_type = #{changeType}
+        </if>
+        <if test="changeCount != null and changeCount != ''">
+            and a.change_count = #{changeCount}
+        </if>
+        <if test="integration != null and integration != ''">
+            and a.integration = #{integration}
+        </if>
+        <if test="sourceType != null and sourceType != ''">
+            and a.source_type = #{sourceType}
+        </if>
+        <if test="integrationStatus != null and integrationStatus != ''">
+            and b.integration_status = #{integrationStatus}
+        </if>
+        order by a.create_time desc
+    </select>
 </mapper>

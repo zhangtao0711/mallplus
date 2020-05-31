@@ -106,7 +106,7 @@ public class MybatisPlusConfig {
             public boolean doTableFilter(String tableName) {
                 if (tableName.startsWith("cms") || tableName.startsWith("build") || tableName.startsWith("admin_")
                         || tableName.startsWith("QRTZ_") || tableName.startsWith("wt_sim_url_info")
-                ||tableName.equals("merchat_facilitator_config")||tableName.equals("merchant_bank_info")) {
+                ||tableName.equals("merchat_facilitator_config")||tableName.equals("merchant_bank_info")||tableName.startsWith("sms_label")) {
                     return true;
                 }
                 return IGNORE_TENANT_TABLES.stream().anyMatch((e) -> e.equalsIgnoreCase(tableName));
@@ -122,6 +122,12 @@ public class MybatisPlusConfig {
                 MappedStatement ms = SqlParserHelper.getMappedStatement(metaObject);
                 // 过滤自定义查询此时无租户信息约束【 麻花藤 】出现
                 if ("com.zscat.mallplus.sys.mapper.SysUserMapper.selectByUserName".equals(ms.getId())) {
+                    return true;
+                }
+                if ("com.zscat.mallplus.jifen.mapper.JifenDealerIntegrationChangeHistoryMapper.selectBusinessRecord".equals(ms.getId())){
+                    return true;
+                }
+                if ("com.zscat.mallplus.ums.mapper.UmsIntegrationChangeHistoryMapper.selectMemberRecord".equals(ms.getId())){
                     return true;
                 }
                 Integer storeId = UserUtils.getCurrentMember().getStoreId();
