@@ -1,5 +1,8 @@
 package com.zscat.mallplus.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ConstantUtil {
 
     //平台用户小程序-积分商城，使用手机号和经销商用户小程序实现数据共通
@@ -45,5 +48,32 @@ public class ConstantUtil {
     public static final String water_code_state_3="3";//删除卡
     public static final String water_code_state_4="4";//非经销商卡
 
+    //充值金额类型
+    public static final String recharge_money_type_0="0";//充值金额
+    public static final String recharge_money_type_1="1";//充值体验金
+    //充值类型
+    public static final String recharge_type_0="0";//单卡
+    public static final String recharge_type_1="1";//批量
+    public static final String recharge_type_2="2";//筛选充值
+    //筛选记号
+    public static final Map<String,String> where_mark= new HashMap<>();
+    {
+        where_mark.put("0",">");
+        where_mark.put("1","<");
+        where_mark.put("2","=");
+        where_mark.put("3",">=");
+        where_mark.put("4","<=");
+    }
+    //筛选周期
+    public static final String where_period_0="0";//天
+    public static final String where_period_1="1";//周
+    public static final String where_period_2="2";//月
+    public static final String where_period_3="3";//季
+    public static final String where_period_4="4";//年
+    //体验到期类型
+    public static final String experience_end_type_0="0";//到期日
+    public static final String experience_end_type_1="1";//有效天数
 
+    //营销功能 客户标签id
+    public static final String ums_label_perssion_id="";//功能id
 }

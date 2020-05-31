@@ -129,7 +129,16 @@ public class DateUtils {
         return FORMATER_DATE_YMD.format(cd.getTime());
 
     }
+    public static Date addDay2(Date s, int n) {
 
+        SimpleDateFormat FORMATER_DATE_YMD = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar cd = Calendar.getInstance();
+        cd.setTime(s);
+        cd.add(Calendar.DATE, n);//增加一天
+        //cd.add(Calendar.MONTH, n);//增加一个月
+        return cd.getTime();
+
+    }
     /**
      * 转换为时间类型格式
      *
