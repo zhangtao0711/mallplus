@@ -36,9 +36,15 @@
 		  ,experience_money = #{data.experienceMoney}
 		  ,experience_end_data = #{data.experienceEndData}
         </if>
-       WHERE CAST(card_no AS SIGNED) BETWEEN #{data.startNo} and #{data.endNo}
-         AND del_flag =#{delFlag}
+       WHERE del_flag =#{delFlag}
 		 AND state=#{state}
+        <if test="data != null and data.startNo != null ">
+            AND CAST(card_no AS SIGNED) BETWEEN #{data.startNo} and #{data.endNo}
+        </if>
+        <if test="data != null and data.cardNo != null ">
+            AND CAST(card_no AS SIGNED) = #{data.cardNo}
+        </if>
+
     </update>
 
 </mapper>

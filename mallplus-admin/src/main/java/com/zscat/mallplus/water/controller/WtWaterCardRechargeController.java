@@ -53,8 +53,8 @@ public class WtWaterCardRechargeController {
         return new CommonResult().failed();
     }
 
-    @SysLog(MODULE = "water", REMARK = "保存充值")
-    @ApiOperation("保存充值")
+    @SysLog(MODULE = "water", REMARK = "批量保存充值")
+    @ApiOperation("批量保存充值")
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('water:wtWaterCardRecharge:create')")
     public Object saveWtWaterCardRecharge(@RequestBody WtWaterCardRecharge entity) {
@@ -138,6 +138,38 @@ public class WtWaterCardRechargeController {
                             && !(!entity.getUmsRecommendMark().isEmpty() && entity.getUmsRecommendWhere()!=null && !entity.getUmsRecommendPeriod().isEmpty())) {
                         return new CommonResult().failed("筛选条件用户推荐频次大小、频次数和周期需要同时设定！");
                     }
+                }
+            }
+            entity.setCreateTime(new Date());
+            if (IWtWaterCardRechargeService.save(entity)) {
+                return new CommonResult().success();
+            }
+        } catch (Exception e) {
+            log.error("保存充值：%s", e.getMessage(), e);
+            return new CommonResult().failed(e.getMessage());
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "water", REMARK = "后台普通充值")
+    @ApiOperation("后台普通充值")
+    @PostMapping(value = "/createSingle")
+    @PreAuthorize("hasAuthority('water:wtWaterCardRecharge:create')")
+    public Object saveWtWaterCardRechargeSingle(@RequestBody WtWaterCardRecharge entity) {
+        try {
+            //普通充值
+            if(entity.getRechargeType().equals(ConstantUtil.recharge_money_type_0)){
+                //必须输入校验
+                if(entity.getCardNo().isEmpty()
+                        ||entity.getRechargeMoney()==null|| entity.getReceivedMoney()==null){
+                    return new CommonResult().failed("卡号、充值金额、实收金额必须输入！");
+                }
+                if(Long.valueOf(entity.getCardNo())> ConstantUtil.max_card_no){
+                    return new CommonResult().failed("制卡卡号最大值是"+ ConstantUtil.max_card_no +"！");
+                }
+                //获取卡号关联经销商和登录者经销商是否一致
+                if (!IWtWaterCardRechargeService.getDealerId(Long.valueOf(entity.getCardNo()),Long.valueOf(entity.getCardNo()),entity.getDealerId())) {
+                    return new CommonResult().failed("此卡没有绑定在您的账号下！");
                 }
             }
             entity.setCreateTime(new Date());

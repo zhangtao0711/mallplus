@@ -57,6 +57,8 @@ public class WtWaterCardRechargeServiceImpl extends ServiceImpl
             //按卡号充值
             if(entity.getRechargeType().equals(ConstantUtil.recharge_type_1)){
                 wtWaterCardMapper.updateRecharge(entity,ConstantUtil.water_code_state_0,"experience");
+            }else if(entity.getRechargeType().equals(ConstantUtil.recharge_money_type_0)){
+                wtWaterCardMapper.updateRecharge(entity,ConstantUtil.water_code_state_0,"recharge");
             }else{
                 //更新用户标签使用次数
                 wtWaterCardRechargeMapper.updateSalesCount(entity,ConstantUtil.ums_label_perssion_id);
