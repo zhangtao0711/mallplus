@@ -72,7 +72,7 @@ public class WtWaterCardActivateController {
                 return new CommonResult().failed("此区段内有已经开过的卡号，请重新设定起始卡号-终止卡号范围！");
             }
             //获取开卡开号存在数 卡号关联公众号
-            Map<String,Integer> data = IWtWaterCardActivateService.getNumInfo(Long.valueOf(entity.getStartNo()),Long.valueOf(entity.getEndNo()),entity.getEndNo());
+            Map<String,Integer> data = IWtWaterCardActivateService.getNumInfo(Long.valueOf(entity.getStartNo()),Long.valueOf(entity.getEndNo()),entity.getStoreId());
             boolean storeFlag=false;//经销商和制卡的公众号是否一致
             if (data!=null) {
                 Iterator<Map.Entry<String, Integer>> it =data.entrySet().iterator();

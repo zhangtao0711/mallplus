@@ -106,7 +106,9 @@ public class MybatisPlusConfig {
             public boolean doTableFilter(String tableName) {
                 if (tableName.startsWith("cms") || tableName.startsWith("build") || tableName.startsWith("admin_")
                         || tableName.startsWith("QRTZ_") || tableName.startsWith("wt_sim_url_info")
-                ||tableName.equals("merchat_facilitator_config")||tableName.equals("merchant_bank_info")||tableName.startsWith("sms_label")) {
+                ||tableName.equals("merchat_facilitator_config")||tableName.equals("merchant_bank_info")
+                        ||tableName.startsWith("sms_label")|| tableName.startsWith("sys_qiniu_config")
+                        || tableName.startsWith("sys_qiniu_content")) {
                     return true;
                 }
                 return IGNORE_TENANT_TABLES.stream().anyMatch((e) -> e.equalsIgnoreCase(tableName));
