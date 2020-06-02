@@ -42,6 +42,9 @@ public class SysUser implements Serializable {
     @TableField("gid")
     private Long gid;
 
+    @TableField("level")
+    private Integer level;
+
     private String username;
 
     private String password;

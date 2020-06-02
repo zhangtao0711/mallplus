@@ -1,6 +1,7 @@
 package com.zscat.mallplus.sys.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -31,6 +32,10 @@ import com.zscat.mallplus.utils.PhoneUtil;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import com.zscat.mallplus.vo.Rediskey;
 import com.zscat.mallplus.vo.SmsCode;
+import com.zscat.mallplus.weixinmp.entity.AccountWechats;
+import com.zscat.mallplus.weixinmp.service.IAccountWechatsService;
+import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
+import com.zscat.mallplus.wxminiapp.service.IAccountWxappService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -68,7 +73,9 @@ public class SysUserController extends ApiController {
     @Resource
     private ISysUserStaffService sysUserStaffService;
     @Resource
-    private IUmsMemberService memberService;
+    private IAccountWechatsService wechatsService;
+    @Resource
+    private IAccountWxappService wxappService;
     @Resource
     private ISysRoleService roleService;
     @Resource
@@ -508,6 +515,58 @@ public class SysUserController extends ApiController {
         }
         sysUserService.updateById(user);
         return new CommonResult().success("操作成功！");
+    }
+
+    @ApiOperation("获取经销商的来源-经销商")
+    @GetMapping(value = "/getOriginByUniacid")
+    public Object getOriginByUniacid(@RequestParam Integer uniacid) {
+        if (uniacid==null){
+            return new CommonResult().success();
+        }
+        JSONObject j = new JSONObject();
+        AccountWechats accountWechats = new AccountWechats();
+        accountWechats.setUniacid(uniacid);
+        AccountWechats wechats = wechatsService.getOne(new QueryWrapper<>(accountWechats));
+        if (wechats!=null){
+            j.put("name",wechats.getName());
+            SysUser user = sysUserService.getById(wechats.getCreateBy());
+            if (user.getLevel()==1){
+                j.put("gName",user.getUsername());
+            }else if (user.getLevel()==2){
+                j.put("pName",user.getUsername());
+                SysUser sysUser = sysUserService.getById(user.getPid());
+                j.put("gName",sysUser.getUsername());
+            }else if (user.getLevel()==3){
+                j.put("sName",user.getUsername());
+                SysUser user1 = sysUserService.getById(user.getPid());
+                j.put("pName",user1.getUsername());
+                SysUser user2 = sysUserService.getById(user.getGid());
+                j.put("gName",user2.getUsername());
+            }
+            return new CommonResult().success(j);
+        }
+        AccountWxapp accountWxapp = new AccountWxapp();
+        accountWxapp.setUniacid(uniacid);
+        AccountWxapp wxapp = wxappService.getOne(new QueryWrapper<>(accountWxapp));
+        if (wxapp==null){
+            return new CommonResult().success();
+        }
+        j.put("name",wxapp.getName());
+        SysUser user = sysUserService.getById(wxapp.getCreateBy());
+        if (user.getLevel()==1){
+            j.put("gName",user.getUsername());
+        }else if (user.getLevel()==2){
+            j.put("pName",user.getUsername());
+            SysUser sysUser = sysUserService.getById(user.getPid());
+            j.put("gName",sysUser.getUsername());
+        }else if (user.getLevel()==3){
+            j.put("sName",user.getUsername());
+            SysUser user1 = sysUserService.getById(user.getPid());
+            j.put("pName",user1.getUsername());
+            SysUser user2 = sysUserService.getById(user.getGid());
+            j.put("gName",user2.getUsername());
+        }
+        return new CommonResult().success(j);
     }
 }
 
