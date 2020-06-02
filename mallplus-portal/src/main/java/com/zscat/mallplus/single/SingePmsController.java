@@ -160,13 +160,13 @@ public class SingePmsController extends ApiBaseAction {
             }
         }
         UmsMember member = memberService.getNewCurrentMember();
-        if (member != null && member.getId() != null && pmsProduct.getIsVip() != null && pmsProduct.getIsVip() == 1) {
-            UmsMemberLevel fenxiaoConfig = memberLevelService.getById(member.getMemberLevelId());
-            if (fenxiaoConfig != null && fenxiaoConfig.getPriviledgeMemberPrice() > 0) {
-                pmsProduct.setMemberRate(fenxiaoConfig.getPriviledgeMemberPrice());
-                pmsProduct.setVipPrice(pmsProduct.getPrice().multiply(new BigDecimal(fenxiaoConfig.getPriviledgeMemberPrice())).divide(BigDecimal.valueOf(10)));
-            }
-        }
+//        if (member != null && member.getId() != null && pmsProduct.getIsVip() != null && pmsProduct.getIsVip() == 1) {
+//            UmsMemberLevel fenxiaoConfig = memberLevelService.getById(member.getMemberLevelId());
+//            if (fenxiaoConfig != null && fenxiaoConfig.getPriviledgeMemberPrice() > 0) {
+//                pmsProduct.setMemberRate(fenxiaoConfig.getPriviledgeMemberPrice());
+//                pmsProduct.setVipPrice(pmsProduct.getPrice().multiply(new BigDecimal(fenxiaoConfig.getPriviledgeMemberPrice())).divide(BigDecimal.valueOf(10)));
+//            }
+//        }
         return pmsProduct;
     }
 
@@ -434,10 +434,10 @@ public class SingePmsController extends ApiBaseAction {
 
                     if (member != null && member.getId() != null && pmsProduct.getIsVip() != null && pmsProduct.getIsVip() == 1) {
                         UmsMemberLevel fenxiaoConfig = memberLevelService.getById(member.getMemberLevelId());
-                        if (fenxiaoConfig != null && fenxiaoConfig.getPriviledgeMemberPrice() > 0) {
-                            pmsProduct.setMemberRate(fenxiaoConfig.getPriviledgeMemberPrice());
-                            pmsProduct.setVipPrice(pmsProduct.getPrice().multiply(new BigDecimal(fenxiaoConfig.getPriviledgeMemberPrice())).divide(BigDecimal.valueOf(10)));
-                        }
+//                        if (fenxiaoConfig != null && fenxiaoConfig.getPriviledgeMemberPrice() > 0) {
+//                            pmsProduct.setMemberRate(fenxiaoConfig.getPriviledgeMemberPrice());
+//                            pmsProduct.setVipPrice(pmsProduct.getPrice().multiply(new BigDecimal(fenxiaoConfig.getPriviledgeMemberPrice())).divide(BigDecimal.valueOf(10)));
+//                        }
                     }
                 }
             }
@@ -477,10 +477,10 @@ public class SingePmsController extends ApiBaseAction {
             if (ValidatorUtils.empty(countGoodsByToday)) {
                 countGoodsByToday = 0;
             }
-            if (countGoodsByToday > memberLevel.getGoodscount()) {
-                commonResult = new CommonResult().failed("你今天已经有发" + countGoodsByToday + "个商品");
-                return commonResult;
-            }
+//            if (countGoodsByToday > memberLevel.getGoodscount()) {
+//                commonResult = new CommonResult().failed("你今天已经有发" + countGoodsByToday + "个商品");
+//                return commonResult;
+//            }
         } else {
             return new CommonResult().success("没有设置会员等级");
         }
@@ -1112,9 +1112,9 @@ public class SingePmsController extends ApiBaseAction {
                 logoPath="https://images.gitee.com/uploads/images/2020/0109/102351_cfd0b0c7_134431.png";
             }else {
                 UmsMemberLevel fenxiaoConfig = memberLevelService.getById(member.getMemberLevelId());
-                if (fenxiaoConfig != null && fenxiaoConfig.getPriviledgeMemberPrice() > 0 &&  fenxiaoConfig.getPriviledgeMemberPrice()<10) {
-                    memberPrice = "会员"+fenxiaoConfig.getPriviledgeMemberPrice()+"折,福利￥"+product.getPrice().multiply(new BigDecimal(fenxiaoConfig.getPriviledgeMemberPrice())).divide(BigDecimal.valueOf(10));
-                }
+//                if (fenxiaoConfig != null && fenxiaoConfig.getPriviledgeMemberPrice() > 0 &&  fenxiaoConfig.getPriviledgeMemberPrice()<10) {
+//                    memberPrice = "会员"+fenxiaoConfig.getPriviledgeMemberPrice()+"折,福利￥"+product.getPrice().multiply(new BigDecimal(fenxiaoConfig.getPriviledgeMemberPrice())).divide(BigDecimal.valueOf(10));
+//                }
                 logoPath=member.getIcon();
             }
             String backgroundUrl =  "https://images.gitee.com/uploads/images/2020/0513/134511_35be9915_134431.jpeg";

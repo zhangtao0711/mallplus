@@ -178,10 +178,10 @@ public class BPmsController extends ApiBaseAction {
 
         if (member != null && member.getId() != null && pmsProduct.getIsVip() != null && pmsProduct.getIsVip() == 1 && member != null && member.getMemberLevelId() > 0) {
             UmsMemberLevel fenxiaoConfig = memberLevelService.getById(member.getMemberLevelId());
-            if (fenxiaoConfig != null && fenxiaoConfig.getPriviledgeMemberPrice() > 0) {
-                pmsProduct.setMemberRate(fenxiaoConfig.getPriviledgeMemberPrice());
-                pmsProduct.setVipPrice(pmsProduct.getPrice().multiply(new BigDecimal(fenxiaoConfig.getPriviledgeMemberPrice())).divide(BigDecimal.valueOf(10)));
-            }
+//            if (fenxiaoConfig != null && fenxiaoConfig.getPriviledgeMemberPrice() > 0) {
+//                pmsProduct.setMemberRate(fenxiaoConfig.getPriviledgeMemberPrice());
+//                pmsProduct.setVipPrice(pmsProduct.getPrice().multiply(new BigDecimal(fenxiaoConfig.getPriviledgeMemberPrice())).divide(BigDecimal.valueOf(10)));
+//            }
         }
         return pmsProduct;
     }
@@ -288,10 +288,10 @@ public class BPmsController extends ApiBaseAction {
                 for (PmsProduct pmsProduct : list.getRecords()) {
                     if (pmsProduct.getIsVip() != null && pmsProduct.getIsVip() == 1 && member != null & member.getMemberLevelId() > 0) {
                         UmsMemberLevel fenxiaoConfig = memberLevelService.getById(member.getMemberLevelId());
-                        if (fenxiaoConfig != null && fenxiaoConfig.getPriviledgeMemberPrice() > 0) {
-                            pmsProduct.setMemberRate(fenxiaoConfig.getPriviledgeMemberPrice());
-                            pmsProduct.setVipPrice(pmsProduct.getPrice().multiply(new BigDecimal(fenxiaoConfig.getPriviledgeMemberPrice())).divide(BigDecimal.valueOf(10)));
-                        }
+//                        if (fenxiaoConfig != null && fenxiaoConfig.getPriviledgeMemberPrice() > 0) {
+//                            pmsProduct.setMemberRate(fenxiaoConfig.getPriviledgeMemberPrice());
+//                            pmsProduct.setVipPrice(pmsProduct.getPrice().multiply(new BigDecimal(fenxiaoConfig.getPriviledgeMemberPrice())).divide(BigDecimal.valueOf(10)));
+//                        }
                     }
                 }
             }
@@ -978,10 +978,10 @@ public class BPmsController extends ApiBaseAction {
             if (ValidatorUtils.empty(countGoodsByToday)) {
                 countGoodsByToday = 0;
             }
-            if (countGoodsByToday > memberLevel.getGoodscount()) {
-                commonResult = new CommonResult().failed("你今天已经有发" + countGoodsByToday + "个商品");
-                return commonResult;
-            }
+//            if (countGoodsByToday > memberLevel.getGoodscount()) {
+//                commonResult = new CommonResult().failed("你今天已经有发" + countGoodsByToday + "个商品");
+//                return commonResult;
+//            }
         } else {
             return new CommonResult().success("没有设置会员等级");
         }

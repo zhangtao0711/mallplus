@@ -680,9 +680,9 @@ public class OmsOrderServiceImpl extends ServiceImpl<OmsOrderMapper, OmsOrder> i
         BigDecimal singVipPrice = BigDecimal.ZERO; // 会员折扣优惠
         int memberRate = 10;
         UmsMemberLevel memberLevel = memberLevelService.getById(currentMember.getMemberLevelId());
-        if (memberLevel != null && memberLevel.getPriviledgeMemberPrice() > 0) {
-            memberRate = memberLevel.getPriviledgeMemberPrice();
-        }
+//        if (memberLevel != null && memberLevel.getPriviledgeMemberPrice() > 0) {
+//            memberRate = memberLevel.getPriviledgeMemberPrice();
+//        }
         // 2. 校验商品库存，舍弃商品不存或没有库存 计算运费
         for (OmsCartItem cartPromotionItem : cartPromotionItemList) {
             boolean flag = false;
@@ -2480,9 +2480,9 @@ public class OmsOrderServiceImpl extends ServiceImpl<OmsOrderMapper, OmsOrder> i
         UmsMemberLevel memberLevel = new UmsMemberLevel();
         if (pmsProduct.getIsVip() != null && pmsProduct.getIsVip() == 1) {
             memberLevel = memberLevelService.getById(currentMember.getMemberLevelId());
-            if (memberLevel != null && memberLevel.getPriviledgeMemberPrice() > 0) {
-                memberRate = memberLevel.getPriviledgeMemberPrice();
-            }
+//            if (memberLevel != null && memberLevel.getPriviledgeMemberPrice() > 0) {
+//                memberRate = memberLevel.getPriviledgeMemberPrice();
+//            }
         }
         if (ValidatorUtils.notEmpty(cartParam.getSkuId()) && cartParam.getSkuId() > 0) {
             PmsSkuStock pmsSkuStock = skuStockMapper.selectById(cartParam.getSkuId());
@@ -2897,9 +2897,9 @@ public class OmsOrderServiceImpl extends ServiceImpl<OmsOrderMapper, OmsOrder> i
             BigDecimal singVipPrice = BigDecimal.ZERO; // 会员折扣优惠
             int memberRate = 10;
             UmsMemberLevel memberLevel = memberLevelService.getById(currentMember.getMemberLevelId());
-            if (memberLevel != null && memberLevel.getPriviledgeMemberPrice() > 0) {
-                memberRate = memberLevel.getPriviledgeMemberPrice();
-            }
+//            if (memberLevel != null && memberLevel.getPriviledgeMemberPrice() > 0) {
+//                memberRate = memberLevel.getPriviledgeMemberPrice();
+//            }
             // 2. 校验商品库存，舍弃商品不存或没有库存 计算运费
             for (OmsCartItem cartPromotionItem : cartPromotionItemList) {
                 boolean flag = false;

@@ -219,10 +219,10 @@ public class BCmsController extends ApiBaseAction {
             if (ValidatorUtils.empty(subjectCounts)) {
                 subjectCounts = 0;
             }
-            if (subjectCounts > memberLevel.getArticlecount()) {
-                commonResult = new CommonResult().failed("你今天已经有发" + memberLevel.getArticlecount() + "篇文章");
-                return commonResult;
-            }
+//            if (subjectCounts > memberLevel.getArticlecount()) {
+//                commonResult = new CommonResult().failed("你今天已经有发" + memberLevel.getArticlecount() + "篇文章");
+//                return commonResult;
+//            }
         }
         if (subject.getQsType() == 1) {
             subject.setSchoolName(member.getSchoolName());
