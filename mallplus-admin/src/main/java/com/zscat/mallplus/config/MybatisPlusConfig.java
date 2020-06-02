@@ -108,7 +108,7 @@ public class MybatisPlusConfig {
                         || tableName.startsWith("QRTZ_") || tableName.startsWith("wt_sim_url_info")
                 ||tableName.equals("merchat_facilitator_config")||tableName.equals("merchant_bank_info")
                         ||tableName.startsWith("sms_label")|| tableName.startsWith("sys_qiniu_config")
-                        || tableName.startsWith("sys_qiniu_content")) {
+                        || tableName.startsWith("sys_qiniu_content")|| tableName.startsWith("wt_water_card_create")) {
                     return true;
                 }
                 return IGNORE_TENANT_TABLES.stream().anyMatch((e) -> e.equalsIgnoreCase(tableName));
