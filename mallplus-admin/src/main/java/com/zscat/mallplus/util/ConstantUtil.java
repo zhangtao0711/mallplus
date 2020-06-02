@@ -45,5 +45,7 @@ public class ConstantUtil {
     public static final String water_code_state_3="3";//删除卡
     public static final String water_code_state_4="4";//非经销商卡
 
-
+    //通用的失败成功
+    public static final Integer fail = 0;
+    public static final Integer succeeded = 1;
 }
