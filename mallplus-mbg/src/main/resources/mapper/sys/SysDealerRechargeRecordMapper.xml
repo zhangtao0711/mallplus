@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.sys.mapper.SysDealerRechargeRecordMapper">
+    <select id="getSaleList" resultType="Map">
+        SELECT
+            a.id as "id",
+            f.username as "userName",
+            "支出" as "type",
+            a.price as "money",
+            date_format(a.create_time, '%Y-%m-%d %H:%i:%s') as "time",
+            "购买" + e.name + "功能" as "note"
+        FROM
+            set_sales_order a
+            left join sys_permission e on e.id = a.perssion_id
+            Left join sys_user f on f.id = a.dealer_id
+        WHERE
+            a.dealer_id = #{dealerId}
+        UNION
+        SELECT
+            b.id as "id",
+            d.username as "userName",
+            "充值" as "type",
+            b.recharge as "money",
+            date_format(b.create_time, '%Y-%m-%d %H:%i:%s') as "time",
+            b.note as "note"
+        FROM
+            sys_dealer_recharge_record b
+            Left join sys_user d on d.id = b.dealer_id
+        WHERE
+            b.dealer_id = #{dealerId}
+    </select>
+</mapper>

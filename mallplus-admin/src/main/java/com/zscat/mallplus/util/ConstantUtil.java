@@ -76,4 +76,7 @@ public class ConstantUtil {
 
     //营销功能 客户标签id
     public static final String ums_label_perssion_id="";//功能id
+    //通用的失败成功
+    public static final Integer fail = 0;
+    public static final Integer succeeded = 1;
 }
