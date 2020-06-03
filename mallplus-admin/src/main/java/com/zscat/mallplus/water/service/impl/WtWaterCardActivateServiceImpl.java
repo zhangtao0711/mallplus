@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,14 +34,15 @@ public class WtWaterCardActivateServiceImpl extends ServiceImpl
 
     //卡号是否重复
     public boolean checkNum(Long sta, Long end){
-        if(wtWaterCardActivateMapper.getNum(sta,end)!=null){
+        List<WtWaterCardActivate> data = wtWaterCardActivateMapper.getNum(sta,end);
+        if(data!=null && data.size()>0){
             return false;
         }
         return true;
     }
 
     //获取开卡开号存在数 卡号关联公众号
-    public Map<String,Integer> getNumInfo(Long sta, Long end,Integer userId){
+    public Map<String,Long> getNumInfo(Long sta, Long end,Long userId){
         return wtWaterCardActivateMapper.getNumInfo(sta,end,userId);
     }
 
@@ -48,7 +50,7 @@ public class WtWaterCardActivateServiceImpl extends ServiceImpl
     public boolean save(WtWaterCardActivate entity){
         //更新卡列表的经销商信息
         if(!wtWaterCardMapper.updateStoreId(Long.valueOf(entity.getStartNo())
-                ,Long.valueOf(entity.getEndNo()),entity.getDealerId(),entity.getStoreId(),entity.getCreateBy(),ConstantUtil.delFlag)){
+                ,Long.valueOf(entity.getEndNo()),entity.getDealerId(),entity.getCreateBy(),ConstantUtil.delFlag)){
             return false;
         }
         //添加水卡和设备关联信息表
@@ -62,6 +64,9 @@ public class WtWaterCardActivateServiceImpl extends ServiceImpl
                 return false;
             }
         }
-        return super.save(entity);
+         if(wtWaterCardActivateMapper.insert(entity)>0){
+            return true;
+         }
+         return false;
     }
 }

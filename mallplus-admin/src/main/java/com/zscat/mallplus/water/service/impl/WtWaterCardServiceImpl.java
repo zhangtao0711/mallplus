@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author lyn
@@ -22,5 +23,9 @@ public class WtWaterCardServiceImpl extends ServiceImpl
     //根据卡号获取数据库中卡号信息
     public WtWaterCard getOneBy(WtWaterCard entity){
         return wtWaterCardMapper.getOneBy(entity);
+    }
+    //根据开卡id获取售出卡信息
+    public List<WtWaterCard> getAllSaleStateOn(Long id, String saleStateOn){
+        return wtWaterCardMapper.getAllSaleStateOn(id, saleStateOn);
     }
 }

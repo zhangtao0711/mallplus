@@ -54,7 +54,8 @@ public class WtWaterCardCreateServiceImpl extends ServiceImpl
     }
     //卡号是否重复
     public boolean checkNum(Long sta, Long end){
-        if(wtWaterCardCreateMapper.getNum(sta,end)!=null){
+        List<WtWaterCardCreate> data =wtWaterCardCreateMapper.getNum(sta,end);
+        if(data!=null && data.size()>0){
             return false;
         }
         return true;
@@ -62,5 +63,18 @@ public class WtWaterCardCreateServiceImpl extends ServiceImpl
     //制卡信息下载
     public List<WtWaterCardExcel> getExport(String delFlag, Long id){
         return wtWaterCardCreateMapper.getExport(delFlag,id);
+    }
+    //关联公众号key
+    public String getAcidKey(Integer acid){
+        return wtWaterCardCreateMapper.getAcidKey(acid);
+    }
+
+    //经销商和制卡的公众号是否一致
+    public boolean checkDealerId(WtWaterCardCreate entity){
+        List<WtWaterCardCreate> data =wtWaterCardCreateMapper.getDealerIdForAcid(entity);
+        if(data!=null && data.size()>0){
+            return true;
+        }
+        return false;
     }
 }

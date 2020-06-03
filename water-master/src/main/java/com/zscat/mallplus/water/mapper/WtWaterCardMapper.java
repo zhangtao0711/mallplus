@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zscat.mallplus.water.entity.WtWaterCardRecharge;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * @author lyn
  * @date 2020-05-30
@@ -13,7 +15,7 @@ import org.apache.ibatis.annotations.Param;
 public interface WtWaterCardMapper extends BaseMapper<WtWaterCard> {
     //更新卡列表的经销商信息
     boolean updateStoreId(@Param("sta")Long sta, @Param("end") Long end, @Param("dealerId")Long dealerId
-            , @Param("storeId")Integer storeId,@Param("updateBy")Long updateBy, @Param("delFlag")String delFlag);
+            , @Param("updateBy")Long updateBy, @Param("delFlag")String delFlag);
 
     //根据卡号获取数据库中卡号信息
     WtWaterCard getOneBy(@Param("data")WtWaterCard entity);
@@ -26,4 +28,12 @@ public interface WtWaterCardMapper extends BaseMapper<WtWaterCard> {
      * @return
      */
     Integer updateRecharge(@Param("data")WtWaterCardRecharge entity,@Param("state")String state,@Param("type")String type);
+
+    /**
+     *  根据开卡id获取售出卡信息
+     * @param id 开卡id
+     * @param saleStateOn 售出状态
+     * @return
+     */
+    List<WtWaterCard> getAllSaleStateOn(@Param("id")Long id, @Param("saleStateOn")String saleStateOn);
 }

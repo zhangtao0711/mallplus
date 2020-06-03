@@ -26,4 +26,21 @@
         WHERE a.id=#{id}
     </select>
 
+    <!-- 关联公众号key -->
+    <select id="getAcidKey" resultType="String">
+        SELECT
+        ifnull(a.key,'') AS "key"
+        FROM account_wxapp a
+        WHERE a.acid=#{acid}
+    </select>
+    <!-- 关联公众号key -->
+    <select id="getDealerIdForAcid" resultType="com.zscat.mallplus.water.entity.WtWaterCardCreate">
+        SELECT
+        *
+        FROM
+        wt_water_card_create a
+        LEFT JOIN sys_user b ON a.acid = b.uniacid
+        WHERE a.id=#{data.id}
+        AND b.id= #{data.dealerId}
+    </select>
 </mapper>

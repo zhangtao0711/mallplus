@@ -16,5 +16,5 @@ public interface WtWaterCardActivateMapper extends BaseMapper<WtWaterCardActivat
     //卡号是否重复
     List<WtWaterCardActivate> getNum(@Param("sta")Long sta, @Param("end") Long end);
     //获取开卡开号存在数 卡号关联公众号
-    Map<String,Integer> getNumInfo(@Param("sta")Long sta, @Param("end") Long end, @Param("userId") Integer userId);
+    Map<String,Long> getNumInfo(@Param("sta")Long sta, @Param("end") Long end, @Param("userId") Long userId);
 }

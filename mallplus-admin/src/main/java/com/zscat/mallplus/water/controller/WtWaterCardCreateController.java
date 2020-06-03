@@ -1,6 +1,7 @@
 package com.zscat.mallplus.water.controller;
 
 
+import cn.afterturn.easypoi.entity.ImageEntity;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.zxing.BarcodeFormat;
@@ -14,6 +15,7 @@ import com.zscat.mallplus.util.MatrixToImageWriter;
 import com.zscat.mallplus.util.StringUtils;
 import com.zscat.mallplus.water.entity.WtWaterCardCreate;
 import com.zscat.mallplus.water.entity.WtWaterCardExcel;
+import com.zscat.mallplus.water.service.IWtWaterCardActivateService;
 import com.zscat.mallplus.water.service.IWtWaterCardCreateService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
@@ -35,6 +37,7 @@ import java.io.File;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author lyn
@@ -71,7 +74,7 @@ public class WtWaterCardCreateController {
     @SysLog(MODULE = "water", REMARK = "保存制卡")
     @ApiOperation("保存制卡")
     @PostMapping(value = "/create")
-//    @PreAuthorize("hasAuthority('water:wtWaterCardCreate:create')")
+    @PreAuthorize("hasAuthority('water:wtWaterCardCreate:create')")
     public Object saveWtWaterCardCreate(@RequestBody WtWaterCardCreate entity) {
         try {
             //判断起始卡号和终止卡号合理性
@@ -88,8 +91,8 @@ public class WtWaterCardCreateController {
             if(!IWtWaterCardCreateService.checkNum(Long.valueOf(entity.getStartNo()),Long.valueOf(entity.getEndNo()))){
                 return new CommonResult().failed("此区段内有已经生成过的卡号存在，请重新设定起始卡号-终止卡号范围！");
             }
-            AccountWxapp accountWxapp=iAccountWxappService.getById(entity.getAcid());
-            if(accountWxapp.getKey().isEmpty()){
+//            AccountWxapp accountWxapp=iAccountWxappService.getById(entity.getAcid());
+            if(IWtWaterCardCreateService.getAcidKey(entity.getAcid())==null || IWtWaterCardCreateService.getAcidKey(entity.getAcid()).isEmpty()){
                 return new CommonResult().failed("此公众号没有key，请选择其他信息完整的公众号！");
             }
 
@@ -108,6 +111,32 @@ public class WtWaterCardCreateController {
             }
         } catch (Exception e) {
             log.error("保存制卡：%s", e.getMessage(), e);
+            return new CommonResult().failed(e.getMessage());
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "water", REMARK = "绑定经销商")
+    @ApiOperation("绑定经销商")
+    @PostMapping(value = "/updateDealerId/{id}")
+    @PreAuthorize("hasAuthority('water:wtWaterCardCreate:update')")
+    public Object updateDealerId(@RequestBody WtWaterCardCreate entity) {
+        try {
+            //经销商id为空时
+            if(entity.getDealerId()==null){
+                return new CommonResult().failed("请选择一个经销商！");
+            }
+            //经销商和制卡的公众号是否一致
+            if (!IWtWaterCardCreateService.checkDealerId(entity)) {
+                return new CommonResult().failed("制卡时绑定的公众号和经销商绑定的公众号不一致！");
+            }
+            //设定跟新日期
+            entity.setUpdateTime(new Date());
+            if (IWtWaterCardCreateService.updateById(entity)) {
+                return new CommonResult().success();
+            }
+        } catch (Exception e) {
+            log.error("绑定经销商：%s", e.getMessage(), e);
             return new CommonResult().failed(e.getMessage());
         }
         return new CommonResult().failed();
@@ -203,7 +232,12 @@ public class WtWaterCardCreateController {
                 MatrixToImageConfig config = new MatrixToImageConfig(0xFF000001, 0xFFFFFFFF);
                 BufferedImage bufImg = com.google.zxing.client.j2se.MatrixToImageWriter.toBufferedImage(bitMatrix, config);
 //                BufferedImage image = MatrixToImageWriter.toBufferedImage(bitMatrix, words);
-                wtWaterCardExcel.setQrCodeFile(bufImg);
+                // 创建图片
+                ImageEntity image = new ImageEntity();
+                image.setHeight(width);
+                image.setWidth(height);
+                image.setUrl("C:/Users/Administrator/Pictures/timg.jpg");
+                wtWaterCardExcel.setQrCodeFile(image);
             }
             // 导出操作
             EasyPoiUtils.exportExcel(personList, "导出制卡信息", "制卡信息", WtWaterCardExcel.class, "制卡信息.xls", response);

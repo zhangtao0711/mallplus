@@ -30,7 +30,7 @@ import java.io.Serializable;
  */
 @Data
 @TableName("wt_water_card_create")
-public class WtWaterCardCreate extends BaseEntity implements Serializable {
+public class WtWaterCardCreate implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
@@ -125,4 +125,9 @@ public class WtWaterCardCreate extends BaseEntity implements Serializable {
      **/
     @TableField("update_by")
     private Long updateBy;
+    /**
+     * 经销商
+     **/
+    @TableField("dealer_id")
+    private Long dealerId;
 }

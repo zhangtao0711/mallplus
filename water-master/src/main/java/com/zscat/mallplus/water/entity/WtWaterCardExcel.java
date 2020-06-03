@@ -1,5 +1,6 @@
 package com.zscat.mallplus.water.entity;
 
+import cn.afterturn.easypoi.entity.ImageEntity;
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -17,7 +18,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 //import javax.persistence.Transient;
-
 /**
  * @author lyn
  * @date 2020-05-29
@@ -65,7 +65,7 @@ public class WtWaterCardExcel extends BaseEntity implements Serializable {
      **/
     @TableField("qr_code")
     @Excel(name = "二维码图片" )
-    private BufferedImage qrCodeFile;
+    private ImageEntity qrCodeFile;
 
 
 

@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zscat.mallplus.water.mapper.WtWaterCardCreateMapper">
+<mapper namespace="com.zscat.mallplus.water.mapper.WtWaterCardActivateMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zscat.mallplus.ums.entity.UmsMemberLevel">
+        <id column="id" property="id"/>
+        <result column="start_no" property="startNo"/>
+        <result column="end_no" property="endNo"/>
+        <result column="eqcode" property="eqcode"/>
+        <result column="dealer_id" property="dealerId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,start_no,end_no,eqcode,
+        create_time,create_by,dealer_id
+    </sql>
 
     <!-- 卡号是否重复 -->
     <select id="getNum" resultType="com.zscat.mallplus.water.entity.WtWaterCardActivate">
@@ -14,9 +30,11 @@
         SELECT b.id
         ,count(a.id) AS num
         FROM wt_water_card a
-        LEFT JOIN sys_user b ON a.card_create_id=b.uniacid
+        LEFT JOIN wt_water_card_create c ON c.id=a.card_create_id
+	    LEFT JOIN sys_user b ON c.acid = b.uniacid
         WHERE CAST(a.card_no AS SIGNED) BETWEEN #{sta} and #{end}
         AND b.id= #{userId}
+        AND c.dealer_id=#{userId}
         GROUP BY b.id
     </select>
 </mapper>

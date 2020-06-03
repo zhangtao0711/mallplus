@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import java.beans.Transient;
 import java.util.Date;
 
 import lombok.Getter;
@@ -19,6 +20,9 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
+//import javax.persistence.*;
+
+import java.beans.Transient;
 
 /**
  * @author lyn
@@ -65,7 +69,8 @@ public class WtWaterCardActivate extends BaseEntity implements Serializable {
     /**
      * 经销商名称
      **/
-    private String storeName;
+//    @Transient
+    private transient String storeName;
 
     /**
      * 创建日期

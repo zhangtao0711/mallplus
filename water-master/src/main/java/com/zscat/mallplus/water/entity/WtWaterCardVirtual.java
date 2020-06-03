@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 import lombok.Getter;
@@ -20,27 +19,21 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
+import java.math.BigDecimal;
 import java.io.Serializable;
 
 /**
  * @author lyn
- * @date 2020-05-30
- * 水卡
+ * @date 2020-06-03
+ * 虚拟水卡
  */
 @Data
-@TableName("wt_water_card")
-public class WtWaterCard extends BaseEntity implements Serializable {
+@TableName("wt_water_card_virtual")
+public class WtWaterCardVirtual extends BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
-
-
-    /**
-     * 生成id
-     **/
-    @TableField("card_create_id")
-    private Long cardCreateId;
 
 
     /**
@@ -51,22 +44,19 @@ public class WtWaterCard extends BaseEntity implements Serializable {
 
 
     /**
-     * 二维码
-     **/
-    @TableField("qr_code")
-    private String qrCode;
-
-    /**
      * 绑定用户id
      **/
     @TableField("ums_member_id")
     private Long umsMemberId;
 
+
     /**
-     * 卡状态 字典water_code_state
+     * 卡状态（0正常1复制卡2挂失卡3删除卡4非经销商卡）字典water_code_state
      **/
     @TableField("state")
     private String state;
+
+
     /**
      * 体验金额
      **/
@@ -106,6 +96,7 @@ public class WtWaterCard extends BaseEntity implements Serializable {
     @Length(min=0, max=255, message="备注长度必须在255以内!")
     private String remarks;
 
+
     /**
      * 创建日期
      **/
@@ -141,16 +132,26 @@ public class WtWaterCard extends BaseEntity implements Serializable {
     @TableField("del_flag")
     private String delFlag;
 
+
     /**
-     * 经销商
+     * 经销商id
      **/
     @TableField("dealer_id")
     private Long dealerId;
 
+
     /**
-     * 水卡状态销售状态（0未售出1已售出）
+     * 推荐人
      **/
-    @TableField("sale_state")
-    private String saleState;
+    @TableField("ums_member_referrer_id")
+    private String umsMemberReferrerId;
+
+
+    /**
+     * 关联公众号id
+     **/
+    @TableField("acid")
+    private Integer acid;
+
 
 }

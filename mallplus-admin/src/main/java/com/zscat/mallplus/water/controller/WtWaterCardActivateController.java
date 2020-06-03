@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
 import com.zscat.mallplus.util.ConstantUtil;
+import com.zscat.mallplus.water.entity.WtWaterCard;
 import com.zscat.mallplus.water.entity.WtWaterCardActivate;
 import com.zscat.mallplus.water.service.IWtWaterCardActivateService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
+import com.zscat.mallplus.water.service.IWtWaterCardService;
 import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -37,6 +39,8 @@ public class WtWaterCardActivateController {
 
     @Resource
     private IWtWaterCardActivateService IWtWaterCardActivateService;
+    @Resource
+    private IWtWaterCardService IWtWaterCardService;
 
     @SysLog(MODULE = "water", REMARK = "根据条件查询所有批量开卡列表")
     @ApiOperation("根据条件查询所有批量开卡列表")
@@ -72,25 +76,27 @@ public class WtWaterCardActivateController {
                 return new CommonResult().failed("此区段内有已经开过的卡号，请重新设定起始卡号-终止卡号范围！");
             }
             //获取开卡开号存在数 卡号关联公众号
-            Map<String,Integer> data = IWtWaterCardActivateService.getNumInfo(Long.valueOf(entity.getStartNo()),Long.valueOf(entity.getEndNo()),entity.getStoreId());
+            Map<String,Long> data = IWtWaterCardActivateService.getNumInfo(Long.valueOf(entity.getStartNo()),Long.valueOf(entity.getEndNo()),entity.getDealerId());
             boolean storeFlag=false;//经销商和制卡的公众号是否一致
             if (data!=null) {
-                Iterator<Map.Entry<String, Integer>> it =data.entrySet().iterator();
-                while(it.hasNext()){
-                    Map.Entry<String, Integer> entry = it.next();
-                    if(entry.getKey().equals(entity.getDealerId())){
-                        storeFlag=true;
-                    }
-                }
+//                Iterator<Map.Entry<String, Integer>> it =data.entrySet().iterator();
+//                while(it.hasNext()){
+//                    Map.Entry<String, Integer> entry = it.next();
+//                    if(entry.getKey().equals("id")){
+                        if(data.get("id").toString().equals(entity.getDealerId().toString())){
+                            storeFlag=true;
+                        }
+//                    }
+//                }
                 if(!storeFlag){
                     return new CommonResult().failed("制卡时绑定的公众号和经销商绑定的公众号不一致！");
                 }else{
-                    if(data.get(entity.getDealerId())!=Long.valueOf(entity.getEndNo())-Long.valueOf(entity.getStartNo())+1){
+                    if(data.get("num")!=Long.valueOf(entity.getEndNo())-Long.valueOf(entity.getStartNo())+1){
                         return new CommonResult().failed("此区段内有的卡号存在没有制卡的卡号！");
                     }
                 }
             }else{
-                return new CommonResult().failed("此区段内有的卡号存在没有制卡的卡号！");
+                return new CommonResult().failed("此区段内有的卡号信息和商家账号不一致！");
             }
 
             entity.setCreateTime(new Date());
@@ -120,12 +126,17 @@ public class WtWaterCardActivateController {
         return new CommonResult().failed();
     }
 
-    @SysLog(MODULE = "water", REMARK = "删除批量开卡")
-    @ApiOperation("删除批量开卡")
+    @SysLog(MODULE = "water", REMARK = "撤销批量开卡")
+    @ApiOperation("撤销批量开卡")
     @GetMapping(value = "/delete/{id}")
     @PreAuthorize("hasAuthority('water:wtWaterCardActivate:delete')")
     public Object deleteWtWaterCardActivate(@ApiParam("批量开卡id") @PathVariable Long id) {
         try {
+            //卡状态必须是全部未售出时可以撤销
+            List<WtWaterCard> list=IWtWaterCardService.getAllSaleStateOn(id,ConstantUtil.water_code_sale_state_1);
+            if(list!=null && list.size()>0){
+                return new CommonResult().paramFailed("包含售出卡不能撤销！");
+            }
             if (ValidatorUtils.empty(id)) {
                 return new CommonResult().paramFailed("批量开卡id");
             }
@@ -133,7 +144,7 @@ public class WtWaterCardActivateController {
                 return new CommonResult().success();
             }
         } catch (Exception e) {
-            log.error("删除批量开卡：%s", e.getMessage(), e);
+            log.error("撤销批量开卡：%s", e.getMessage(), e);
             return new CommonResult().failed(e.getMessage());
         }
         return new CommonResult().failed();
