@@ -17,4 +17,8 @@ public interface WtWaterCardCreateMapper extends BaseMapper<WtWaterCardCreate> {
     List<WtWaterCardCreate> getNum(@Param("sta")Long sta,@Param("end") Long end);
     //制卡信息下载
     List<WtWaterCardExcel> getExport(@Param("delFlag")String delFlag, @Param("id") Long id);
+    //关联公众号key
+    String getAcidKey(@Param("acid")Integer acid);
+    //经销商和制卡的公众号是否一致
+    List<WtWaterCardCreate> getDealerIdForAcid(@Param("data")WtWaterCardCreate entity);
 }

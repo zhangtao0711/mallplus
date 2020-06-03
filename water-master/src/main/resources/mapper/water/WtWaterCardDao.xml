@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zscat.mallplus.water.mapper.WtWaterCard">
+<mapper namespace="com.zscat.mallplus.water.mapper.WtWaterCardMapper">
 
     <!-- 更新卡列表的经销商信息 -->
     <update id="updateStoreId">
        UPDATE wt_water_card
-       SET store_id=#{storeId}
-       ,dealer_id=#{dealerId}
+       SET dealer_id=#{dealerId}
        ,update_time=NOW()
        ,update_by=#{updateBy}
        WHERE CAST(card_no AS SIGNED) BETWEEN #{sta} and #{end}
@@ -46,5 +45,16 @@
         </if>
 
     </update>
+
+    <!-- 根据开卡id获取售出卡信息 -->
+    <select id="getAllSaleStateOn" resultType="com.zscat.mallplus.water.entity.WtWaterCard">
+        SELECT a.* FROM wt_water_card a
+        LEFT JOIN wt_water_card_activate b
+        ON  CAST(a.card_no AS SIGNED) BETWEEN b.start_no and b.end_no
+        WHERE b.id= #{id}
+        <if test="saleStateOn != null ">
+            AND a.sale_state=#{saleStateOn}
+        </if>
+    </select>
 
 </mapper>
