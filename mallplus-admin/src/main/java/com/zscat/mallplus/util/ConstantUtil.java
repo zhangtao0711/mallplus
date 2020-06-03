@@ -48,6 +48,10 @@ public class ConstantUtil {
     public static final String water_code_state_3="3";//删除卡
     public static final String water_code_state_4="4";//非经销商卡
 
+    //水卡状态销售状态（0未售出1已售出）
+    public static final String water_code_sale_state_0="0";//未售出
+    public static final String water_code_sale_state_1="1";//已售出
+
     //充值金额类型
     public static final String recharge_money_type_0="0";//充值金额
     public static final String recharge_money_type_1="1";//充值体验金
