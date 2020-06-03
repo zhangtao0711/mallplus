@@ -6,7 +6,7 @@
         <span>筛选搜索</span>
         <el-button
           style="float: right"
-          @click="searchWtWaterCardCreateList()"
+          @click="searchWtWaterCardActivateList()"
           type="primary"
           size="small"
         >查询结果</el-button>
@@ -22,11 +22,11 @@
     <el-card class="operate-container" shadow="never">
       <i class="el-icon-tickets"></i>
       <span>数据列表</span>
-      <el-button class="btn-add" @click="addWtWaterCardCreate()" size="mini">批量制卡</el-button>
+      <el-button class="btn-add" @click="addWtWaterCardActivate()" size="mini">+批量开卡</el-button>
     </el-card>
     <div class="table-container">
       <el-table
-        ref="wtWaterCardCreateTable"
+        ref="wtWaterCardActivateTable"
         :data="list"
         style="width: 100%"
         @selection-change="handleSelectionChange"
@@ -35,40 +35,26 @@
       >
         <el-table-column type="selection" width="60" align="center"></el-table-column>
 
-        <el-table-column prop="id" label="编号" width="100" align="center">
+        <el-table-column prop="id" label="编号">
           <template slot-scope="scope">{{scope.row.id }}</template>
         </el-table-column>
-        <el-table-column prop="code" label="代号" align="center">
-          <template slot-scope="scope">{{scope.row.code }}</template>
-        </el-table-column>
-        <el-table-column prop="startNo" label="起始卡号" align="center">
+        <el-table-column prop="startNo" label="起始卡号">
           <template slot-scope="scope">{{scope.row.startNo }}</template>
         </el-table-column>
-        <el-table-column prop="endNo" label="终止卡号" align="center">
+        <el-table-column prop="endNo" label="终止卡号">
           <template slot-scope="scope">{{scope.row.endNo }}</template>
         </el-table-column>
-        <el-table-column prop="number" label="数量" align="center">
-          <template slot-scope="scope">{{scope.row.number }}</template>
+        <el-table-column prop="eqcode" label="设备号">
+          <template slot-scope="scope">{{scope.row.eqcode }}</template>
         </el-table-column>
-        <el-table-column prop="acid" label="关联公众号id" align="center">
-          <template slot-scope="scope">{{scope.row.acid }}</template>
-        </el-table-column>
-        <el-table-column prop="distinguishNum" label="识别码" align="center">
-          <template slot-scope="scope">{{scope.row.distinguishNum }}</template>
+        <el-table-column prop="dealerId" label="商家账号">
+          <template slot-scope="scope">{{scope.row.dealerId }}</template>
         </el-table-column>
 
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
             <el-button size="mini" @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
-            <!-- <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button> -->
-            <el-button size="mini" type="warning" @click="handleAllot(scope.$index, scope.row)">分配</el-button>
-            <el-button
-              @click="exportExcel(scope.$index, scope.row)"
-              class="btn-add"
-              type="primary"
-              size="mini"
-              icon="el-icon-download"
-            >导出</el-button>
+            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -86,56 +72,20 @@
         :total="total"
       ></el-pagination>
     </div>
-
-    <div>
-      <el-dialog title="分配" :visible.sync="blance.dialogVisible" width="40%">
-        <el-form :model="blance" :rules="loginRules" ref="brandFrom" label-width="150px">
-          <el-form-item label="经销商：" prop="id" v-show="false">
-            <el-input v-model="blance.id"></el-input>
-          </el-form-item>
-
-          <el-form-item label="经销商：" prop="dealerId">
-            <el-input v-model="blance.dealerId"></el-input>
-            <!-- <el-select v-model="blance.dealerId" placeholder="请选择经销商">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>-->
-          </el-form-item>
-
-          <el-form-item>
-            <el-button @click="blance.dialogVisible = false">取 消</el-button>
-            <el-button type="primary" @click="handleEditBlance">确 定</el-button>
-          </el-form-item>
-        </el-form>
-      </el-dialog>
-    </div>
   </div>
 </template>
 <script>
 //将$都替换为$
 import {
   fetchList,
-  deleteWtWaterCardCreate,
-  exportExcel,
-  updateDealerId
-} from "@/api/water/wtWaterCardCreate";
+  deleteWtWaterCardActivate
+} from "@/api/water/wtWaterCardActivate";
 import { formatDate } from "@/utils/date";
 
 export default {
-  name: "wtWaterCardCreateList",
+  name: "wtWaterCardActivateList",
   data() {
     return {
-      loginRules: {
-        dealerId: [{ required: true, message: "请选择经销商", trigger: "blur" }]
-      },
-      blance: {
-        dialogVisible: false,
-        id: null
-      },
       operates: [],
       operateType: null,
       listQuery: {
@@ -171,34 +121,6 @@ export default {
     }
   },
   methods: {
-    handleAllot(index, row) {
-      this.blance.dialogVisible = true;
-      this.blance.id = row.id;
-    },
-    handleEditBlance() {
-      let data = {
-        id: this.blance.id,
-        dealerId: this.blance.dealerId
-      };
-
-      updateDealerId(this.blance.id, data).then(
-        response => {
-          this.$message({
-            message: response.msg,
-            type: "success",
-            duration: 1000
-          });
-        }
-      );
-      this.blance.dialogVisible = false;
-    },
-    exportExcel(index, row) {
-      window.open(
-        process.env.BASE_API +
-          "/water/wtWaterCardCreate/exportExcel?id=" +
-          row.id
-      );
-    },
     getList() {
       this.listLoading = true;
       fetchList(this.listQuery).then(response => {
@@ -214,7 +136,7 @@ export default {
     },
     handleUpdate(index, row) {
       this.$router.push({
-        path: "/ums/updateWtWaterCardCreate",
+        path: "/ums/updateWtWaterCardActivate",
         query: { id: row.id }
       });
     },
@@ -224,7 +146,7 @@ export default {
         cancelButtonText: "取消",
         type: "warning"
       }).then(() => {
-        deleteWtWaterCardCreate(row.id).then(response => {
+        deleteWtWaterCardActivate(row.id).then(response => {
           this.$message({
             message: "删除成功",
             type: "success",
@@ -244,7 +166,7 @@ export default {
       this.listQuery.pageNum = val;
       this.getList();
     },
-    searchWtWaterCardCreateList() {
+    searchWtWaterCardActivateList() {
       this.listQuery.pageNum = 1;
       this.getList();
     },
@@ -259,9 +181,9 @@ export default {
         return;
       }
       let showStatus = 0;
-      if (this.operateType === "showWtWaterCardCreate") {
+      if (this.operateType === "showWtWaterCardActivate") {
         showStatus = 1;
-      } else if (this.operateType === "hideWtWaterCardCreate") {
+      } else if (this.operateType === "hideWtWaterCardActivate") {
         showStatus = 0;
       } else {
         this.$message({
@@ -287,9 +209,9 @@ export default {
         });
       });
     },
-    addWtWaterCardCreate() {
+    addWtWaterCardActivate() {
       //手动将router,改成$router
-      this.$router.push({ path: "/ums/addWtWaterCardCreate" });
+      this.$router.push({ path: "/ums/addWtWaterCardActivate" });
     }
   }
 };

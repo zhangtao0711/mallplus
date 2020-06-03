@@ -28,9 +28,9 @@ export function getWtWaterCardCreate(id) {
     })
 }
 
-export function updateDealerId(data) {
+export function updateDealerId(id, data) {
     return request({
-        url: '/water/wtWaterCardCreate/updateDealerId',
+        url: '/water/wtWaterCardCreate/updateDealerId/' + id,
         method: 'post',
         data: data
     })
