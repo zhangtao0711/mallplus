@@ -41,9 +41,9 @@ public class MerchatFacilitatorConfig implements Serializable {
     /**
      * 用于支付的秘钥
      **/
-    @TableField("key")
+    @TableField("secret")
     @NotEmpty(message = "用于支付的秘钥不能为空！")
-    private String key;
+    private String secret;
 
     /**
      * 商户号

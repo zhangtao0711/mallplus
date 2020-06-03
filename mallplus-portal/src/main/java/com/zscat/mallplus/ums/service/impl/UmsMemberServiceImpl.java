@@ -6,10 +6,11 @@ import com.google.gson.Gson;
 import com.zscat.mallplus.config.MallplusProperties;
 import com.zscat.mallplus.enums.AllEnum;
 import com.zscat.mallplus.exception.ApiMallPlusException;
+import com.zscat.mallplus.jifen.entity.JifenDealerIntegrationChangeHistory;
+import com.zscat.mallplus.jifen.mapper.JifenDealerIntegrationChangeHistoryMapper;
 import com.zscat.mallplus.oms.mapper.OmsOrderMapper;
 import com.zscat.mallplus.oms.vo.OrderStstic;
 import com.zscat.mallplus.sys.entity.SysUser;
-import com.zscat.mallplus.sys.entity.SysUserStaff;
 import com.zscat.mallplus.sys.mapper.SysAreaMapper;
 import com.zscat.mallplus.sys.mapper.SysUserMapper;
 import com.zscat.mallplus.ums.entity.*;
@@ -19,10 +20,13 @@ import com.zscat.mallplus.ums.mapper.UmsMemberMapper;
 import com.zscat.mallplus.ums.mapper.UmsMemberMemberTagRelationMapper;
 import com.zscat.mallplus.ums.service.*;
 import com.zscat.mallplus.util.*;
+import com.zscat.mallplus.util.applet.StringConstantUtil;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.util.MatrixToImageWriter;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import com.zscat.mallplus.vo.*;
+import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
+import com.zscat.mallplus.wxminiapp.mapper.AccountWxappMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONObject;
 import okhttp3.OkHttpClient;
@@ -131,6 +135,10 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     private IUmsMemberBlanceLogService blanceLogService;
     @Resource
     private IUmsIntegrationChangeHistoryService umsIntegrationChangeHistoryService;
+    @Resource
+    private JifenDealerIntegrationChangeHistoryMapper jifenDealerIntegrationChangeHistoryMapper;
+    @Resource
+    private AccountWxappMapper accountWxappMapper;
     private OkHttpClient okHttpClient = new OkHttpClient();
 
     /**
@@ -329,33 +337,51 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
      * 添加积分记录 并更新用户积分
      *
      * @param id
-     * @param integration
+     * @param uniacid 小程序的id
      */
     @Override
-    public void addIntegration(Long id, Integer integration, int changeType, String note, int sourceType, String operateMan) {
-        //todo 这里是每个经销商都不一样，看那个经销商的小程序
-//        UmsIntegrationConsumeSetting consumeSetting = new UmsIntegrationConsumeSetting();
-//        consumeSetting.setDealerId();
+    public void addIntegration(Long id, Integer uniacid, int changeType, String note, int sourceType, String operateMan) {
+        // 这里是每个经销商都不一样，看那个经销商的小程序
+        Integer integration = 0;
+        BigDecimal waterFee = new BigDecimal("0");
+        //1.获取小程序的信息从而获取是那个经销商的store_id和create_by
+        AccountWxapp wxapp = accountWxappMapper.selectById(uniacid);
+        //2.获取设置的注册赠送积分信息
+        UmsIntegrationConsumeSetting consumeSetting = new UmsIntegrationConsumeSetting();
+        consumeSetting.setDealerId(wxapp.getCreateBy());
+        consumeSetting.setStoreId(wxapp.getStoreId());
         UmsIntegrationConsumeSetting setting = integrationConsumeSettingMapper.selectOne(new QueryWrapper<>());
         if (setting == null) {
             return;
         }
         UmsIntegrationChangeHistory history = new UmsIntegrationChangeHistory();
+        JifenDealerIntegrationChangeHistory integrationHistory = new JifenDealerIntegrationChangeHistory();
         history.setMemberId(id);
         if (sourceType == AllEnum.ChangeSource.register.code()) {
-            history.setChangeCount(setting.getRegister());
-            integration = setting.getRegister();
+            if (setting.getRegister()!=null&&setting.getRegister()!=0){
+                integration = setting.getRegister();
+                history.setChangeCount(integration);
+                integrationHistory.setChangeCount(integration);
+            }
+            if (setting.getWaterFee()!=null&&setting.getWaterFee().compareTo(waterFee)>0){
+                waterFee = setting.getWaterFee().setScale(BigDecimal.ROUND_DOWN,2);
+                history.setChangeFee(waterFee);
+                integrationHistory.setChangeBalance(waterFee);
+            }
         } else if (sourceType == AllEnum.ChangeSource.login.code()) {
             history.setChangeCount(setting.getLogin());
             integration = setting.getLogin();
+            integrationHistory.setChangeCount(integration);
         }
         if (sourceType == AllEnum.ChangeSource.order.code()) {
             history.setChangeCount(setting.getOrders() * integration);
             integration = setting.getOrders() * integration;
+            integrationHistory.setChangeCount(integration);
         }
         if (sourceType == AllEnum.ChangeSource.sign.code()) {
             history.setChangeCount(setting.getSign());
             integration = setting.getSign();
+            integrationHistory.setChangeCount(integration);
         }
 
         history.setCreateTime(new Date());
@@ -364,18 +390,50 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
         history.setSourceType(sourceType);
         history.setOperateMan(operateMan);
 
+        integrationHistory.setCreateTime(new Date());
+        integrationHistory.setChangeType(changeType);
+        integrationHistory.setOperateNote(note);
+        integrationHistory.setSourceType(sourceType);
+        integrationHistory.setOperateMan(operateMan);
+
         UmsMember member = memberMapper.selectById(id);
         if (member == null) {
-
+            return;
         } else {
-            umsIntegrationChangeHistoryService.save(history);
             if (member != null && ValidatorUtils.empty(member.getIntegration())) {
                 member.setIntegration(0);
             }
+            //确定一下是赠送积分还是水费,水费的话
+            if (waterFee.compareTo(new BigDecimal("0"))>0){
+                //设计还没确定水费谁出----鑫鑫 5-28 11:41:17 我问了甄姐了，甄姐说不用扣,这个就是白送
+                //TODO 会员亚楠还没做，这里给水卡加费用待定
+            }else if (integration==0){
+                return;
+             }
             //1.首先比较添加的积分是否比经销商的多，多的话，积分为冻结状态
+            SysUser dealer = adminMapper.selectById(wxapp.getCreateBy());
+            if (dealer==null){
+                return;
+            }
+            integrationHistory.setDealerId(dealer.getId());
+            if (dealer.getIntegration()==null){
+                dealer.setIntegration(0);
+            }
+            if (dealer.getIntegration()<integration || dealer.getIntegrationStatus() == null || dealer.getIntegrationStatus()== StringConstantUtil.integrationStatus_0){
+                dealer.setIntegrationStatus(StringConstantUtil.integrationStatus_0);
+                adminMapper.updateById(dealer);
+                return;
+            }
             //2.扣除经销商积分，更新数据
+            dealer.setIntegration(dealer.getIntegration()-integration);
+            adminMapper.updateById(dealer);
             member.setIntegration(member.getIntegration() + integration);
             memberMapper.updateById(member);
+            //历史记录(两个：一个用户，一个经销商)
+            history.setIntegration(member.getIntegration());
+            integrationHistory.setIntegration(dealer.getIntegration());
+            umsIntegrationChangeHistoryService.save(history);
+            jifenDealerIntegrationChangeHistoryMapper.insert(integrationHistory);
             redisService.set(String.format(Rediskey.MEMBER, member.getUsername()), JsonUtils.objectToJson(member));
         }
     }
@@ -536,6 +594,7 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
         UmsMember umsMember = new UmsMember();
         umsMember.setMemberLevelId(9999L);
         umsMember.setMemberLevelName("未开通会员");
+        umsMember.setUniacid(user.getUniacid());
         umsMember.setUsername(user.getUsername());
         umsMember.setNickname(user.getUsername());
         umsMember.setSourceType(user.getSourceType());
@@ -571,15 +630,16 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
 
         redisService.set(String.format(Rediskey.MEMBER, umsMember.getUsername()), JsonUtils.objectToJson(umsMember));
 
-        addIntegration(umsMember.getId(), regJifen, 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername());
+        addIntegration(umsMember.getId(), user.getUniacid(), 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername());
         umsMember.setPassword(null);
         return new CommonResult().success("注册成功", null);
     }
 
     @Override
-    public Object simpleReg(String phone, String password, String confimpassword, String invitecode) {
+    public Object simpleReg(String phone, String password, String confimpassword, String invitecode,Integer uniacid) {
         //没有该用户进行添加操作
         UmsMember user = new UmsMember();
+        user.setUniacid(uniacid);
         user.setUsername(phone);
         user.setPhone(phone);
         user.setPassword(password);
@@ -729,8 +789,23 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
         //判断数据库里面有没有返回的这个openid，有的话直接登录的首页，没有的话直接就是小程序页面
         j.put("openid",sessionData.getString("openid"));
         UmsMember umsMember = new UmsMember();
-        //TODO 这里应该还得加上小程序或者公众号的那个id去筛选
-        umsMember.setUniacid(0);
+        //这里应该还得加上小程序或者公众号的那个id去筛选
+        //首先判断是经销商小程序还是用户小程序
+        AccountWxapp wxapp = accountWxappMapper.selectById(req.getUniacid());
+        if (wxapp.getStoreId()==1){
+            //检索经销商数据
+            SysUser user = new SysUser();
+            user.setWeixinOpenid(sessionData.getString("openid"));
+            user.setUniacid(req.getUniacid());
+            SysUser member = adminMapper.selectOne(new QueryWrapper<>(user));
+            if (member==null){
+                j.put("url","seller/login");
+            }else {
+                j.put("url","pages/index/index");
+            }
+            return new CommonResult().success(j);
+        }
+        umsMember.setUniacid(req.getUniacid());
         umsMember.setWeixinOpenid(sessionData.getString("openid"));
         UmsMember member = memberMapper.selectOne(new QueryWrapper<>(umsMember));
         if (member==null){

@@ -39,7 +39,7 @@ public class WtSimUrlInfoController {
     @SysLog(MODULE = "water", REMARK = "根据条件查询所有SIM卡第三方appkey列表")
     @ApiOperation("根据条件查询所有SIM卡第三方appkey列表")
     @GetMapping(value = "/list")
-//    @PreAuthorize("hasAuthority('water:wtSimUrlInfo:read')")
+    @PreAuthorize("hasAuthority('water:wtSimUrlInfo:read')")
     public Object getWtSimUrlInfoByPage(WtSimUrlInfo entity,
                                         @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                                         @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
@@ -55,7 +55,7 @@ public class WtSimUrlInfoController {
     @SysLog(MODULE = "water", REMARK = "保存SIM卡第三方appkey")
     @ApiOperation("保存SIM卡第三方appkey")
     @PostMapping(value = "/create")
-//    @PreAuthorize("hasAuthority('water:wtSimUrlInfo:create')")
+    @PreAuthorize("hasAuthority('water:wtSimUrlInfo:create')")
     public Object saveWtSimUrlInfo(@RequestBody WtSimUrlInfo entity) {
         try {
             entity.setCreateTime(new Date());
@@ -89,7 +89,7 @@ public class WtSimUrlInfoController {
     @SysLog(MODULE = "water", REMARK = "删除SIM卡第三方appkey")
     @ApiOperation("删除SIM卡第三方appkey")
     @GetMapping(value = "/delete/{id}")
-//    @PreAuthorize("hasAuthority('water:wtSimUrlInfo:delete')")
+    @PreAuthorize("hasAuthority('water:wtSimUrlInfo:delete')")
     public Object deleteWtSimUrlInfo(@ApiParam("SIM卡第三方appkeyid") @PathVariable Long id) {
         try {
             if (ValidatorUtils.empty(id)) {
@@ -155,16 +155,16 @@ public class WtSimUrlInfoController {
         IWtSimUrlInfoService.saveBatch(personList);
     }
 
-    @SysLog(MODULE = "water", REMARK = "查询账号余额")
-    @ApiOperation("查询账号余额")
-    @GetMapping(value = "/gerAmount/{id}")
+    @SysLog(MODULE = "water", REMARK = "物联网卡余量查询")
+    @ApiOperation("物联网卡余量查询")
+    @GetMapping(value = "/getChaxun/{id}/{cardno}")
 //    @PreAuthorize("hasAuthority('water:wtSimCard:read')")
-    public Object gerAmount(@ApiParam("SIM卡第三方appkeyid")@PathVariable Long id) {
+    public Object getChaxun(@ApiParam("SIM卡第三方appkeyid")@PathVariable Long id,@ApiParam("SIM卡号")@PathVariable String cardno) {
         try {
-            SimEntity coupon = IWtSimUrlInfoService.gerAmount(id);
+            SimEntity coupon = IWtSimUrlInfoService.getChaxun(id,cardno);
             return new CommonResult().success(coupon);
         } catch (Exception e) {
-            log.error("查询账号余额：%s", e.getMessage(), e);
+            log.error("物联网卡余量查询：%s", e.getMessage(), e);
             return new CommonResult().failed();
         }
     }

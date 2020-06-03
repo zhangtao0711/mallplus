@@ -99,6 +99,12 @@ public class SetSalesBuy extends BaseEntity implements Serializable {
     @TableField("total_credit")
     private BigDecimal totalCredit;
 
+    @TableField("count")
+    private Integer count;
+    @TableField("total_count")
+    private Integer totalCount;
+
+
 
     /**
      * 生成时间

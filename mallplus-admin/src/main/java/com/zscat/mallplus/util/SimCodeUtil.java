@@ -14,7 +14,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-
+/**
+ * SIM卡第三节接口调用
+ */
 @Slf4j
 public class SimCodeUtil {
 
@@ -58,7 +60,7 @@ public class SimCodeUtil {
     /** 妙月科技 */
 
     /**
-     * 获取账号余额
+     * 查询账号余额
      * @param info
      * @return
      * @throws NoSuchAlgorithmException
@@ -66,7 +68,7 @@ public class SimCodeUtil {
      * @throws InvalidKeyException
      * @throws Exception
      */
-    public static String gerAmount(WtSimUrlInfo info) throws NoSuchAlgorithmException
+    public static String getChaxun(WtSimUrlInfo info,String cardno) throws NoSuchAlgorithmException
             , UnsupportedEncodingException, InvalidKeyException,Exception {
 
 //        Calendar cd = Calendar.getInstance();
@@ -78,23 +80,18 @@ public class SimCodeUtil {
                 ;
         // 请求方法
         String method = "GET";
-//        // 请求头
-//        Map<String, String> headers = new HashMap<String, String>();
-//        headers.put("X-Source", source);
-//        headers.put("X-Date", datetime);
-//        headers.put("Authorization", auth);
 
         // 查询参数
         Map<String, String> queryParams = new HashMap<String, String>();
         queryParams.put("userId",info.getAppid());
-        queryParams.put("times",datetime);
+        queryParams.put("cardno",cardno);
         queryParams.put("sign",auth);
 
 //        // body参数
 //        Map<String, String> bodyParams = new HashMap<String, String>();
 //        bodyParams.put("vin", vin);
         // url参数拼接
-        String url = info.getUrl()+"/api/v1/gerAmount";
+        String url = info.getUrl()+"/api/v1/getChaxun";
         if (!queryParams.isEmpty()) {
             url += "?" + urlencode(queryParams);
         }

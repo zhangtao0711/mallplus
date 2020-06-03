@@ -2,11 +2,19 @@ package com.zscat.mallplus.single;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.jfinal.kit.StrKit;
 import com.zscat.mallplus.annotation.IgnoreAuth;
 import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.core.enums.SignType;
+import com.zscat.mallplus.core.enums.TradeType;
+import com.zscat.mallplus.core.kit.HttpKit;
+import com.zscat.mallplus.core.kit.IpKit;
+import com.zscat.mallplus.core.kit.WxPayKit;
 import com.zscat.mallplus.enums.AllEnum;
 import com.zscat.mallplus.enums.OrderStatus;
 import com.zscat.mallplus.exception.ApiMallPlusException;
+import com.zscat.mallplus.merchant.entity.MerchatFacilitatorConfig;
+import com.zscat.mallplus.merchant.mapper.MerchatFacilitatorConfigMapper;
 import com.zscat.mallplus.oms.entity.OmsOrder;
 import com.zscat.mallplus.oms.entity.OmsOrderOperateHistory;
 import com.zscat.mallplus.oms.entity.OmsPayments;
@@ -16,24 +24,38 @@ import com.zscat.mallplus.oms.service.IOmsOrderService;
 import com.zscat.mallplus.oms.service.IOmsPaymentsService;
 import com.zscat.mallplus.oms.vo.OrderParam;
 import com.zscat.mallplus.oms.vo.PayParam;
+import com.zscat.mallplus.sms.entity.SmsRechargeRecord;
 import com.zscat.mallplus.sms.mapper.SmsGroupMapper;
+import com.zscat.mallplus.sms.mapper.SmsRechargeRecordMapper;
+import com.zscat.mallplus.sms.vo.SmsRechargeRecordVo;
 import com.zscat.mallplus.ums.entity.SysAppletSet;
 import com.zscat.mallplus.ums.entity.UmsMember;
 import com.zscat.mallplus.ums.mapper.SysAppletSetMapper;
 import com.zscat.mallplus.ums.service.IUmsMemberBlanceLogService;
 import com.zscat.mallplus.ums.service.IUmsMemberService;
+import com.zscat.mallplus.ums.service.RedisService;
 import com.zscat.mallplus.util.CharUtil;
 import com.zscat.mallplus.util.DateUtils;
 import com.zscat.mallplus.util.MapUtils;
 import com.zscat.mallplus.util.XmlUtil;
+import com.zscat.mallplus.util.applet.StringConstantUtil;
 import com.zscat.mallplus.util.applet.WechatRefundApiResult;
 import com.zscat.mallplus.util.applet.WechatUtil;
 import com.zscat.mallplus.utils.CommonResult;
+import com.zscat.mallplus.weixinmp.entity.AccountWechats;
+import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
+import com.zscat.mallplus.wxminiapp.mapper.AccountWxappMapper;
+import com.zscat.mallplus.wxpay.WxPayApi;
+import com.zscat.mallplus.wxpay.WxPayApiConfig;
+import com.zscat.mallplus.wxpay.model.CloseOrderModel;
+import com.zscat.mallplus.wxpay.model.OrderQueryModel;
+import com.zscat.mallplus.wxpay.model.UnifiedOrderModel;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,10 +65,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * 作者: @author mallplus <br>
@@ -69,9 +88,17 @@ public class PayController extends ApiBaseAction {
     @Resource
     private SysAppletSetMapper appletSetMapper;
     @Resource
+    private MerchatFacilitatorConfigMapper configMapper;
+    @Resource
+    private SmsRechargeRecordMapper recordMapper;
+    @Resource
     private IOmsOrderService orderService;
     @Resource
     private IUmsMemberService memberService;
+    @Resource
+    private AccountWxappMapper wxappMapper;
+    @Resource
+    private RedisService redisService;
     @Resource
     private IUmsMemberBlanceLogService blanceLogService;
     @Resource
@@ -80,6 +107,8 @@ public class PayController extends ApiBaseAction {
     private SmsGroupMapper groupMapper;
     @Autowired
     private IOmsOrderOperateHistoryService orderOperateHistoryService;
+    private String notifyUrl = "http://java.chengguo.link:8081/api";
+    private String refundNotifyUrl;
 
     /**
      * 订单退款请求
@@ -435,5 +464,291 @@ public class PayController extends ApiBaseAction {
             e.printStackTrace();
             return;
         }
+    }
+
+
+    /**
+     * 代客充值/用户自己充值/后台充值（可能用不到)
+     */
+    @SysLog(MODULE = "pay", REMARK = "代客充值/用户自己充值/后台充值（可能用不到)")
+    @ApiOperation(value = "代客充值/用户自己充值/后台充值（可能用不到)")
+    @PostMapping("rechargeWaterCard")
+    public Object rechargeWaterCard(@RequestBody SmsRechargeRecordVo entity){
+        //添加记录信息
+        String outTradeNo = WxPayKit.generateStr();
+        SmsRechargeRecord record = new SmsRechargeRecord();
+        BeanUtils.copyProperties(entity,record);
+        record.setOutTradeNo(outTradeNo);
+        AccountWxapp accountWxapp = new AccountWxapp();
+        accountWxapp.setUniacid(entity.getUid());
+        AccountWxapp wxapp = wxappMapper.selectOne(new QueryWrapper<>(accountWxapp));
+        record.setDealerId(wxapp.getCreateBy());
+        //小程序支付统一下单-服务商支付
+        //1.获取支付的金额
+        if (record.getPayFee()==null){
+            return new CommonResult().failed("订单金额不能为空！");
+        }
+        BigDecimal price = record.getPayFee().multiply(new BigDecimal("100")).setScale(BigDecimal.ROUND_DOWN,0);
+        //2.获取IP
+        String ip = IpKit.getRealIp(request);
+        if (StrKit.isBlank(ip)) {
+            ip = "127.0.0.1";
+        }
+        //3. 获取服务商和底下的特约商户的信息（平台)
+        WxPayApiConfig config = this.getApiConfig(entity.getUid());
+        if (config==null){
+            return new CommonResult().failed("没有设置支付配置");
+        }
+        //4.拼接需要的数据
+        Map<String, String> params = UnifiedOrderModel
+                .builder()
+                .appid(config.getAppId())
+                .mch_id(config.getMchId())
+                .sub_appid(config.getSlAppId())
+                .sub_mch_id(config.getSlMchId())
+                .nonce_str(WxPayKit.generateStr())
+                .body("水卡充值-对水卡进行充值")
+                .out_trade_no(outTradeNo)
+                .total_fee(price.toString())
+                .spbill_create_ip(ip)
+                .notify_url(notifyUrl)
+                .trade_type(TradeType.JSAPI.getTradeType())
+                .openid(entity.getOpenId())
+                .build()
+                .createSign(config.getPartnerKey(), SignType.HMACSHA256);
+        //5.统一下单
+        String xmlResult = WxPayApi.pushOrder(false, params);
+        log.info("统一下单:" + xmlResult);
+        //6.将返回信息的信息转成map
+        Map<String, String> result = WxPayKit.xmlToMap(xmlResult);
+        //7.获取return_code
+        String returnCode = result.get("return_code");
+        String returnMsg = result.get("return_msg");
+        System.out.println(returnMsg);
+        //8.如果失败则判断状态存储起来
+        if (!WxPayKit.codeIsOk(returnCode)) {
+            //处理自己的逻辑
+            //状态 1预支付失败 2预支付成功 3支付成功-未配送 4支付失败 5已配送 6交易关闭 7交易关闭失败
+            record.setStatus(StringConstantUtil.rechargeStatus_1);
+            recordMapper.insert(record);
+            return new CommonResult().failed("error:" + returnMsg);
+        }
+        //9.return_code返回的是成功，则判断result_code
+        String resultCode = result.get("result_code");
+        //如果失败则判断状态存储起来
+        if (!WxPayKit.codeIsOk(resultCode)) {
+            //处理自己的逻辑
+            record.setStatus(StringConstantUtil.rechargeStatus_1);
+            recordMapper.insert(record);
+            return new CommonResult().failed("error:" + result.get("err_code_des"));
+        }
+        record.setStatus(StringConstantUtil.rechargeStatus_2);
+        recordMapper.insert(record);
+        return new CommonResult().success();
+    }
+
+    public WxPayApiConfig getApiConfig(Integer uid) {
+        WxPayApiConfig apiConfig = null;
+        //服务商的支付信息
+        MerchatFacilitatorConfig config = configMapper.selectById(1);
+        if (config==null){
+            return apiConfig;
+        }
+        //拿到经销商的数据,商户号和APPID等信息
+        AccountWxapp accountWxapp = new AccountWxapp();
+        accountWxapp.setUniacid(uid);
+        AccountWxapp wxapp = wxappMapper.selectOne(new QueryWrapper<>(accountWxapp));
+        SysAppletSet set = new SysAppletSet();
+        set.setStoreId(wxapp.getStoreId());
+        set.setUserId(wxapp.getCreateBy());
+        SysAppletSet appletSet = appletSetMapper.selectOne(new QueryWrapper<>(set));
+        apiConfig = WxPayApiConfig.builder()
+                .appId(config.getAppid())
+                .mchId(config.getMchId())
+                .slAppId(wxapp.getKey())
+                .slMchId(appletSet.getMchid())
+                .partnerKey(config.getSecret())
+//                .certPath(wxPayBean.getCertPath())
+                .domain("https://api.mch.weixin.qq.com")
+                .build();
+        notifyUrl = apiConfig.getDomain().concat("/api/pay/payNotify");
+        refundNotifyUrl = apiConfig.getDomain().concat("/api/pay/refundNotify");
+        return apiConfig;
+    }
+
+    /**
+     * 异步通知
+     */
+    @RequestMapping(value = "/payNotify", method = {RequestMethod.POST, RequestMethod.GET})
+    @ResponseBody
+    public String payNotify(HttpServletRequest request) {
+        //1.获取微信异步通知结果准换成map
+        String xmlMsg = HttpKit.readData(request);
+        Map<String, String> params = WxPayKit.xmlToMap(xmlMsg);
+        log.info("微信支付通知=" + params);
+        //2.获取返回的code
+        String returnCode = params.get("return_code");
+        //3.获取订单编号，根据订单编号获取唯一的订单
+        String out_trade_no = params.get("out_trade_no");
+        SmsRechargeRecord rechargeRecord = new SmsRechargeRecord();
+        rechargeRecord.setOutTradeNo(out_trade_no);
+        SmsRechargeRecord record = recordMapper.selectOne(new QueryWrapper<>(rechargeRecord));
+        AccountWxapp accountWxapp = new AccountWxapp();
+        accountWxapp.setUniacid(record.getUniacid());
+        AccountWxapp wxapp = wxappMapper.selectOne(new QueryWrapper<>(accountWxapp));
+        // 注意重复通知的情况，同一订单号可能收到多次通知，请注意一定先判断订单状态
+        // 4.注意此处签名方式需与统一下单的签名类型一致
+        if (WxPayKit.verifyNotify(params, this.getApiConfig(wxapp.getUniacid()).getPartnerKey(), SignType.HMACSHA256)) {
+            if (WxPayKit.codeIsOk(returnCode)) {
+                // 5.更新订单信息
+                if (record.getStatus()==StringConstantUtil.rechargeStatus_2){
+                    record.setStatus(StringConstantUtil.rechargeStatus_3);
+                    recordMapper.updateById(record);
+                    //TODO 这里把实际到账钱数放进用户的会员卡信息里面
+                }
+                // 发送通知等
+                Map<String, String> xml = new HashMap<String, String>(2);
+                xml.put("return_code", "SUCCESS");
+                xml.put("return_msg", "OK");
+                return WxPayKit.toXml(xml);
+            } else {
+                record.setStatus(StringConstantUtil.rechargeStatus_4);
+                recordMapper.updateById(record);
+                log.error("订单" + out_trade_no + "支付失败");
+            }
+        }else {
+            // 发送通知等
+            Map<String, String> xml = new HashMap<String, String>(2);
+            xml.put("return_code", "FAIL");
+            xml.put("return_msg", "签名失败");
+            return WxPayKit.toXml(xml);
+        }
+        return null;
+    }
+
+    /**
+     * 微信查询订单状态
+     */
+    @SysLog(MODULE = "pay", REMARK = "查询订单状态")
+    @ApiOperation(value = "查询订单状态")
+    @GetMapping("orderQuery")
+    public Object orderQuery(@RequestParam String out_trade_no,@RequestParam Integer uid) throws Exception {
+        String orderquery = "https://api.mch.weixin.qq.com/pay/orderquery";
+        SmsRechargeRecord rechargeRecord = new SmsRechargeRecord();
+        rechargeRecord.setOutTradeNo(out_trade_no);
+        SmsRechargeRecord order = recordMapper.selectOne(new QueryWrapper<>(rechargeRecord));
+        if (order==null){
+            return new CommonResult().failed("订单不存在");
+        }
+        WxPayApiConfig config = this.getApiConfig(uid);
+        if (config==null){
+            return new CommonResult().failed("没有设置支付配置");
+        }
+        Map<String, String> params = OrderQueryModel
+                .builder()
+                .appid(config.getAppId())
+                .mch_id(config.getMchId())
+                .sub_appid(config.getSlAppId())
+                .sub_mch_id(config.getSlMchId())
+                .out_trade_no(order.getOutTradeNo())
+                .nonce_str(WxPayKit.generateStr())
+                .build()
+                .createSign(config.getPartnerKey(), SignType.HMACSHA256);
+        String xmlResult = WxPayApi.orderQuery(params);
+        Map<String, String> result = WxPayKit.xmlToMap(xmlResult);
+        // 响应报文
+        String return_code = result.get("return_code");
+        String return_msg = result.get("return_msg");
+
+        if (!"SUCCESS".equals(return_code)) {
+            return new CommonResult().failed("查询失败,error=" + return_msg);
+        }
+
+        String trade_state = result.get("trade_state");
+        if ("SUCCESS".equals(trade_state)) {
+            // 更改订单状态
+            // 业务处理
+            if (!order.getStatus().equals(StringConstantUtil.rechargeStatus_3)){
+                order.setBuyTime(new Date());
+                order.setStatus(StringConstantUtil.rechargeStatus_3);
+                recordMapper.updateById(order);
+                //6.支付成功开始给会员卡加钱
+
+            }
+            return new CommonResult().success("支付成功");
+        } else if ("USERPAYING".equals(trade_state)) {
+            // 重新查询 正在支付中
+            Long num = redisService.increment(StringConstantUtil.SHOP_CACHE_NAME + out_trade_no,1);
+            if (num <= 3) {
+                num = redisService.increment(StringConstantUtil.SHOP_CACHE_NAME + out_trade_no,1);
+                this.orderQuery(out_trade_no,uid);
+            } else {
+                return new ApiMallPlusException("查询失败,error=" + trade_state);
+            }
+
+        } else {
+            //如果订单查询是未支付状态，数据库里面却是支付成功，那么需要去掉授权，去掉购买明细
+            if (order.getStatus().equals(StringConstantUtil.rechargeStatus_3)){
+                //6.支付成功开始给会员卡加钱-这里退回来
+            }
+            return new ApiMallPlusException("用户支付状态:" + trade_state);
+        }
+
+        return new ApiMallPlusException("查询失败，未知错误");
+    }
+
+    @ApiOperation("关闭订单")
+    @RequestMapping(value = "/orderCancel", method = RequestMethod.POST)
+    public Object closeOrder(@RequestBody SmsRechargeRecord order) {
+        if (order.getStatus()==StringConstantUtil.rechargeStatus_6){
+            return new CommonResult().failed(400,"订单已关闭，请勿重复操作！");
+        }
+        if (order.getStatus()==StringConstantUtil.rechargeStatus_3){
+            return new CommonResult().failed(400,"订单已支付，不允许关闭！");
+        }
+        //设置账号信息
+        AccountWxapp accountWxapp = new AccountWxapp();
+        accountWxapp.setStoreId(order.getStoreId());
+        accountWxapp.setCreateBy(order.getDealerId());
+        AccountWxapp wxapp = wxappMapper.selectOne(new QueryWrapper<>(accountWxapp));
+        WxPayApiConfig config = this.getApiConfig(wxapp.getUniacid());
+        if (config==null){
+            return new CommonResult().failed("没有设置支付配置");
+        }
+        //关闭订单
+        Map<String, String> params = CloseOrderModel
+                .builder()
+                .appid(config.getAppId())
+                .mch_id(config.getMchId())
+                .sub_appid(config.getSlAppId())
+                .sub_mch_id(config.getSlMchId())
+                .out_trade_no(order.getOutTradeNo())
+                .nonce_str(WxPayKit.generateStr())
+                .build()
+                .createSign(config.getPartnerKey(), SignType.HMACSHA256);
+        String xmlResult = WxPayApi.closeOrder(params);
+        //6.将返回信息的信息转成map
+        Map<String, String> result = WxPayKit.xmlToMap(xmlResult);
+        //7.获取return_code
+        String returnCode = result.get("return_code");
+        String returnMsg = result.get("return_msg");
+        //8.如果失败则判断状态存储起来
+        if (!WxPayKit.codeIsOk(returnCode)) {
+            //状态有这几种，1预支付成功，2预支付失败，3支付成功，4支付失败，5交易关闭
+            order.setStatus(StringConstantUtil.rechargeStatus_7);
+            recordMapper.updateById(order);
+            return new CommonResult().failed("error:" + returnMsg);
+        }
+        //9.return_code返回的是成功，则判断result_code
+        String resultCode = result.get("result_code");
+        //如果失败则判断状态存储起来
+        if (!WxPayKit.codeIsOk(resultCode)) {
+            order.setStatus(StringConstantUtil.rechargeStatus_7);
+            recordMapper.updateById(order);
+            return new CommonResult().failed("error:" + returnMsg);
+        }
+        order.setStatus(StringConstantUtil.rechargeStatus_6);
+        recordMapper.updateById(order);
+        return new CommonResult().success("交易已关闭");
     }
 }

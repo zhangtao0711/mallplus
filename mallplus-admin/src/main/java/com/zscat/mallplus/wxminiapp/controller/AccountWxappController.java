@@ -12,6 +12,7 @@ import com.zscat.mallplus.utils.ValidatorUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -61,6 +62,8 @@ public class AccountWxappController {
         if (wxapp!=null){
             return new CommonResult().failed("该经销商已经关联过小程序，请勿重复关联！");
         }
+        Integer count = IAccountWxappService.getCount();
+        entity.setUniacid(count);
         try {
             entity.setCreateTime(new Date());
             if (IAccountWxappService.save(entity)) {

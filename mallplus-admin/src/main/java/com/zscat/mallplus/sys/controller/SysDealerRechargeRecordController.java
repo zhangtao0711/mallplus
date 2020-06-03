@@ -1,6 +1,7 @@
 package com.zscat.mallplus.sys.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
@@ -52,6 +53,14 @@ public class SysDealerRechargeRecordController {
             log.error("根据条件查询所有经销商的余额充值记录列表：%s", e.getMessage(), e);
         }
         return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "sys", REMARK = "查询所有的消费记录")
+    @ApiOperation("查询所有的消费记录")
+    @GetMapping(value = "/getPurchaseHistory")
+    @PreAuthorize("hasAuthority('sys:sysDealerRechargeRecord:read')")
+    public Object getPurchaseHistory(SysDealerRechargeRecord entity) {
+        return new CommonResult().success(ISysDealerRechargeRecordService.getSaleList(entity.getDealerId()));
     }
 
     @SysLog(MODULE = "sys", REMARK = "保存经销商的余额充值记录")

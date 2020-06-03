@@ -26,6 +26,7 @@ import java.io.Serializable;
 @TableName("wt_filter_element_type")
 public class WtFilterElementType implements Serializable {
 
+    private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
@@ -35,7 +36,7 @@ public class WtFilterElementType implements Serializable {
      * 滤芯类型名称
      **/
     @TableField("filter_element_type_name")
-    @NotEmpty
+    @NotEmpty(message = "滤芯类型名称不能为空")
     @Length(min=1, max=50, message="滤芯类型名称长度必须介于 1 和 50 之间!")
     private String filterElementTypeName;
 
@@ -44,8 +45,8 @@ public class WtFilterElementType implements Serializable {
      * 更换周期天数
      **/
     @TableField("change_cycle")
-    @NotEmpty
-    @Length(min=1, max=4, message="更换周期天数不能设置大于9999!")
+    @NotEmpty(message = "更换周期不能为空")
+    @Length(min=1, max=4, message="更换周期不能设置大于9999!")
     private Integer changeCycle;
 
 
@@ -53,7 +54,7 @@ public class WtFilterElementType implements Serializable {
      * 更换滤芯提前提醒天数
      **/
     @TableField("remind_day")
-    @NotEmpty
+    @NotEmpty(message = "更换滤芯提前提醒天数不能为空")
 //    @Length(min=1, max=2, message="更换滤芯提前提醒天数不能设置大于99!")
     @Min(1)
     @Max(99)
@@ -64,7 +65,7 @@ public class WtFilterElementType implements Serializable {
      * 净水总量吨
      **/
     @TableField("purifier_total")
-    @NotEmpty
+    @NotEmpty(message = "净水总量不能为空")
     @Length(min=1, max=4, message="净水总量(吨)不能设置大于9999!")
     private Integer purifierTotal;
 

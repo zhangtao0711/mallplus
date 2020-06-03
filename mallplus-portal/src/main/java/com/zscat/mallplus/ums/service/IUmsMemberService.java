@@ -94,7 +94,7 @@ public interface IUmsMemberService extends IService<UmsMember> {
 
     Map<String, Object> loginByCode(String phone, String authCode);
 
-    Object simpleReg(String phone, String password, String confimpassword, String invitecode);
+    Object simpleReg(String phone, String password, String confimpassword, String invitecode,Integer uniacid);
 
     /**
      * 添加余额记录 并更新用户余额

@@ -1,7 +1,12 @@
 package com.zscat.mallplus.ums.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zscat.mallplus.ums.entity.UmsIntegrationChangeHistory;
+
+import java.util.Date;
+import java.util.Map;
 
 /**
  * <p>
@@ -13,4 +18,19 @@ import com.zscat.mallplus.ums.entity.UmsIntegrationChangeHistory;
  */
 public interface IUmsIntegrationChangeHistoryService extends IService<UmsIntegrationChangeHistory> {
 
+    public IPage<Map<String, Object>> selectMemberRecord(Page<Map<String,Object>> page,
+                                                         String dealerId,
+                                                         Date startTime,
+                                                         Date endTime,
+                                                         String nickname,
+                                                         String phone,
+                                                         String dealerName,
+                                                         Integer level,
+                                                         String name,
+                                                         String changeType,
+                                                         String changeCount,
+                                                         String integration,
+                                                         String sourceType,
+                                                         String integrationStatus,
+                                                         String storeId);
 }

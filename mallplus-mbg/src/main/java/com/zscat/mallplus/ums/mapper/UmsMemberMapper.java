@@ -24,4 +24,6 @@ public interface UmsMemberMapper extends BaseMapper<UmsMember> {
     UmsMember selectByUsernameLeader(String username);
 
     UmsMember selectByUsernameStaff(String username);
+
+    List<UmsMember> getMemberByLabelId(Long labelId);
 }

@@ -24,24 +24,6 @@
         id, username, password, phone,device_group_id,staff_name,province,city,county, create_time, login_time, status, supply_id
     </sql>
 
-    <select id="selectByUserName" resultType="com.zscat.mallplus.sys.entity.SysUserVo">
-        select
-         id as "id",
-         username as "username",
-         password as "password",
-         phone as "phone",
-         device_group_id as "deviceGroupId",
-         staff_name as "realname",
-        create_time as "createTime",
-        login_time as "loginTime",
-        status as "status",
-        supply_id as "supplyId",
-        store_id as "storeId",
-        store_name as "storeName"
-        from sys_user_staff
-        where username = #{username}
-    </select>
-
     <!-- 修改密码接口 -->
     <update id="updatePasswordById">
         update sys_user_staff set password = #{password} where id = #{id}

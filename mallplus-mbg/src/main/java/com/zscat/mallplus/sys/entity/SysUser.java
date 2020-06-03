@@ -42,6 +42,9 @@ public class SysUser implements Serializable {
     @TableField("gid")
     private Long gid;
 
+    @TableField("level")
+    private Integer level;
+
     private String username;
 
     private String password;
@@ -166,5 +169,11 @@ public class SysUser implements Serializable {
      */
     @TableField("integration")
     private Integer integration;
+
+    /**
+     * 积分状态 积分状态0冻结1正常
+     */
+    @TableField("integration_status")
+    private Integer integrationStatus;
 
 }

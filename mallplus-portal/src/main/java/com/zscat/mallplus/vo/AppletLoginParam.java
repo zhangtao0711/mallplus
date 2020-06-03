@@ -23,4 +23,6 @@ public class AppletLoginParam {
     private String phone;
     private String openid;
     private Integer appIdsource;
+
+    private Integer uniacid;
 }
