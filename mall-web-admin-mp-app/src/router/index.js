@@ -877,15 +877,12 @@ export const constantRouterMap = [
     name: 'ums',
     meta: { title: '会员', icon: 'home' },
     children: [
-
-
       {
         path: 'member',
         name: 'member',
         component: () => import('@/views/ums/member/index'),
         meta: { title: '会员列表', icon: 'product-list' }
       },
-
       {
         path: 'addMember',
         name: 'addMember',
@@ -905,7 +902,6 @@ export const constantRouterMap = [
         component: () => import('@/views/ums/memberLevel/index'),
         meta: { title: '会员等级列表', icon: 'product-list' }
       },
-
       {
         path: 'addMemberLevel',
         name: 'addMemberLevel',
@@ -942,6 +938,62 @@ export const constantRouterMap = [
         hidden: true
       },
 
+      {
+        path: 'wtWaterCardCreateList',
+        name: 'wtWaterCardCreateList',
+        component: () => import('@/views/ums/wtWaterCardCreate/index'),
+        meta: { title: '批量制卡列表', icon: 'product-list' }
+      },
+      {
+        path: 'addWtWaterCardCreate',
+        name: 'addWtWaterCardCreate',
+        component: () => import('@/views/ums/wtWaterCardCreate/add'),
+        meta: { title: '批量制卡' },
+        hidden: true
+      },
+      {
+        path: 'updateWtWaterCardCreate',
+        name: 'updateWtWaterCardCreate',
+        component: () => import('@/views/ums/wtWaterCardCreate/update'),
+        meta: { title: '编辑制卡' },
+        hidden: true
+      },
+
+      {
+        path: 'wtWaterCardActivateList',
+        name: 'wtWaterCardActivateList',
+        component: () => import('@/views/ums/wtWaterCardActivate/index'),
+        meta: { title: '批量开卡列表', icon: 'product-list' }
+      },
+      {
+        path: 'addWtWaterCardActivate',
+        name: 'addWtWaterCardActivate',
+        component: () => import('@/views/ums/wtWaterCardActivate/add'),
+        meta: { title: '批量开卡' },
+        hidden: true
+      },
+      {
+        path: 'updateWtWaterCardActivate',
+        name: 'updateWtWaterCardActivate',
+        component: () => import('@/views/ums/wtWaterCardActivate/update'),
+        meta: { title: '编辑开卡' },
+        hidden: true
+      },
+
+      {
+        path: 'wtWaterCardRechargeList',
+        name: 'wtWaterCardRechargeList',
+        component: () => import('@/views/ums/wtWaterCardRecharge/index'),
+        meta: { title: '充值管理', icon: 'product-list' }
+      },
+      {
+        path: 'addWtWaterCardRecharge',
+        name: 'addWtWaterCardRecharge',
+        component: () => import('@/views/ums/wtWaterCardRecharge/add'),
+        meta: { title: '批量充值' },
+        hidden: true
+      },
+
 
        {
         path: 'school',
@@ -949,7 +1001,6 @@ export const constantRouterMap = [
         component: () => import('@/views/ums/school/index'),
         meta: { title: '学校列表', icon: 'product-list' }
       },
-
       {
         path: 'addSchool',
         name: 'addSchool',
@@ -974,8 +1025,6 @@ export const constantRouterMap = [
         component: () => import('@/views/ums/memberIntegration/index'),
         meta: { title: '积分日志记录', icon: 'product-list' }
       }
-
-
     ]
   },
 
