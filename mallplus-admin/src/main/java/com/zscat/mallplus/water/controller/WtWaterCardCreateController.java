@@ -105,7 +105,7 @@ public class WtWaterCardCreateController {
             entity.setCreateTime(new Date());
             //设定制卡状态0未制卡
             entity.setState(ConstantUtil.card_create_state_0);
-
+//            entity.setDelFlag(ConstantUtil.delFlag);
             if (IWtWaterCardCreateService.saveAll(entity,"1220")) {
                 return new CommonResult().success();
             }

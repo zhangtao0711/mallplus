@@ -55,6 +55,17 @@
         <if test="saleStateOn != null ">
             AND a.sale_state=#{saleStateOn}
         </if>
+
+    </select>
+
+    <!-- 根据卡号和用户id获取水卡信息 -->
+    <select id="getWaterCard" resultType="com.zscat.mallplus.water.entity.WtWaterCard">
+        SELECT * FROM wt_water_card a
+        WHERE a.del_flag =#{delFlag}
+        AND a.state=#{state}
+        AND a.ums_member_id=#{umsMemberId}
+        AND a.card_no=#{cardNo}
+        LIMIT 0,1
     </select>
 
 </mapper>

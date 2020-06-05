@@ -4,6 +4,7 @@ package com.zscat.mallplus.water.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.water.entity.WtEquipment;
 import com.zscat.mallplus.water.service.IWtEquipmentService;
 import com.zscat.mallplus.util.EasyPoiUtils;
@@ -56,6 +57,7 @@ public class WtEquipmentController {
     @PreAuthorize("hasAuthority('water:wtEquipment:create')")
     public Object saveWtEquipment(@RequestBody WtEquipment entity) {
         try {
+            entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCreateTime(new Date());
             if (IWtEquipmentService.save(entity)) {
                 return new CommonResult().success();

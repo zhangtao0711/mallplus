@@ -4,6 +4,7 @@ package com.zscat.mallplus.water.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
@@ -58,6 +59,7 @@ public class WtFilterElementTypeController {
     @PreAuthorize("hasAuthority('water:wtFilterElementType:create')")
     public Object saveWtFilterElementType(@RequestBody WtFilterElementType entity) {
         try {
+            entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCreateTime(new Date());
             if (IWtFilterElementTypeService.save(entity)) {
                 return new CommonResult().success();

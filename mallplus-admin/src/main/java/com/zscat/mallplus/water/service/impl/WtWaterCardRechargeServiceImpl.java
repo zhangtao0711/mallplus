@@ -31,14 +31,10 @@ public class WtWaterCardRechargeServiceImpl extends ServiceImpl
 
     //获取充值卡号是否是当前经销商下的
     public boolean getDealerId(Long sta, Long end, Long dealerId){
-        Map<String,Integer> data = wtWaterCardRechargeMapper.getDealerId(sta, end);
-        if (data!=null && data.size()==1) {
-            Iterator<Map.Entry<String, Integer>> it =data.entrySet().iterator();
-            while(it.hasNext()){
-                Map.Entry<String, Integer> entry = it.next();
-                if(entry.getKey().equals(dealerId)){
-                    return true;
-                }
+        Map<String,Long> data = wtWaterCardRechargeMapper.getDealerId(sta, end);
+        if (data!=null && data.size()>0) {
+            if(data.get("id") !=null && data.get("id").toString().equals(dealerId.toString())){
+                return true;
             }
         }
         return false;
@@ -48,7 +44,7 @@ public class WtWaterCardRechargeServiceImpl extends ServiceImpl
     public boolean save(WtWaterCardRecharge entity){
         //更新卡内余额
         if(entity.getRechargeMoneyType().equals(ConstantUtil.recharge_money_type_0)){
-            wtWaterCardMapper.updateRecharge(entity,ConstantUtil.water_code_state_0,"recharge");
+            wtWaterCardMapper.updateRecharge(entity,ConstantUtil.water_code_state_0,"recharge",ConstantUtil.delFlag);
         }else{
             //到期天数转换成到期日期
             if(entity.getExperienceEndType().equals(ConstantUtil.experience_end_type_1)){
@@ -56,9 +52,9 @@ public class WtWaterCardRechargeServiceImpl extends ServiceImpl
             }
             //按卡号充值
             if(entity.getRechargeType().equals(ConstantUtil.recharge_type_1)){
-                wtWaterCardMapper.updateRecharge(entity,ConstantUtil.water_code_state_0,"experience");
+                wtWaterCardMapper.updateRecharge(entity,ConstantUtil.water_code_state_0,"experience",ConstantUtil.delFlag);
             }else if(entity.getRechargeType().equals(ConstantUtil.recharge_money_type_0)){
-                wtWaterCardMapper.updateRecharge(entity,ConstantUtil.water_code_state_0,"recharge");
+                wtWaterCardMapper.updateRecharge(entity,ConstantUtil.water_code_state_0,"recharge",ConstantUtil.delFlag);
             }else{
                 //更新用户标签使用次数
                 wtWaterCardRechargeMapper.updateSalesCount(entity,ConstantUtil.ums_label_perssion_id);

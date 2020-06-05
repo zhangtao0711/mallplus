@@ -4,10 +4,10 @@
 
     <!-- 获取开卡开号存在数 卡号关联公众号 -->
     <select id="getDealerId" resultType="Map">
-        SELECT b.id
+        SELECT b.id AS id
         ,count(a.id) AS num
         FROM wt_water_card a
-        LEFT JOIN sys_user b ON a.card_create_id=b.uniacid
+        LEFT JOIN sys_user b ON a.dealer_id=b.uniacid
         WHERE CAST(a.card_no AS SIGNED) BETWEEN #{sta} and #{end}
         GROUP BY b.id
     </select>

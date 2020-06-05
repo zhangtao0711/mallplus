@@ -4,12 +4,15 @@ package com.zscat.mallplus.water.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.sys.entity.SysUser;
 import com.zscat.mallplus.util.ConstantUtil;
+import com.zscat.mallplus.util.UserUtils;
 import com.zscat.mallplus.water.entity.WtWaterCardRecharge;
 import com.zscat.mallplus.water.service.IWtWaterCardRechargeService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
+import com.zscat.mallplus.water.vo.WtWaterCardRechargeExcelCreate;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -157,8 +160,12 @@ public class WtWaterCardRechargeController {
     @PreAuthorize("hasAuthority('water:wtWaterCardRecharge:create')")
     public Object saveWtWaterCardRechargeSingle(@RequestBody WtWaterCardRecharge entity) {
         try {
+            if(entity.getRechargeType()==null || entity.getRechargeType().isEmpty()){
+                return new CommonResult().failed("请选择充值类型！");
+            }
             //普通充值
-            if(entity.getRechargeType().equals(ConstantUtil.recharge_money_type_0)){
+            if(entity.getRechargeType().equals(ConstantUtil.recharge_type_0)){
+                entity.setRechargeMoneyType(ConstantUtil.recharge_money_type_0);//充值金额
                 //必须输入校验
                 if(entity.getCardNo().isEmpty()
                         ||entity.getRechargeMoney()==null|| entity.getReceivedMoney()==null){
@@ -172,6 +179,7 @@ public class WtWaterCardRechargeController {
                     return new CommonResult().failed("此卡没有绑定在您的账号下！");
                 }
             }
+//            entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCreateTime(new Date());
             if (IWtWaterCardRechargeService.save(entity)) {
                 return new CommonResult().success();
@@ -267,6 +275,44 @@ public class WtWaterCardRechargeController {
         List<WtWaterCardRecharge> personList = EasyPoiUtils.importExcel(file, WtWaterCardRecharge.class);
         IWtWaterCardRechargeService.saveBatch(personList);
     }
+
+    @SysLog(MODULE = "water", REMARK = "导入充值")
+    @PostMapping("/importExcelCreate")
+    public void importExcelCreate(@RequestParam MultipartFile file) {
+        List<WtWaterCardRechargeExcelCreate> personList = EasyPoiUtils.importExcel(file, WtWaterCardRechargeExcelCreate.class);
+        for(WtWaterCardRechargeExcelCreate data :personList){
+            try {
+                WtWaterCardRecharge entity = new WtWaterCardRecharge();
+                entity.setRechargeType(ConstantUtil.recharge_type_0);//充值金额//普通充值
+                entity.setRechargeMoneyType(ConstantUtil.recharge_money_type_0);//充值金额
+                //必须输入校验
+                if(data.getCardNo().isEmpty()
+                        ||data.getRechargeMoney()==null|| data.getReceivedMoney()==null){
+                    log.error("导入失败充值金额实收金额必须输入！");
+                    return ;
+                }
+                if(Long.valueOf(data.getCardNo())> ConstantUtil.max_card_no){
+                    log.error("导入失败超出卡号最大值！");
+                    return ;
+                }
+                //获取卡号关联经销商和登录者经销商是否一致
+                SysUser user = UserUtils.getCurrentMember();
+                if (!IWtWaterCardRechargeService.getDealerId(Long.valueOf(data.getCardNo())
+                        ,Long.valueOf(data.getCardNo()),user.getStoreId().longValue())) {
+
+                    log.error("导入失败此卡没有绑定在您的账号下！");
+                    return ;
+                }
+                entity.setCreateBy(user.getId());
+                entity.setCreateTime(new Date());
+                IWtWaterCardRechargeService.save(entity);
+            } catch (Exception e) {
+                log.error("保存充值：%s", e.getMessage(), e);
+            }
+        }
+    }
+
+
 }
 
 

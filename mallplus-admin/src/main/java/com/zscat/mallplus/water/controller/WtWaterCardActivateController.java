@@ -98,7 +98,7 @@ public class WtWaterCardActivateController {
             }else{
                 return new CommonResult().failed("此区段内有的卡号信息和商家账号不一致！");
             }
-
+//            entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCreateTime(new Date());
             if (IWtWaterCardActivateService.save(entity)) {
                 return new CommonResult().success();

@@ -28,4 +28,20 @@ public class WtWaterCardServiceImpl extends ServiceImpl
     public List<WtWaterCard> getAllSaleStateOn(Long id, String saleStateOn){
         return wtWaterCardMapper.getAllSaleStateOn(id, saleStateOn);
     }
+
+    /**
+     * 会员卡和授权人是否关联
+     * @param cardNo
+     * @param umsMemberId
+     * @param delFlag
+     * @param state 正常卡
+     * @return
+     */
+    public boolean checkCardUms(String cardNo, Long umsMemberId, String delFlag, String state){
+        if(wtWaterCardMapper.getWaterCard(cardNo, umsMemberId, delFlag, state)!=null){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }

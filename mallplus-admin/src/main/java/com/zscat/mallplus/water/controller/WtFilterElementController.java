@@ -4,11 +4,15 @@ package com.zscat.mallplus.water.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.util.ConstantUtil;
+import com.zscat.mallplus.util.DateUtils;
 import com.zscat.mallplus.water.entity.WtFilterElement;
+import com.zscat.mallplus.water.entity.WtFilterElementType;
 import com.zscat.mallplus.water.service.IWtFilterElementService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
+import com.zscat.mallplus.water.service.IWtFilterElementTypeService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +38,9 @@ public class WtFilterElementController {
     @Resource
     private IWtFilterElementService IWtFilterElementService;
 
+    @Resource
+    private IWtFilterElementTypeService IWtFilterElementTypeService;
+
     @SysLog(MODULE = "water", REMARK = "根据条件查询所有滤芯列表")
     @ApiOperation("根据条件查询所有滤芯列表")
     @GetMapping(value = "/list")
@@ -56,6 +63,18 @@ public class WtFilterElementController {
     @PreAuthorize("hasAuthority('water:wtFilterElement:create')")
     public Object saveWtFilterElement(@RequestBody WtFilterElement entity) {
         try {
+            //滤芯更换时间必须小于当前时间
+            if(entity.getChangeTime().after(new Date())){
+                return new CommonResult().failed("滤芯更换时间必须小于当前时间");
+            }
+            WtFilterElementType coupon = IWtFilterElementTypeService.getById(entity.getFilterElementTypeId());
+            entity.setChangeCycle(coupon.getChangeCycle());//更换周期天数
+            entity.setPurifierTotal(coupon.getPurifierTotal());//水量标准
+            //选择及时时设定使用到期时间
+            if(entity.getBillingMode().equals(ConstantUtil.billing_mode_time)){
+                entity.setEndTime(DateUtils.addDay2(entity.getChangeTime(),coupon.getChangeCycle()));
+            }
+            entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCreateTime(new Date());
             if (IWtFilterElementService.save(entity)) {
                 return new CommonResult().success();

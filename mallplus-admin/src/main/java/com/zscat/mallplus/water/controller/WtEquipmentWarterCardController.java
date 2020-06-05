@@ -4,6 +4,7 @@ package com.zscat.mallplus.water.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.water.entity.WtEquipmentWarterCard;
 import com.zscat.mallplus.water.service.IWtEquipmentWarterCardService;
 import com.zscat.mallplus.util.EasyPoiUtils;
@@ -56,6 +57,7 @@ public class WtEquipmentWarterCardController {
     @PreAuthorize("hasAuthority('water:wtEquipmentWarterCard:create')")
     public Object saveWtEquipmentWarterCard(@RequestBody WtEquipmentWarterCard entity) {
         try {
+//            entity.setDelFlag(ConstantUtil.delFlag);
             if (IWtEquipmentWarterCardService.save(entity)) {
                 return new CommonResult().success();
             }

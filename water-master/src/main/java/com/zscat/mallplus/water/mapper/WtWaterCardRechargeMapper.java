@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public interface WtWaterCardRechargeMapper extends BaseMapper<WtWaterCardRecharge> {
     //获取充值卡号是否是当前经销商下的
-    Map<String,Integer> getDealerId(@Param("sta")Long sta, @Param("end")Long end);
+    Map<String,Long> getDealerId(@Param("sta")Long sta, @Param("end")Long end);
     //获取经销商用户标签使用次数
     Integer getSalesCount(@Param("data")WtWaterCardRecharge entity,@Param("perssionId") String perssionId);
     //更新用户标签使用次数

@@ -4,6 +4,7 @@ package com.zscat.mallplus.water.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.water.entity.WtSimCard;
 import com.zscat.mallplus.water.service.IWtSimCardService;
 import com.zscat.mallplus.util.EasyPoiUtils;
@@ -56,6 +57,7 @@ public class WtSimCardController {
     @PreAuthorize("hasAuthority('water:wtSimCard:create')")
     public Object saveWtSimCard(@RequestBody WtSimCard entity) {
         try {
+            entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCreateTime(new Date());
             if (IWtSimCardService.save(entity)) {
                 return new CommonResult().success();
