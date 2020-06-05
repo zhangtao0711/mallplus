@@ -1,5 +1,7 @@
 package com.zscat.mallplus.util;
 
+import org.bouncycastle.pqc.crypto.newhope.NHOtherInfoGenerator;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,4 +85,7 @@ public class ConstantUtil {
     //通用的失败成功
     public static final Integer fail = 0;
     public static final Integer succeeded = 1;
+    //帐号启用状态:0->禁用；1->启用
+    public static final Integer ums_status_off=0;
+    public static final Integer ums_status_on=1;
 }
