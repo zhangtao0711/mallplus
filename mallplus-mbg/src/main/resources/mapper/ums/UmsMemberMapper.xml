@@ -124,4 +124,15 @@
     <select id="getMemberByLabelId" resultMap="BaseResultMap">
         select * from ums_member where  id in (select member_id from sms_label_member where label_id=#{labelId})
     </select>
+
+    <!-- 根据标签获取用户信息 -->
+    <select id="getUmsIdNickname" resultMap="BaseResultMap">
+        select * from ums_member a
+        where a.store_id=#{storeId}
+        AND a.nickname=#{umsMemberNickname}
+        AND a.id=#{umsMemberId}
+        AND a.status=#{status_off}
+        LIMIT 0,1
+    </select>
+
 </mapper>

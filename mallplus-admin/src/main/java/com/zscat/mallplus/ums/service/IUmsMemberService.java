@@ -23,5 +23,6 @@ public interface IUmsMemberService extends IService<UmsMember> {
 
     List<UmsMember> getMemberByLabelId(Long labelId);
 
-
+    //授权人账号和授权人昵称是否一致
+    boolean checkUmsIdNickname(Long umsMemberId, String umsMemberNickname, Integer ums_status_off, Integer storeId);
 }

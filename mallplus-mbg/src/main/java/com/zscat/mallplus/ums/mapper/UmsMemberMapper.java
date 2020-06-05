@@ -26,4 +26,7 @@ public interface UmsMemberMapper extends BaseMapper<UmsMember> {
     UmsMember selectByUsernameStaff(String username);
 
     List<UmsMember> getMemberByLabelId(Long labelId);
+    //根据账号和昵称获取用户信息
+    UmsMember getUmsIdNickname(@Param("umsMemberId")Long umsMemberId
+            , @Param("umsMemberNickname")String umsMemberNickname,@Param("status_off") Integer ums_status_off, @Param("storeId")Integer storeId);
 }

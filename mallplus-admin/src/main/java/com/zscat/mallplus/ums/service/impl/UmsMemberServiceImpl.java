@@ -63,4 +63,21 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     public List<UmsMember> getMemberByLabelId(Long labelId) {
         return memberMapper.getMemberByLabelId(labelId);
     }
+
+    /**
+     * 授权人账号和授权人昵称是否一致
+     * @param umsMemberId
+     * @param umsMemberNickname
+     * @param ums_status_off
+     * @param storeId
+     * @return
+     */
+    public boolean checkUmsIdNickname(Long umsMemberId, String umsMemberNickname, Integer ums_status_off, Integer storeId){
+        if(memberMapper.getUmsIdNickname(umsMemberId, umsMemberNickname, ums_status_off, storeId)!=null){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
 }

@@ -88,4 +88,9 @@ public class ConstantUtil {
     //帐号启用状态:0->禁用；1->启用
     public static final Integer ums_status_off=0;
     public static final Integer ums_status_on=1;
+    //水卡最多绑定几个用户
+    public static final Integer ums_card_num=5;
+    //滤芯计费类型
+    public static final String billing_mode_time="0";
+    public static final String billing_mode_num="1";
 }
