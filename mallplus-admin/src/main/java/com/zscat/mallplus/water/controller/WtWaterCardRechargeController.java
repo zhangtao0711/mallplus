@@ -198,7 +198,7 @@ public class WtWaterCardRechargeController {
                 return new CommonResult().failed("请选择充值套餐！");
             }
             //判断有没有购买充值套餐功能
-            if(!IWtWaterCardRechargeService.getSalesInfo(entity,ConstantUtil.recharge_package_id)){
+            if(!IWtWaterCardRechargeService.getSalesInfo(entity.getDealerId(),ConstantUtil.recharge_package_id)){
                 return new CommonResult().failed("您尚未购买此功能，或已到期。请开通此功能后再次使用！");
             }
 

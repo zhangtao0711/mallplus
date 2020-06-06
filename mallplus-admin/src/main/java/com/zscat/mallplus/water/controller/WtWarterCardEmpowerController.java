@@ -104,22 +104,22 @@ public class WtWarterCardEmpowerController {
         return new CommonResult().failed();
     }
 
-    @SysLog(MODULE = "water", REMARK = "更新水卡授权用户")
-    @ApiOperation("更新水卡授权用户")
-    @PostMapping(value = "/update/{id}")
-//    @PreAuthorize("hasAuthority('water:wtWarterCardEmpower:update')")
-    public Object updateWtWarterCardEmpower(@RequestBody WtWarterCardEmpower entity) {
-        try {
-            entity.setUpdateTime(new Date());
-            if (IWtWarterCardEmpowerService.updateById(entity)) {
-                return new CommonResult().success();
-            }
-        } catch (Exception e) {
-            log.error("更新水卡授权用户：%s", e.getMessage(), e);
-            return new CommonResult().failed(e.getMessage());
-        }
-        return new CommonResult().failed();
-    }
+//    @SysLog(MODULE = "water", REMARK = "更新水卡授权用户")
+//    @ApiOperation("更新水卡授权用户")
+//    @PostMapping(value = "/update/{id}")
+////    @PreAuthorize("hasAuthority('water:wtWarterCardEmpower:update')")
+//    public Object updateWtWarterCardEmpower(@RequestBody WtWarterCardEmpower entity) {
+//        try {
+//            entity.setUpdateTime(new Date());
+//            if (IWtWarterCardEmpowerService.updateById(entity)) {
+//                return new CommonResult().success();
+//            }
+//        } catch (Exception e) {
+//            log.error("更新水卡授权用户：%s", e.getMessage(), e);
+//            return new CommonResult().failed(e.getMessage());
+//        }
+//        return new CommonResult().failed();
+//    }
 
     @SysLog(MODULE = "water", REMARK = "取消水卡授权用户")
     @ApiOperation("取消水卡授权用户")

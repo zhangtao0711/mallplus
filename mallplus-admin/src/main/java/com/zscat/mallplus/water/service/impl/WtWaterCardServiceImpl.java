@@ -44,4 +44,9 @@ public class WtWaterCardServiceImpl extends ServiceImpl
             return false;
         }
     }
+    //根据卡号修改卡状态
+    public boolean updateStateByCard(String cardNo, String state, Long updateBy){
+        return wtWaterCardMapper.updateStateByCard(cardNo, state, updateBy);
+    }
+
 }

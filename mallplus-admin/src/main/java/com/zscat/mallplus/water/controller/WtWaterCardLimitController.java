@@ -19,6 +19,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -99,6 +100,7 @@ public class WtWaterCardLimitController {
     @ApiOperation("保存限制消费批量")
     @PostMapping(value = "/createList")
     @PreAuthorize("hasAuthority('water:wtWaterCardLimit:create')")
+    @Transactional
     public Object saveWtWaterCardLimitList(@RequestBody WtWaterCardLimit entity) {
         try {
             //判断起始卡号和终止卡号合理性

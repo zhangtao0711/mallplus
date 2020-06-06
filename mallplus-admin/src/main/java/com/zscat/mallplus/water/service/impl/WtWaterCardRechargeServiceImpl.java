@@ -10,6 +10,7 @@ import com.zscat.mallplus.water.service.IWtWaterCardRechargeService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -41,6 +42,7 @@ public class WtWaterCardRechargeServiceImpl extends ServiceImpl
     }
     //保存充值记录
     @Override
+    @Transactional
     public boolean save(WtWaterCardRecharge entity){
         //更新卡内余额
         if(entity.getRechargeMoneyType().equals(ConstantUtil.recharge_money_type_0)){
@@ -84,8 +86,8 @@ public class WtWaterCardRechargeServiceImpl extends ServiceImpl
         return wtWaterCardRechargeMapper.getSalesCount(entity,perssionId);
     }
     //获取经销商充值套餐权限
-    public boolean getSalesInfo(WtWaterCardRecharge entity, String perssionId){
-        if(wtWaterCardRechargeMapper.getSalesInfo(entity,perssionId)!=null){
+    public boolean getSalesInfo(Long dealerId, String perssionId){
+        if(wtWaterCardRechargeMapper.getSalesInfo(dealerId,perssionId)!=null){
             return true;
         }
         return false;

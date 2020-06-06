@@ -12,6 +12,7 @@ import com.zscat.mallplus.weixinmp.mapper.AccountWechatsMapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import com.zscat.mallplus.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -32,6 +33,7 @@ public class WtWaterCardCreateServiceImpl extends ServiceImpl
     private AccountWechatsMapper accountWechatsMapper;
 
     @Override
+    @Transactional
     public boolean saveAll(WtWaterCardCreate var,String acKey){
         if(super.save(var)){
             for(Long i =Long.valueOf(var.getStartNo());i<=Long.valueOf(var.getEndNo());i++){

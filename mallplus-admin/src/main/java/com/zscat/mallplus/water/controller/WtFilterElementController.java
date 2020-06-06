@@ -95,7 +95,19 @@ public class WtFilterElementController {
     @PreAuthorize("hasAuthority('water:wtFilterElement:update')")
     public Object updateWtFilterElement(@RequestBody WtFilterElement entity) {
         try {
+            //滤芯更换时间必须小于当前时间
+            if(entity.getChangeTime().after(new Date())){
+                return new CommonResult().failed("滤芯更换时间必须小于当前时间");
+            }
+            WtFilterElementType coupon = IWtFilterElementTypeService.getById(entity.getFilterElementTypeId());
+            entity.setChangeCycle(coupon.getChangeCycle());//更换周期天数
+            entity.setPurifierTotal(coupon.getPurifierTotal());//水量标准
 
+            //选择及时时设定使用到期时间
+            if(entity.getBillingMode().equals(ConstantUtil.billing_mode_time)){
+                entity.setEndTime(DateUtils.addDay2(entity.getChangeTime(),coupon.getChangeCycle()));
+                entity.setRemindTime(DateUtils.addDay2(entity.getChangeTime(),coupon.getRemindDay()));
+            }
             entity.setUpdateTime(new Date());
             if (IWtFilterElementService.updateById(entity)) {
                 return new CommonResult().success();

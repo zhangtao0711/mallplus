@@ -100,5 +100,8 @@ public class ConstantUtil {
     public static final String filter_element_state_0="0";
     public static final String filter_element_state_1="1";
     public static final String filter_element_state_2="2";
+    //会员区分（0:日志1:备注)
+    public static final String member_log_falg_0="0";
+    public static final String member_log_falg_1="1";
 
 }
