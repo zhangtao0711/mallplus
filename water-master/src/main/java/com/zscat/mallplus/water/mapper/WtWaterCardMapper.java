@@ -48,4 +48,6 @@ public interface WtWaterCardMapper extends BaseMapper<WtWaterCard> {
      */
     WtWaterCard getWaterCard(@Param("cardNo")String cardNo,@Param("umsMemberId")Long umsMemberId
             ,@Param("delFlag")String delFlag,@Param("state")String state);
+    //根据卡号修改卡状态
+    boolean updateStateByCard(@Param("cardNo")String cardNo, @Param("state")String state, @Param("updateBy")Long updateBy);
 }

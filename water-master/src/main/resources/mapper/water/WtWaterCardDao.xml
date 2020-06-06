@@ -67,5 +67,13 @@
         AND a.card_no=#{cardNo}
         LIMIT 0,1
     </select>
+    <!-- 根据卡号修改卡状态 -->
+    <update id="updateStateByCard">
+        UPDATE wt_water_card
+        SET update_time=NOW()
+        ,update_by=#{updateBy}
+        ,state = #{state}
+        WHERE  card_no = #{cardNo}
 
+    </update>
 </mapper>

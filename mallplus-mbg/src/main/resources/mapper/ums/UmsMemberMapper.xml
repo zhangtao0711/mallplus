@@ -134,5 +134,67 @@
         AND a.status=#{status_off}
         LIMIT 0,1
     </select>
+    <!-- 根据条件查询所有会员表列表 -->
+    <select id="selectMember" resultType="com.zscat.mallplus.ums.entity.UmsMember">
+        SELECT
+        b.card_money
+        ,b.card_no
+        ,c.name AS "uniacName"
+        ,GROUP_CONCAT(e.label_name) AS "labelName"
+        ,f.recommendNum AS "recommendNum"
+        ,h.username AS "recommendName"
+        ,a.* FROM
+        ums_member a
+        LEFT JOIN wt_water_card b ON a.id=b.ums_member_id
+        AND b.del_flag='1'
+        LEFT JOIN account_wechats c ON c.uniacid=a.uniacid
+        LEFT JOIN sms_label_member d ON d.member_id=a.id
 
+        <if test="entity.memberLevelId != null and entity.memberLevelId != ''">
+            and d.label_id=#{entity.memberLevelId}
+        </if>
+
+        LEFT JOIN sms_label_set e ON d.label_id=e.id
+        LEFT JOIN (select f.member_id ,count(f.id) AS "recommendNum"
+        from ums_member_recommend f
+        GROUP BY f.member_id) f
+        ON f.member_id=a.id
+        LEFT JOIN ums_member_recommend g ON g.member_recommend_id=a.id
+        LEFT JOIN ums_member h ON h.id=g.member_id
+        where 1=1
+        <if test="entity.username != null and entity.username != ''">
+            AND a.username=#{entity.username}
+        </if>
+        <if test="entity.dealerId != null and entity.dealerId != ''">
+            AND a.dealer_id=#{entity.dealerId}
+        </if>
+        <if test="entity.storeId != null and entity.storeId != ''">
+            AND a.store_id=#{entity.storeId}
+        </if>
+        <if test="entity.id != null and entity.id != ''">
+            AND a.id=#{entity.id}
+        </if>
+        <if test="entity.phone != null and entity.phone != ''">
+            AND a.phone=#{entity.phone}
+        </if>
+        <if test="entity.cardNo != null and entity.cardNo != ''">
+            AND b.card_no=#{entity.cardNo}
+        </if>
+
+        <if test="entity.uniacName != null and entity.uniacName != ''">
+            AND c.name like concat('%',#{entity.uniacName},'%')
+        </if>
+        <if test="entity.memberLevelId != null and entity.memberLevelId != ''">
+            AND a.member_level_id=#{entity.memberLevelId}
+        </if>
+        <if test="entity.labelName != null and entity.labelName != ''">
+            AND e.label_name like concat('%',#{entity.labelName},'%')
+        </if>
+        GROUP BY a.id
+    </select>
+    <delete id="removeLabel" >
+    	delete from
+        sms_label_member
+        where label_id=#{id} AND member_id=#{umsMemberId}
+  	</delete>
 </mapper>
