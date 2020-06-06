@@ -83,4 +83,11 @@ public class WtWaterCardRechargeServiceImpl extends ServiceImpl
     public Integer getSalesCount(WtWaterCardRecharge entity,String perssionId){
         return wtWaterCardRechargeMapper.getSalesCount(entity,perssionId);
     }
+    //获取经销商充值套餐权限
+    public boolean getSalesInfo(WtWaterCardRecharge entity, String perssionId){
+        if(wtWaterCardRechargeMapper.getSalesInfo(entity,perssionId)!=null){
+            return true;
+        }
+        return false;
+    }
 }

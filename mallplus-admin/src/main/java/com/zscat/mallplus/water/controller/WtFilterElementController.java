@@ -70,10 +70,13 @@ public class WtFilterElementController {
             WtFilterElementType coupon = IWtFilterElementTypeService.getById(entity.getFilterElementTypeId());
             entity.setChangeCycle(coupon.getChangeCycle());//更换周期天数
             entity.setPurifierTotal(coupon.getPurifierTotal());//水量标准
+
             //选择及时时设定使用到期时间
             if(entity.getBillingMode().equals(ConstantUtil.billing_mode_time)){
                 entity.setEndTime(DateUtils.addDay2(entity.getChangeTime(),coupon.getChangeCycle()));
+                entity.setRemindTime(DateUtils.addDay2(entity.getChangeTime(),coupon.getRemindDay()));
             }
+            entity.setState(ConstantUtil.billing_mode_time);//状态正常
             entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCreateTime(new Date());
             if (IWtFilterElementService.save(entity)) {

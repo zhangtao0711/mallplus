@@ -50,6 +50,12 @@ public class WtWaterCardRecharge extends BaseEntity implements Serializable {
     private String rechargeType;
 
     /**
+     * 套餐ids
+     **/
+    @TableField("recharge_package")
+    private String rechargePackage;
+
+    /**
      * 起始卡号
      **/
     @TableField("start_no")
@@ -67,8 +73,6 @@ public class WtWaterCardRecharge extends BaseEntity implements Serializable {
     @Pattern(regexp = "^[0-9]*$", message = "终止卡号只能输入[0-9]的数字!")
     @Length(min=1, max=10, message="终止卡号长度必须介于 1 和 10 之间")
     private String endNo;
-
-
 
     /**
      * 卡号

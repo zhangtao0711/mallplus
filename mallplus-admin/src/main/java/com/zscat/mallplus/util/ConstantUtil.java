@@ -82,6 +82,9 @@ public class ConstantUtil {
 
     //营销功能 客户标签id
     public static final String ums_label_perssion_id="";//功能id
+    //营销功能 充值套餐id
+    public static final String recharge_package_id="";//功能id
+
     //通用的失败成功
     public static final Integer fail = 0;
     public static final Integer succeeded = 1;
@@ -93,4 +96,9 @@ public class ConstantUtil {
     //滤芯计费类型
     public static final String billing_mode_time="0";
     public static final String billing_mode_num="1";
+    //滤芯状态
+    public static final String filter_element_state_0="0";
+    public static final String filter_element_state_1="1";
+    public static final String filter_element_state_2="2";
+
 }

@@ -103,6 +103,12 @@ public class WtFilterElement extends BaseEntity implements Serializable {
     private Integer purifierTotal;
 
     /**
+     * 更换滤芯提前提醒日期
+     **/
+    @TableField("remind_time")
+    private Date remindTime;
+
+    /**
      * 备注
      **/
     @TableField("remarks")

@@ -18,4 +18,6 @@ public interface IWtWaterCardRechargeService extends IService<WtWaterCardRecharg
     boolean save(WtWaterCardRecharge entity);
     //获取经销商用户标签使用次数
     Integer getSalesCount(WtWaterCardRecharge entity,String perssionId);
+    //获取经销商充值套餐权限
+    boolean getSalesInfo(WtWaterCardRecharge entity, String perssionId);
 }

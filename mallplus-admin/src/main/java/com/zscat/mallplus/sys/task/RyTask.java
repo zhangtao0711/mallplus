@@ -1,9 +1,13 @@
 package com.zscat.mallplus.sys.task;
 
 import com.zscat.mallplus.util.DateUtils;
+import com.zscat.mallplus.water.service.IWtFilterElementService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,8 +20,14 @@ import java.util.Map;
 @Slf4j
 @Component("ryTask")
 public class RyTask {
-
-
+    @Autowired
+    private IWtFilterElementService IWtFilterElementService;
+    private static RyTask ryTask;
+    @PostConstruct
+    public void init() {
+        ryTask = this;
+        ryTask.IWtFilterElementService=this.IWtFilterElementService;
+    }
     public static void main(String[] args) {
         Map<String, Object> params = new HashMap<>();
         Calendar calendar = Calendar.getInstance();
@@ -62,5 +72,14 @@ public class RyTask {
 
 
         log.info("商户统计end====：{}", DateUtils.getLastDayOfWeek());
+    }
+
+    /**
+     * 自动更新滤芯计时类型状态区分
+     */
+    public void ryFilterElementState() {
+
+        this.IWtFilterElementService.updateState();
+        System.out.println("自动更新滤芯计时类型状态区分");
     }
 }

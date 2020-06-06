@@ -30,4 +30,14 @@
         AND perssion_id = #{perssionId}
     </update>
 
+    <!-- 获取经销商充值套餐权限 -->
+    <select id="getSalesInfo" resultType="com.zscat.mallplus.set.entity.SetSalesBuy">
+        SELECT *
+        FROM set_sales_buy
+        WHERE dealer_id = #{data.dealerId}
+        AND perssion_id = #{perssionId}
+        AND end_time>now()
+        LIMIT 0,1
+    </select>
+
 </mapper>

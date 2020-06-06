@@ -1,5 +1,6 @@
 package com.zscat.mallplus.water.service.impl;
 
+import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.water.entity.WtFilterElement;
 import com.zscat.mallplus.water.mapper.WtFilterElementMapper;
 import com.zscat.mallplus.water.service.IWtFilterElementService;
@@ -19,5 +20,9 @@ public class WtFilterElementServiceImpl extends ServiceImpl
     @Resource
     private WtFilterElementMapper wtFilterElementMapper;
 
-
+    //自动更新滤芯计时类型状态区分
+    public void updateState(){
+        wtFilterElementMapper.updateState(ConstantUtil.delFlag,ConstantUtil.billing_mode_time
+        ,ConstantUtil.filter_element_state_0,ConstantUtil.filter_element_state_1,ConstantUtil.filter_element_state_2);
+    }
 }
