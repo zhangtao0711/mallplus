@@ -75,7 +75,7 @@ public class SysDealerUseController {
             entity.setCreateTime(new Date());
             if (ISysDealerUseService.save(entity)) {
                 //1.看设置的那些东西有没有试用时间，有的话将试用时间查出来并弄到到期时间里面去
-                String permissionIds = entity.getPermissionIds().substring(0,use.getPermissionIds().length()-1);
+                String permissionIds = entity.getPermissionIds().substring(0,entity.getPermissionIds().length()-1);
                 List<Map<String,Object>> list = jdbcTemplate.queryForList("select * from set_sales where permission_id in (" + permissionIds+")");
                 //2. 把权限添到购买权限表里面，设置到期时间什么的
                 for (Map<String,Object> map:list){
@@ -130,7 +130,7 @@ public class SysDealerUseController {
                 in.add(salesBuy.getPerssionId().toString());
             }
             //把新的ids整成list，然后和交集求差集
-            List<String> newList = new ArrayList<>(Arrays.asList(entity.getPermissionIds()));
+            List<String> newList = new ArrayList<>(Arrays.asList(entity.getPermissionIds().split(",")));
             newList.removeAll(in);
             if (ISysDealerUseService.updateById(entity)) {
                 if (newList.size()!=0) {
@@ -147,7 +147,7 @@ public class SysDealerUseController {
                         setSalesBuy.setEndTime(endTime);
                         setSalesBuy.setLastEndTime(endTime);
                         setSalesBuy.setCreateTime(date);
-                        setSalesBuy.setStoreId(entity.getStoreId());
+//                        setSalesBuy.setStoreId(entity.getStoreId());
                         setSalesBuy.setStoreName(entity.getStoreName());
                         setSalesBuyService.save(setSalesBuy);
                     }
@@ -273,6 +273,14 @@ public class SysDealerUseController {
         List<Map<String,Object>> permissionList = jdbcTemplate.queryForList("select * from set_sales where permission_id in (" + permissionIds+")");
         return new CommonResult().success(permissionList);
     }
+
+//    @SysLog(MODULE = "sys", REMARK = "获取权限列表数据接口")
+//    @ApiOperation("获取权限列表数据接口")
+//    @GetMapping(value = "/getPermission")
+//    public Object getPermission() {
+//        List<Map<String,Object>> permissionList = jdbcTemplate.queryForList("select * from set_sales");
+//        return new CommonResult().success(permissionList);
+//    }
 }
 
 

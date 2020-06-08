@@ -36,6 +36,7 @@ import com.zscat.mallplus.vo.home.Pages;
 import com.zscat.mallplus.vo.home.ServiceMenu;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -251,14 +252,15 @@ public class BHomeController {
                            @RequestParam boolean status,
                            @RequestParam String nickname,
                            @RequestParam String city,
-                           @RequestParam Integer source) {
+                           @RequestParam Integer source,
+                           @RequestParam Integer uniacid) {
 
         if (openid == null || "".equals(openid)) {
             return new CommonResult().validateFailed("openid为空");
         }
         try {
 
-            Map<String, Object> token = memberService.appLogin(openid, sex, headimgurl, unionid, nickname, city, source);
+            Map<String, Object> token = memberService.appLogin(openid, sex, headimgurl, unionid, nickname, city, source,uniacid);
             if (token.get("token") == null) {
                 return new CommonResult().validateFailed("用户名或密码错误");
             }

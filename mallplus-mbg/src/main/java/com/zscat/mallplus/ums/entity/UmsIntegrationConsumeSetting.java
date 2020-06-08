@@ -94,4 +94,9 @@ public class UmsIntegrationConsumeSetting extends BaseEntity implements Serializ
     @TableField("dealer_id")
     private Long dealerId;
 
+    /**
+     * 激活设备送积分
+     */
+    @TableField("device_activate")
+    private Integer deviceActivate;
 }

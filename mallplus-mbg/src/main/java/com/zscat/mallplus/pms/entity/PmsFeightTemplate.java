@@ -28,6 +28,7 @@ public class PmsFeightTemplate extends BaseEntity implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    @TableField("name")
     private String name;
 
     /**
@@ -57,7 +58,18 @@ public class PmsFeightTemplate extends BaseEntity implements Serializable {
     /**
      * 目的地（省、市）
      */
+    @TableField("dest")
     private String dest;
     @TableField("create_time")
     private Date createTime;
+
+    @TableField("encode")
+    private String encode;
+    @TableField("is_default")
+    private Integer isDefault;
+    @TableField("area_type")
+    private Integer areaType;
+
+    @TableField("dealer_id")
+    private Long dealerId;
 }

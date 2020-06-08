@@ -19,6 +19,8 @@ import com.zscat.mallplus.wxminiapp.service.IAccountWxappVersionService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import me.chanjar.weixin.common.error.WxErrorException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,6 +46,10 @@ public class AccountWxappVersionController {
     private IAccountWxappVersionService IAccountWxappVersionService;
     @Resource
     private IAccountWxappService appService;
+    @Resource
+    private JdbcTemplate jdbcTemplate;
+    @Resource
+    private WxMaConfiguration maConfiguration;
 
     @SysLog(MODULE = "wxminiapp", REMARK = "根据条件查询所有小程序版本列表")
     @ApiOperation("根据条件查询所有小程序版本列表")
@@ -69,18 +75,19 @@ public class AccountWxappVersionController {
         try {
             entity.setCreateTime(new Date());
             if (IAccountWxappVersionService.save(entity)) {
-                //todo 调用wx-java的接口实现上传代码到微信
+                //调用wx-java的接口实现上传代码到微信
                 AccountWxapp app = appService.getById(entity.getUniacid());
                 if (app==null){
                     return new CommonResult().failed("数据错误,请联系管理员！");
                 }
+                Map<String,Object> map = jdbcTemplate.queryForMap("select template_id from admin_dsn_domin where id =1");
+                maConfiguration.init();
                 final WxMaService wxService = WxMaConfiguration.getMaService(app.getKey());
-                WxMaCodeService wxMaCodeAuditStatus =wxService.getCodeService();
                 String themeColor = "#0074d9";
                 String themeFontColor = "#ffffff";
 
                 Map<String, Object> ext = new HashMap<>();
-                ext.put("appName", "xxx");
+                ext.put("appName", entity.getName());
                 ext.put("verified", true);
                 ext.put("navigationBarBackgroundColor", themeColor);
                 ext.put("navigationBarTextStyle", themeFontColor);
@@ -90,9 +97,9 @@ public class AccountWxappVersionController {
                 WxMaCodeService wxMaCodeService = wxService.getCodeService();
                 WxMaCodeCommitRequest commitRequest = WxMaCodeCommitRequest
                         .builder()
-                        .templateId(6L)
-                        .userVersion("v0.1.0")
-                        .userDesc("init")
+                        .templateId(Long.valueOf(map.get("template_id").toString()))
+                        .userVersion(entity.getVersion())
+                        .userDesc(entity.getVersionDescribed())
                         .extConfig(WxMaCodeExtConfig.builder()
                                 .extAppid(app.getKey())
                                 .extEnable(true)
@@ -199,6 +206,31 @@ public class AccountWxappVersionController {
     public void importUsers(@RequestParam MultipartFile file) {
         List<AccountWxappVersion> personList = EasyPoiUtils.importExcel(file, AccountWxappVersion.class);
         IAccountWxappVersionService.saveBatch(personList);
+    }
+
+    @SysLog(MODULE = "wxminiapp", REMARK = "获取体验版二维码")
+    @ApiOperation("获取体验版二维码")
+    @PostMapping(value = "/getQrCode")
+//    @PreAuthorize("hasAuthority('wxminiapp:imsAccountWxappVersion:update')")
+    public Object getQrCode(@RequestBody AccountWxappVersion entity) {
+        AccountWxapp app = appService.getById(entity.getUniacid());
+        if (app==null){
+            return new CommonResult().failed("数据错误,请联系管理员！");
+        }
+        Map<String,Object> map = jdbcTemplate.queryForMap("select ma_path from admin_dsn_domin where id =1");
+        final WxMaService wxService = WxMaConfiguration.getMaService(app.getKey());
+        WxMaCodeService wxMaCodeService = wxService.getCodeService();
+        try {
+            if (map==null){
+                byte[] qrCode = wxMaCodeService.getQrCode(null);
+                return new CommonResult().success(qrCode);
+            }
+            byte[] qrCode = wxMaCodeService.getQrCode(map.get("ma_path").toString());
+            return new CommonResult().success(qrCode);
+        } catch (WxErrorException e) {
+            e.printStackTrace();
+        }
+        return new CommonResult().failed("获取体验二维码失败！");
     }
 }
 

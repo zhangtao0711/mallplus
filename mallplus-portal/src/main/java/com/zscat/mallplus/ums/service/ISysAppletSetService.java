@@ -1,10 +1,10 @@
 package com.zscat.mallplus.ums.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zscat.mallplus.sms.entity.SmsWaterBuyRecord;
 import com.zscat.mallplus.ums.entity.SysAppletSet;
 
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -16,5 +16,6 @@ import java.util.Map;
  */
 public interface ISysAppletSetService extends IService<SysAppletSet> {
 
-    List<Map<String,Object>> getMonitorFirm(Integer level,String value, Integer storeId);
+    public boolean getRout(Long dealerId, BigDecimal actualFee, String ip,
+                           String transaction_id, Long recordId,Integer type);
 }

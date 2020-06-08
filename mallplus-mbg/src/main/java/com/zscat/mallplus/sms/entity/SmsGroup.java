@@ -114,4 +114,18 @@ public class SmsGroup extends BaseEntity implements Serializable {
      */
     @TableField(exist = false)
     private Integer pintuan_start_status = 1;
+
+    @TableField("title")
+    private String title;
+    @TableField("limit_man")
+    private Integer limitMan;
+    @TableField("credit_points")
+    private Integer creditPoints;
+    @TableField("head_return")
+    private Integer headReturn;
+    @TableField("member_return")
+    private Integer memberReturn;
+    @TableField("day_return")
+    private Integer dayReturn;
+
 }

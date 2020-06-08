@@ -154,7 +154,7 @@ public class SetSalesOrderController {
                             .build()
                             .createSign(config.getPartnerKey(), SignType.HMACSHA256);
                     //5.统一下单
-                    String xmlResult = WxPayApi.pushOrder(false, params);
+                    String xmlResult = WxPayApi.pushOrder(params);
                     log.info("统一下单:" + xmlResult);
                     //6.将返回信息的信息转成map
                     Map<String, String> result = WxPayKit.xmlToMap(xmlResult);
