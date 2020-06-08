@@ -1,5 +1,7 @@
 package com.zscat.mallplus.util;
 
+import org.bouncycastle.pqc.crypto.newhope.NHOtherInfoGenerator;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +50,10 @@ public class ConstantUtil {
     public static final String water_code_state_3="3";//删除卡
     public static final String water_code_state_4="4";//非经销商卡
 
+    //水卡状态销售状态（0未售出1已售出）
+    public static final String water_code_sale_state_0="0";//未售出
+    public static final String water_code_sale_state_1="1";//已售出
+
     //充值金额类型
     public static final String recharge_money_type_0="0";//充值金额
     public static final String recharge_money_type_1="1";//充值体验金
@@ -78,7 +84,26 @@ public class ConstantUtil {
 
     //营销功能 客户标签id
     public static final String ums_label_perssion_id="";//功能id
+    //营销功能 充值套餐id
+    public static final String recharge_package_id="";//功能id
+
     //通用的失败成功
     public static final Integer fail = 0;
     public static final Integer succeeded = 1;
+    //帐号启用状态:0->禁用；1->启用
+    public static final Integer ums_status_off=0;
+    public static final Integer ums_status_on=1;
+    //水卡最多绑定几个用户
+    public static final Integer ums_card_num=5;
+    //滤芯计费类型
+    public static final String billing_mode_time="0";
+    public static final String billing_mode_num="1";
+    //滤芯状态
+    public static final String filter_element_state_0="0";
+    public static final String filter_element_state_1="1";
+    public static final String filter_element_state_2="2";
+    //会员区分（0:日志1:备注)
+    public static final String member_log_falg_0="0";
+    public static final String member_log_falg_1="1";
+
 }

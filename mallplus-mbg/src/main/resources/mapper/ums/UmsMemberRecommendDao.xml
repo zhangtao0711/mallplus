@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.ums.mapper.UmsMemberRecommendMapper">
+
+    <!-- 根据条件查询所有会员推荐列表 -->
+    <select id="selectMemberRecommend" resultType="com.zscat.mallplus.ums.entity.UmsMemberRecommend">
+        SELECT
+        b.username
+        ,b.create_time AS "createTime"
+        ,c.payment_time AS "paymentTtime"
+        ,a.*
+        FROM
+        ums_member_recommend a
+        LEFT JOIN ums_member b ON a.member_recommend_id=b.id
+        LEFT JOIN oms_order c ON a.member_recommend_id=c.member_id
+        where b.id is not null
+        <if test="entity.memberId != null and entity.memberId != ''">
+            and a.member_id=#{entity.memberId}
+        </if>
+
+    </select>
+</mapper>

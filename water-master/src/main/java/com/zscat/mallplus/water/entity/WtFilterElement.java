@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 //import com.zscat.mallplus.utils.BaseEntity;
 import com.zscat.mallplus.util.BaseEntity;
 import lombok.Data;
+import org.apache.poi.hpsf.Decimal;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
 //import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
@@ -25,6 +28,12 @@ public class WtFilterElement extends BaseEntity implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    /**
+     * 设备号
+     **/
+    @TableField("eqcode")
+    @NotEmpty(message = "选择设备后添加滤芯！")
+    private Long eqcode;
 
     /**
      * 滤芯类型id
@@ -39,33 +48,71 @@ public class WtFilterElement extends BaseEntity implements Serializable {
      **/
     @TableField("filter_element_level")
     @NotEmpty(message = "滤芯级别不能为空")
-//    @Length(min=1, max=50, message="滤芯级别长度必须介于 1 和 50 之间!")
-    private String filterElementLevel;
-
+    @Range(min=0,max = 999,message = "滤芯级别只能输入1-999的正整数！")
+    private int filterElementLevel;
 
     /**
      * 计费模式
      **/
     @TableField("billing_mode")
     @NotEmpty(message = "计费模式不能为空")
-//    @Length(min=1, max=100, message="计费模式长度必须介于 1 和 100 之间!")
     private String billingMode;
 
+    /**
+     * 过滤水量
+     **/
+    @TableField("purifier_num")
+    @Length(min=0, max=4, message="过滤水量(吨)不能设置大于9999!")
+    private Integer purifierNum;
+
+    /**
+     * 已使用百分比
+     **/
+    @TableField("use_percent")
+    private Decimal usePercent;
 
     /**
      * 滤芯更换时间
      **/
     @TableField("change_time")
     @NotEmpty(message = "滤芯更换时间不能为空")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date changeTime;
 
+    /**
+     * 滤芯到期时间
+     **/
+    @TableField("end_time")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date endTime;
+    /**
+     * 滤芯状态0正常使用1准备更换2等待更换
+     **/
+    @TableField("state")
+    private String state;
+
+    /**
+     * 有效周期天数
+     **/
+    @TableField("change_cycle")
+    private Integer changeCycle;
+    /**
+     * 水量标准(吨)
+     **/
+    @TableField("purifier_total")
+    private Integer purifierTotal;
+
+    /**
+     * 更换滤芯提前提醒日期
+     **/
+    @TableField("remind_time")
+    private Date remindTime;
 
     /**
      * 备注
      **/
     @TableField("remarks")
-//    @Length(min=1, max=255, message="计费模式长度必须介于 1 和 255 之间!")
+    @Length(min=0, max=255, message="计费模式长度必须介于 1 和 255 之间!")
     private String remarks;
 
 
@@ -106,5 +153,9 @@ public class WtFilterElement extends BaseEntity implements Serializable {
     @TableLogic
     private String delFlag;
 
-
+    /**
+     * 经销商id
+     **/
+    @TableField("dealer_id")
+    private Long dealerId;
 }

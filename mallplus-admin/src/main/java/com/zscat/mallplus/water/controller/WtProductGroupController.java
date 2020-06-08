@@ -60,6 +60,7 @@ public class WtProductGroupController {
     @PreAuthorize("hasAuthority('water:wtProductGroup:create')")
     public Object saveWtProductGroup(@RequestBody WtProductGroup entity) {
         try {
+            entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCreateTime(new Date());
             if (IWtProductGroupService.save(entity)) {
                 return new CommonResult().success();

@@ -9,5 +9,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 
 public interface IWtEquipmentService extends IService<WtEquipment> {
-
+    //获取设备关联经销商和登录者经销商是否一致
+    boolean getDealerId(String eqcode, Long dealerId);
 }

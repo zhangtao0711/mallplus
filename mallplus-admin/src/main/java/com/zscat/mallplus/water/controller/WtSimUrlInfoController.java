@@ -4,6 +4,7 @@ package com.zscat.mallplus.water.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.water.entity.SimEntity;
 import com.zscat.mallplus.water.entity.WtSimCard;
 import com.zscat.mallplus.water.entity.WtSimUrlInfo;
@@ -58,6 +59,7 @@ public class WtSimUrlInfoController {
     @PreAuthorize("hasAuthority('water:wtSimUrlInfo:create')")
     public Object saveWtSimUrlInfo(@RequestBody WtSimUrlInfo entity) {
         try {
+            entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCreateTime(new Date());
             if (IWtSimUrlInfoService.save(entity)) {
                 return new CommonResult().success();

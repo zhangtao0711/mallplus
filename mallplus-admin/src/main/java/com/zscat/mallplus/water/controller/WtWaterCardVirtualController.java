@@ -4,6 +4,7 @@ package com.zscat.mallplus.water.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.water.entity.WtWaterCardVirtual;
 import com.zscat.mallplus.water.service.IWtWaterCardVirtualService;
 import com.zscat.mallplus.util.EasyPoiUtils;
@@ -56,6 +57,7 @@ public class WtWaterCardVirtualController {
     @PreAuthorize("hasAuthority('water:wtWaterCardVirtual:create')")
     public Object saveWtWaterCardVirtual(@RequestBody WtWaterCardVirtual entity) {
         try {
+            entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCreateTime(new Date());
             if (IWtWaterCardVirtualService.save(entity)) {
                 return new CommonResult().success();

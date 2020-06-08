@@ -12,6 +12,7 @@ import com.zscat.mallplus.water.service.IWtWaterCardActivateService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -47,6 +48,7 @@ public class WtWaterCardActivateServiceImpl extends ServiceImpl
     }
 
     //保存
+    @Transactional
     public boolean save(WtWaterCardActivate entity){
         //更新卡列表的经销商信息
         if(!wtWaterCardMapper.updateStoreId(Long.valueOf(entity.getStartNo())

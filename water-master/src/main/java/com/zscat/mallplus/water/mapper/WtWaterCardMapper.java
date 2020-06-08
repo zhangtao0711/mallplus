@@ -27,7 +27,8 @@ public interface WtWaterCardMapper extends BaseMapper<WtWaterCard> {
      * @param type recharge/金额 experience/体验金额
      * @return
      */
-    Integer updateRecharge(@Param("data")WtWaterCardRecharge entity,@Param("state")String state,@Param("type")String type);
+    Integer updateRecharge(@Param("data")WtWaterCardRecharge entity
+            ,@Param("state")String state,@Param("type")String type,@Param("delFlag")String delFlag);
 
     /**
      *  根据开卡id获取售出卡信息
@@ -36,4 +37,17 @@ public interface WtWaterCardMapper extends BaseMapper<WtWaterCard> {
      * @return
      */
     List<WtWaterCard> getAllSaleStateOn(@Param("id")Long id, @Param("saleStateOn")String saleStateOn);
+
+    /**
+     * 根据卡号和用户id获取水卡信息
+     * @param cardNo
+     * @param umsMemberId
+     * @param delFlag
+     * @param state
+     * @return
+     */
+    WtWaterCard getWaterCard(@Param("cardNo")String cardNo,@Param("umsMemberId")Long umsMemberId
+            ,@Param("delFlag")String delFlag,@Param("state")String state);
+    //根据卡号修改卡状态
+    boolean updateStateByCard(@Param("cardNo")String cardNo, @Param("state")String state, @Param("updateBy")Long updateBy);
 }

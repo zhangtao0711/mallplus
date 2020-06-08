@@ -103,7 +103,7 @@
                 :label="item.label"
                 :value="item.value"
               ></el-option>
-            </el-select> -->
+            </el-select>-->
           </el-form-item>
 
           <el-form-item>
@@ -130,7 +130,7 @@ export default {
   data() {
     return {
       loginRules: {
-        dealerId: [{ required: true, trigger: "blur" }]
+        dealerId: [{ required: true, message: "请选择经销商", trigger: "blur" }]
       },
       blance: {
         dialogVisible: false,
@@ -181,13 +181,15 @@ export default {
         dealerId: this.blance.dealerId
       };
 
-      updateDealerId(data).then(response => {
-        this.$message({
-          message: "修改密码成功",
-          type: "success",
-          duration: 1000
-        });
-      });
+      updateDealerId(this.blance.id, data).then(
+        response => {
+          this.$message({
+            message: response.msg,
+            type: "success",
+            duration: 1000
+          });
+        }
+      );
       this.blance.dialogVisible = false;
     },
     exportExcel(index, row) {

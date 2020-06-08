@@ -4,12 +4,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.zscat.mallplus.sms.entity.SmsLabelSet;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -167,6 +169,12 @@ public class UmsMember implements Serializable {
 
     @TableField("school_id")
     private Long schoolId;
+    /**
+     * 经销商id
+     */
+    @TableField("dealer_id")
+    private Long dealerId;
+
     @TableField(exist = false)
     private String confimpassword;
 
@@ -184,4 +192,33 @@ public class UmsMember implements Serializable {
      */
     @TableField("integration_status")
     private Integer integrationStatus;
+    /**
+     * 实体卡号
+     */
+    private String cardNo;
+    /**
+     * 余额
+     */
+    private BigDecimal cardMoney;
+    /**
+     * 用户标签
+     */
+    private List<SmsLabelSet> labelList;
+    /**
+     * 公众号名称
+     */
+    private String uniacName;
+    /**
+     * 推荐人名称
+     */
+    private String recommendName;
+    /**
+     * 推荐用户数
+     */
+    private String recommendNum;
+//    /**
+//     * 用户标签ids
+//     */
+//    private String labelIds;
+
 }

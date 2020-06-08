@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.water.mapper.WtFilterElementMapper">
+
+    <!-- 自动更新滤芯计时类型状态区分 -->
+    <update id="updateState" >
+        UPDATE wt_filter_element a
+        SET a.state = case when a.end_time &lt; now() then #{wait} else
+        case when a.remind_time &lt; now() then #{prepare} else #{normal} end
+        end
+        WHERE a.billing_mode=#{billing_mode_time}
+        AND a.del_flag=#{delFlag}
+        AND( (a.end_time &lt; now() and a.state &lt;&gt; #{wait})
+        or (a.remind_time &lt; now() and a.state=#{normal}) )
+    </update>
+
+</mapper>

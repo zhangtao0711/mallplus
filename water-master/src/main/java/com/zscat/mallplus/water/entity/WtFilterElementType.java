@@ -11,6 +11,7 @@ import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -46,7 +47,7 @@ public class WtFilterElementType implements Serializable {
      **/
     @TableField("change_cycle")
     @NotEmpty(message = "更换周期不能为空")
-    @Length(min=1, max=4, message="更换周期不能设置大于9999!")
+    @Range(min=1,max = 9999,message = "更换周期天数只能输入1-9999的正整数！")
     private Integer changeCycle;
 
 
@@ -56,8 +57,8 @@ public class WtFilterElementType implements Serializable {
     @TableField("remind_day")
     @NotEmpty(message = "更换滤芯提前提醒天数不能为空")
 //    @Length(min=1, max=2, message="更换滤芯提前提醒天数不能设置大于99!")
-    @Min(1)
-    @Max(99)
+
+    @Range(min=1,max = 99,message = "更换滤芯提前提醒天数只能输入1-99的正整数！")
     private Integer remindDay;
 
 
@@ -107,4 +108,10 @@ public class WtFilterElementType implements Serializable {
     @TableLogic
     private String delFlag;
 
+
+    /**
+     * 经销商id
+     **/
+    @TableField("dealer_id")
+    private Long dealerId;
 }

@@ -4,6 +4,7 @@ package com.zscat.mallplus.water.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.sys.entity.SysUser;
 import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.util.UserUtils;
 import com.zscat.mallplus.water.entity.WtWaterCard;
@@ -11,6 +12,7 @@ import com.zscat.mallplus.water.service.IWtWaterCardService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
+import com.zscat.mallplus.water.vo.WtWaterCardExcelBind;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +60,7 @@ public class WtWaterCardController {
     @PreAuthorize("hasAuthority('water:wtWaterCard:create')")
     public Object saveWtWaterCard(@RequestBody WtWaterCard entity) {
         try {
+            entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCreateTime(new Date());
             if (IWtWaterCardService.save(entity)) {
                 return new CommonResult().success();
@@ -153,6 +156,33 @@ public class WtWaterCardController {
     public void importUsers(@RequestParam MultipartFile file) {
         List<WtWaterCard> personList = EasyPoiUtils.importExcel(file, WtWaterCard.class);
         IWtWaterCardService.saveBatch(personList);
+    }
+
+    @SysLog(MODULE = "water", REMARK = "批量绑定")
+    @PostMapping("/importExcelBind")
+    @PreAuthorize("hasAuthority('water:wtWaterCard:update')")
+    public void importExcelBind(@RequestParam MultipartFile file) {
+        List<WtWaterCardExcelBind> personList = EasyPoiUtils.importExcel(file, WtWaterCardExcelBind.class);
+        for (WtWaterCardExcelBind wtWaterCardExcelBind : personList){
+            WtWaterCard entity = new WtWaterCard();
+            entity.setCardNo(wtWaterCardExcelBind.getCardNo());
+            entity = IWtWaterCardService.getOneBy(entity);
+            entity.setUmsMemberId(wtWaterCardExcelBind.getUmsMemberId());
+            entity.setUpdateTime(new Date());
+            SysUser user = UserUtils.getCurrentMember();
+            entity.setUpdateBy(user.getId());
+            IWtWaterCardService.updateById(entity);
+        }
+    }
+
+    @SysLog(MODULE = "water", REMARK = "会员卡导出")
+    @GetMapping("/exportExcelCard")
+    public void exportCard(HttpServletResponse response, WtWaterCard entity) {
+        // 模拟从数据库获取需要导出的数据
+        List<WtWaterCard> personList = IWtWaterCardService.list(new QueryWrapper<>(entity));
+        // 导出操作
+        EasyPoiUtils.exportExcel(personList, "导出社区数据", "社区数据", WtWaterCard.class, "导出社区数据.xls", response);
+
     }
 
     @SysLog(MODULE = "water", REMARK = "添加问题卡")
