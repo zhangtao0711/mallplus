@@ -6,6 +6,13 @@ export function fetchList(params) {
     params:params
   })
 }
+export function listDealer(params) {
+  return request({
+    url:'/sys/sysUser/listDealer',
+    method:'get',
+    params:params
+  })
+}
 export function userRoles(params,adminId) {
   return request({
     url:'/sys/sysUser/role/'+adminId,

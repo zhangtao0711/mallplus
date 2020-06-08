@@ -29,6 +29,34 @@ export const constantRouterMap = [
   { path: '/404', component: () => import('@/views/404'), hidden: true },
 
   {
+    path: '/dealer',
+    component: Layout,
+    redirect: '/dealer/addDealer',
+    name: 'dealer',
+    meta: { title: '经销商管理管理', icon: 'home' },
+    children: [
+      {
+        path: 'addDealer',
+        name: 'addDealer',
+        component: () => import('@/views/dealer/addDealer/add'),
+        meta: { title: '经销商配置', icon: 'product-list' }
+      },
+      {
+        path: 'addDealerInfo',
+        name: 'addDealerInfo',
+        component: () => import('@/views/dealer/addDealer/components/dealerInfo'),
+        meta: { title: '添加经销商', icon: 'product-add' }
+      },
+      {
+        path: 'updatePermissions',
+        name: 'updatePermissions',
+        component: () => import('@/views/dealer/addDealer/components/applicationPermissions'),
+        meta: { title: '修改应用权限', icon: 'product-add' }
+      },
+    ]
+  },
+
+  {
     path: '/store',
     component: () => import('@/views/home/store'),
     hidden: true
@@ -993,9 +1021,16 @@ export const constantRouterMap = [
         meta: { title: '批量充值' },
         hidden: true
       },
+      {
+        path: 'backstageRecharge',
+        name: 'backstageRecharge',
+        component: () => import('@/views/ums/wtWaterCardRecharge/backstageRecharge'),
+        meta: { title: '批量充值' },
+        hidden: true
+      },
 
 
-       {
+      {
         path: 'school',
         name: 'school',
         component: () => import('@/views/ums/school/index'),

@@ -6,7 +6,7 @@
         <span>筛选搜索</span>
         <el-button
           style="float: right"
-          @click="searchWtWaterCardActivateList()"
+          @click="searchWtWaterCardRechargeList()"
           type="primary"
           size="small"
         >查询结果</el-button>
@@ -22,11 +22,13 @@
     <el-card class="operate-container" shadow="never">
       <i class="el-icon-tickets"></i>
       <span>数据列表</span>
-      <el-button class="btn-add" @click="addWtWaterCardActivate()" size="mini">+批量开卡</el-button>
+      <el-button class="btn-add" @click="addWtWaterCardRecharge()" size="mini">批量充值</el-button>
+      <el-button class="btn-add" @click="addBackstageRecharge()" size="mini">后台充值</el-button>
+      <el-button class="btn-add" @click="addWtWaterCardRecharge()" size="mini">批量导入充值</el-button>
     </el-card>
     <div class="table-container">
       <el-table
-        ref="wtWaterCardActivateTable"
+        ref="wtWaterCardRechargeTable"
         :data="list"
         style="width: 100%"
         @selection-change="handleSelectionChange"
@@ -35,8 +37,14 @@
       >
         <el-table-column type="selection" width="60" align="center"></el-table-column>
 
-        <el-table-column prop="id" label="编号">
+        <el-table-column prop="id" label="id">
           <template slot-scope="scope">{{scope.row.id }}</template>
+        </el-table-column>
+        <el-table-column prop="rechargeMoneyType" label="充值金额类型（0充值金额1充值体验金）字典recharge_money_type">
+          <template slot-scope="scope">{{scope.row.rechargeMoneyType }}</template>
+        </el-table-column>
+        <el-table-column prop="rechargeType" label="充值类型（0单卡 1批量 2筛选充值）字典	recharge_type">
+          <template slot-scope="scope">{{scope.row.rechargeType }}</template>
         </el-table-column>
         <el-table-column prop="startNo" label="起始卡号">
           <template slot-scope="scope">{{scope.row.startNo }}</template>
@@ -44,11 +52,53 @@
         <el-table-column prop="endNo" label="终止卡号">
           <template slot-scope="scope">{{scope.row.endNo }}</template>
         </el-table-column>
-        <el-table-column prop="eqcode" label="设备号">
-          <template slot-scope="scope">{{scope.row.eqcode }}</template>
+        <el-table-column prop="cardNo" label="卡号">
+          <template slot-scope="scope">{{scope.row.cardNo }}</template>
         </el-table-column>
-        <el-table-column prop="dealerId" label="商家账号">
-          <template slot-scope="scope">{{scope.row.dealerId }}</template>
+        <el-table-column prop="rechargeMoney" label="充值金额">
+          <template slot-scope="scope">{{scope.row.rechargeMoney }}</template>
+        </el-table-column>
+        <el-table-column prop="receivedMoney" label="实收金额">
+          <template slot-scope="scope">{{scope.row.receivedMoney }}</template>
+        </el-table-column>
+        <el-table-column prop="experienceMoney" label="体验金额">
+          <template slot-scope="scope">{{scope.row.experienceMoney }}</template>
+        </el-table-column>
+        <el-table-column prop="experienceEndData" label="体验到期日">
+          <template slot-scope="scope">{{scope.row.experienceEndData }}</template>
+        </el-table-column>
+        <el-table-column prop="experienceEndDay" label="体验金有效天数">
+          <template slot-scope="scope">{{scope.row.experienceEndDay }}</template>
+        </el-table-column>
+        <el-table-column prop="umsBalanceMark" label="会员卡余额-筛选记号(字典where_mark)">
+          <template slot-scope="scope">{{scope.row.umsBalanceMark }}</template>
+        </el-table-column>
+        <el-table-column prop="umsBalanceWhere" label="会员卡余额-筛选条件">
+          <template slot-scope="scope">{{scope.row.umsBalanceWhere }}</template>
+        </el-table-column>
+        <el-table-column prop="umsUseMark" label="用水频次-筛选记号(字典where_mark)">
+          <template slot-scope="scope">{{scope.row.umsUseMark }}</template>
+        </el-table-column>
+        <el-table-column prop="umsUseWhere" label="用水频次-筛选条件">
+          <template slot-scope="scope">{{scope.row.umsUseWhere }}</template>
+        </el-table-column>
+        <el-table-column prop="umsUsePeriod" label="用水频次-筛选周期(字典where_period)">
+          <template slot-scope="scope">{{scope.row.umsUsePeriod }}</template>
+        </el-table-column>
+        <el-table-column prop="umsRecommendMark" label="推荐频次-筛选记号(字典where_mark)">
+          <template slot-scope="scope">{{scope.row.umsRecommendMark }}</template>
+        </el-table-column>
+        <el-table-column prop="umsRecommendWhere" label="推荐频次-筛选条件">
+          <template slot-scope="scope">{{scope.row.umsRecommendWhere }}</template>
+        </el-table-column>
+        <el-table-column prop="umsRecommendPeriod" label="推荐频次-筛选周期(字典where_period)">
+          <template slot-scope="scope">{{scope.row.umsRecommendPeriod }}</template>
+        </el-table-column>
+        <el-table-column prop="umsCommunity" label="用户社区">
+          <template slot-scope="scope">{{scope.row.umsCommunity }}</template>
+        </el-table-column>
+        <el-table-column prop="umsMemberLevel" label="会员等级">
+          <template slot-scope="scope">{{scope.row.umsMemberLevel }}</template>
         </el-table-column>
 
         <!-- <el-table-column label="操作" align="center">
@@ -78,12 +128,12 @@
 //将$都替换为$
 import {
   fetchList,
-  deleteWtWaterCardActivate
-} from "@/api/water/wtWaterCardActivate";
+  deleteWtWaterCardRecharge
+} from "@/api/water/wtWaterCardRecharge";
 import { formatDate } from "@/utils/date";
 
 export default {
-  name: "wtWaterCardActivateList",
+  name: "wtWaterCardRechargeList",
   data() {
     return {
       operates: [],
@@ -136,7 +186,7 @@ export default {
     },
     handleUpdate(index, row) {
       this.$router.push({
-        path: "/ums/updateWtWaterCardActivate",
+        path: "/ums/updateWtWaterCardRecharge",
         query: { id: row.id }
       });
     },
@@ -146,7 +196,7 @@ export default {
         cancelButtonText: "取消",
         type: "warning"
       }).then(() => {
-        deleteWtWaterCardActivate(row.id).then(response => {
+        deleteWtWaterCardRecharge(row.id).then(response => {
           this.$message({
             message: "删除成功",
             type: "success",
@@ -166,7 +216,7 @@ export default {
       this.listQuery.pageNum = val;
       this.getList();
     },
-    searchWtWaterCardActivateList() {
+    searchWtWaterCardRechargeList() {
       this.listQuery.pageNum = 1;
       this.getList();
     },
@@ -181,9 +231,9 @@ export default {
         return;
       }
       let showStatus = 0;
-      if (this.operateType === "showWtWaterCardActivate") {
+      if (this.operateType === "showWtWaterCardRecharge") {
         showStatus = 1;
-      } else if (this.operateType === "hideWtWaterCardActivate") {
+      } else if (this.operateType === "hideWtWaterCardRecharge") {
         showStatus = 0;
       } else {
         this.$message({
@@ -209,9 +259,12 @@ export default {
         });
       });
     },
-    addWtWaterCardActivate() {
+    addWtWaterCardRecharge() {
       //手动将router,改成$router
-      this.$router.push({ path: "/ums/addWtWaterCardActivate" });
+      this.$router.push({ path: "/ums/addWtWaterCardRecharge" });
+    },
+    addBackstageRecharge() {
+      this.$router.push({ path: "/ums/backstageRecharge" });
     }
   }
 };

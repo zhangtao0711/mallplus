@@ -84,25 +84,10 @@ export default {
   },
   data() {
     return {
-      listQuery: {
-        keyword: null,
-        pageNum: 1,
-        pageSize: 10,
-        dealerId: get('storeId')
-      },
-      list: null,
-      total: null,
-      listLoading: true,
       wtWaterCardActivate: Object.assign({}, defaultWtWaterCardActivate),
       rules: {
         name: [
-          { required: true, message: "请输入品牌名称", trigger: "blur" },
-          {
-            min: 2,
-            max: 140,
-            message: "长度在 2 到 140 个字符",
-            trigger: "blur"
-          }
+          { required: true, message: "请输入品牌名称", trigger: "blur" }
         ],
         logo: [{ required: true, message: "请输入品牌logo", trigger: "blur" }],
         sort: [{ type: "number", message: "排序必须为数字" }]
@@ -110,7 +95,6 @@ export default {
     };
   },
   created() {
-    this.getList();
     if (this.isEdit) {
       getWtWaterCardActivate(this.$route.query.id).then(response => {
         this.wtWaterCardActivate = response.data;
@@ -120,16 +104,6 @@ export default {
     }
   },
   methods: {
-    getList() {
-      this.listLoading = true;
-      validNumber(this.listQuery).then(response => {
-        this.listLoading = false;
-        this.list = response.data.records;
-        this.total = response.data.total;
-        this.totalPage = response.data.pages;
-        this.pageSize = response.data.size;
-      });
-    },
     onSubmit(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
