@@ -22,9 +22,9 @@
     <el-card class="operate-container" shadow="never">
       <i class="el-icon-tickets"></i>
       <span>数据列表</span>
-      <el-button class="btn-add" @click="addWtWaterCardRecharge()" size="mini">批量充值</el-button>
+      <el-button class="btn-add" @click="addBatchRecharge()" size="mini">批量充值</el-button>
       <el-button class="btn-add" @click="addBackstageRecharge()" size="mini">后台充值</el-button>
-      <el-button class="btn-add" @click="addWtWaterCardRecharge()" size="mini">批量导入充值</el-button>
+      <el-button class="btn-add" @click="addImportRecharge()" size="mini">批量导入充值</el-button>
     </el-card>
     <div class="table-container">
       <el-table
@@ -259,9 +259,11 @@ export default {
         });
       });
     },
-    addWtWaterCardRecharge() {
-      //手动将router,改成$router
-      this.$router.push({ path: "/ums/addWtWaterCardRecharge" });
+    addImportRecharge() {
+      this.$router.push({ path: "/ums/importRecharge" });
+    },
+    addBatchRecharge() {
+      this.$router.push({ path: "/ums/batchRecharge" });
     },
     addBackstageRecharge() {
       this.$router.push({ path: "/ums/backstageRecharge" });

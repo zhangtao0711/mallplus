@@ -519,7 +519,12 @@ export const constantRouterMap = [
     name: 'sms',
     meta: { title: '营销', icon: 'sms' },
     children: [
-
+      {
+        path: 'rechargePackage',
+        name: 'rechargePackage',
+        component: () => import('@/views/sms/rechargePackage/index'),
+        meta: { title: '充值套餐列表', icon: 'sms-flash' }
+      },
 
       {
         path: 'flashPromotion',
@@ -1025,9 +1030,24 @@ export const constantRouterMap = [
         path: 'backstageRecharge',
         name: 'backstageRecharge',
         component: () => import('@/views/ums/wtWaterCardRecharge/backstageRecharge'),
+        meta: { title: '后台充值' },
+        hidden: true
+      },
+      {
+        path: 'batchRecharge',
+        name: 'batchRecharge',
+        component: () => import('@/views/ums/wtWaterCardRecharge/batchRecharge'),
         meta: { title: '批量充值' },
         hidden: true
       },
+      {
+        path: 'importRecharge',
+        name: 'importRecharge',
+        component: () => import('@/views/ums/wtWaterCardRecharge/importRecharge'),
+        meta: { title: '批量充值' },
+        hidden: true
+      },
+      
 
 
       {

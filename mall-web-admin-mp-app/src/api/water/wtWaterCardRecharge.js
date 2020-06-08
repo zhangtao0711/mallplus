@@ -6,6 +6,7 @@ export function fetchList(params) {
         params: params
     })
 }
+// 批量充值
 export function createWtWaterCardRecharge(data) {
     return request({
         url: '/water/wtWaterCardRecharge/create',
@@ -21,6 +22,22 @@ export function createSingle(data) {
         data: data
     })
 }
+// 后台套餐充值
+export function createSinglePackage(data) {
+    return request({
+        url: '/water/wtWaterCardRecharge/createSinglePackage',
+        method: 'post',
+        data: data
+    })
+}
+// 批量导入充值
+export function createImportExcel(data) {
+    return request({
+        url: '/water/wtWaterCardRecharge/importExcelCreate',
+        method: 'post',
+        data: data
+    })
+}
 
 export function deleteWtWaterCardRecharge(id) {
     return request({
@@ -29,6 +46,7 @@ export function deleteWtWaterCardRecharge(id) {
     })
 }
 
+// 查询充值明细
 export function getWtWaterCardRecharge(id) {
     return request({
         url: '/water/wtWaterCardRecharge/' + id,
@@ -36,6 +54,7 @@ export function getWtWaterCardRecharge(id) {
     })
 }
 
+// 更新充值
 export function updateWtWaterCardRecharge(id, data) {
     return request({
         url: '/water/wtWaterCardRecharge/update/' + id,
