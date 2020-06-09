@@ -1,11 +1,11 @@
 <template>
   <el-card class="form-container" shadow="never">
-    <h3>批量导入充值</h3>
+    <h3>批量绑卡</h3>
 
     <!-- <el-radio-group v-model="cardType">
       <el-radio :label="0">实体卡</el-radio>
       <el-radio :label="1">虚拟卡</el-radio>
-    </el-radio-group> -->
+    </el-radio-group>-->
 
     <el-upload
       :headers="headers"
@@ -22,17 +22,14 @@
   </el-card>
 </template>
 <script>
-import { createImportExcel } from "@/api/water/wtWaterCardRecharge";
 import { get, getToken } from "@/utils/auth";
 export default {
-  name: "backstageRecharge",
+  name: "batchCardBinding",
   data() {
     return {
       headers: {},
       cardType: "",
-      coverUrl:
-        // process.env.BASE_API + "water/wtWaterCardCreate/importExcel"
-        process.env.BASE_API + "/water/wtWaterCardRecharge/importExcelCreate"
+      coverUrl: process.env.BASE_API + "/water/wtWaterCard/importExcelBind"
     };
   },
   created() {
@@ -47,7 +44,7 @@ export default {
       this.emitInput("");
     },
     handleUploadSuccess(res, file) {
-      if (res.code == 500) {
+      if (res.code != 200) {
         this.$message({
           message: res.msg,
           type: "error",
@@ -59,7 +56,7 @@ export default {
           type: "success",
           duration: 1000
         });
-        this.$router.back();
+        // location.reload();
       }
 
       this.showFileList = true;

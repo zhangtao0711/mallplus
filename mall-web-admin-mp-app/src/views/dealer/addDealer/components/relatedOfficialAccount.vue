@@ -285,6 +285,9 @@ export default {
     };
   },
   created() {
+    if (this.$route.query.id) {
+      this.dealerId = this.$route.query.id
+    }
     this.getAccount();
     this.getAreaList();
   },

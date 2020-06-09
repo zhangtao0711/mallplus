@@ -77,23 +77,23 @@
         <el-input v-model="value.address" style="width: 370px;" />
       </el-form-item>
 
-      <!-- <div v-show="false">
+      <div v-show="isEdit">
         <el-form-item label="公众号/小程序名称" prop="startNo">
-          <el-input v-model="value.startNo" style="width: 370px;" />
+          <el-input v-model="value.startNo" :disabled="true" style="width: 370px;" />
         </el-form-item>
 
         <el-form-item label="总经销商账号" prop="startNo">
-          <el-input v-model="value.startNo" style="width: 370px;" />
+          <el-input v-model="value.startNo" :disabled="true" style="width: 370px;" />
         </el-form-item>
 
         <el-form-item label="经销商账号" prop="startNo">
-          <el-input v-model="value.startNo" style="width: 370px;" />
+          <el-input v-model="value.startNo" :disabled="true" style="width: 370px;" />
         </el-form-item>
 
         <el-form-item label="分销商账号" prop="startNo">
-          <el-input v-model="value.startNo" style="width: 370px;" />
+          <el-input v-model="value.startNo" :disabled="true" style="width: 370px;" />
         </el-form-item>
-      </div>-->
+      </div>
 
       <el-form-item label="经销商等级" prop="levelId">
         <el-radio-group v-model="value.levelId" @change="level">
@@ -162,7 +162,6 @@
 
         <div v-show="appShow">
           <el-form-item
-            prop="appid"
             label="AppId"
             :rules="[
               { required: appShow, message: '请输入AppId' },
@@ -172,17 +171,15 @@
           </el-form-item>
 
           <el-form-item
-            prop="appsecret"
             label="Appsckey"
             :rules="[
-              { required: appShow, message: '请输入APPsckey' },
+              { required: appShow, message: '请输入APPsckey', },
             ]"
           >
             <el-input v-model="value.appsecret" style="width: 370px;" />
           </el-form-item>
 
           <el-form-item
-            prop="mchid"
             label="商户号"
             :rules="[
               { required: appShow, message: '请输入商户号' },
@@ -208,25 +205,24 @@
               <el-button slot="append" @click="chooseZ2" type="primary" icon="el-icon-search">选择</el-button>
             </el-input>
 
-            <!-- <el-button type="primary">检测</el-button> -->
+            <el-button type="primary" @click="monitorFirmPay">检测</el-button>
           </el-form-item>
 
           <el-form-item
             label="收款账号"
-            prop="receiptAccount"
             :rules="[
               { required: accountShow, message: '请输入收款账号' },
             ]"
           >
             <el-input v-model="value.receiptAccount" style="width: 370px;" />
-            <!-- <el-button type="primary">检测</el-button> -->
+            <el-button type="primary" @click="monitorWeChantPay">检测</el-button>
           </el-form-item>
         </div>
       </div>
 
       <div v-show="zproportionShow || proportionShow">
         <h3>分成</h3>
-        <!-- <el-button type="primary">申请商户号</el-button> -->
+
         <el-form-item
           prop="firstSeparate"
           label="总经销商分成比例"
@@ -235,7 +231,22 @@
               { required: zproportionShow, message: '请输入总经销商分成比例' },
             ]"
         >
-          <el-input :disabled="true" />
+          <el-input v-model="value.pid" :disabled="true" />
+          <el-input v-model="value.firstSeparate">
+            <template slot="append">%</template>
+          </el-input>
+        </el-form-item>
+
+        <!-- <el-button type="primary">申请商户号</el-button> -->
+        <el-form-item
+          prop="firstSeparate"
+          label="总经销商分成比例"
+          v-show="proportionShow"
+          :rules="[
+              { required: proportionShow, message: '请输入总经销商分成比例' },
+            ]"
+        >
+          <el-input v-model="value.gid" :disabled="true" />
           <el-input v-model="value.firstSeparate">
             <template slot="append">%</template>
           </el-input>
@@ -249,10 +260,14 @@
               { required: proportionShow, message: '请输入经销商分成比例' },
             ]"
         >
-          <el-input :disabled="true" />
+          <el-input v-model="value.pid" :disabled="true" />
           <el-input v-model="value.secondSeparate">
             <template slot="append">%</template>
           </el-input>
+        </el-form-item>
+
+        <el-form-item v-show="detection">
+          <el-button type="primary" @click="monitorProfitShare">检测</el-button>
         </el-form-item>
       </div>
 
@@ -276,13 +291,13 @@
       <el-dialog title="数据选择器" :visible.sync="blance.dialogVisible" width="40%">
         <div>
           <el-row :gutter="20" style="margin-bottom:5px">
-            <el-col :span="12">
+            <!-- <el-col :span="12">
               <el-select size="small" v-model="listQuery.level" placeholder="请选择经销商等级">
                 <el-option label="总经销商" value="1"></el-option>
                 <el-option label="经销商" value="2"></el-option>
                 <el-option label="分销商" value="3"></el-option>
               </el-select>
-            </el-col>
+            </el-col>-->
 
             <el-col :span="12">
               <el-input
@@ -292,13 +307,17 @@
                 suffix-icon="el-icon-search"
               ></el-input>
             </el-col>
+
+            <el-col :span="12">
+              <el-button @click="searchBrandList()" type="primary" size="small">查询结果</el-button>
+            </el-col>
           </el-row>
-          <el-button
+          <!-- <el-button
             style="float: right;margin-bottom:15px;"
             @click="searchBrandList()"
             type="primary"
             size="small"
-          >查询结果</el-button>
+          >查询结果</el-button>-->
         </div>
 
         <el-table
@@ -316,8 +335,8 @@
             <template slot-scope="scope">{{ scope.row.nickName }}</template>
           </el-table-column>
 
-          <el-table-column prop="storeId" label="商户号 " align="center">
-            <template slot-scope="scope">{{ scope.row.storeId }}</template>
+          <el-table-column prop="mchid" label="商户号 " align="center">
+            <template slot-scope="scope">{{ scope.row.mchid }}</template>
           </el-table-column>
 
           <el-table-column prop="phone" label="手机号 " align="center">
@@ -353,13 +372,13 @@
       <el-dialog title="数据选择器" :visible.sync="blance1.dialogVisible" width="40%">
         <div>
           <el-row :gutter="20" style="margin-bottom:5px">
-            <el-col :span="12">
+            <!-- <el-col :span="12">
               <el-select size="small" v-model="listQuery.level" placeholder="请选择经销商等级">
                 <el-option label="总经销商" value="1"></el-option>
                 <el-option label="经销商" value="2"></el-option>
                 <el-option label="分销商" value="3"></el-option>
               </el-select>
-            </el-col>
+            </el-col>-->
 
             <el-col :span="12">
               <el-input
@@ -369,13 +388,15 @@
                 suffix-icon="el-icon-search"
               ></el-input>
             </el-col>
+            <el-col :span="12">
+              <el-button
+                style="float: right;margin-bottom:15px;"
+                @click="searchBrandList()"
+                type="primary"
+                size="small"
+              >查询结果</el-button>
+            </el-col>
           </el-row>
-          <el-button
-            style="float: right;margin-bottom:15px;"
-            @click="searchBrandList()"
-            type="primary"
-            size="small"
-          >查询结果</el-button>
         </div>
         <el-table
           ref="merchatBusinessMaterialsTable"
@@ -392,8 +413,8 @@
             <template slot-scope="scope">{{ scope.row.nickName }}</template>
           </el-table-column>
 
-          <el-table-column prop="storeId" label="商户号 " align="center">
-            <template slot-scope="scope">{{ scope.row.storeId }}</template>
+          <el-table-column prop="mchid" label="商户号 " align="center">
+            <template slot-scope="scope">{{ scope.row.mchid }}</template>
           </el-table-column>
 
           <el-table-column prop="phone" label="手机号 " align="center">
@@ -430,34 +451,24 @@
         <div>
           <el-row :gutter="20" style="margin-bottom:5px">
             <el-col :span="12">
-              <el-select size="small" v-model="listQuery.level" placeholder="请选择经销商等级">
-                <el-option label="总经销商" value="1"></el-option>
-                <el-option label="经销商" value="2"></el-option>
-                <el-option label="分销商" value="3"></el-option>
-              </el-select>
-            </el-col>
-
-            <el-col :span="12">
               <el-input
                 size="small"
                 placeholder="按手机号/商户名称/商户号搜索"
-                v-model="listQuery.value"
+                v-model="listQuery1.value"
                 suffix-icon="el-icon-search"
               ></el-input>
             </el-col>
+
+            <el-col :span="12">
+              <el-button @click="searchBrandList1()" type="primary" size="small">查询结果</el-button>
+            </el-col>
           </el-row>
-          <el-button
-            style="float: right;margin-bottom:15px;"
-            @click="searchBrandList()"
-            type="primary"
-            size="small"
-          >查询结果</el-button>
         </div>
         <el-table
           ref="merchatBusinessMaterialsTable"
-          :data="list"
+          :data="list1"
           style="width: 100%;"
-          v-loading="listLoading"
+          v-loading="listLoading1"
           border
         >
           <el-table-column prop="id" label="经销商账号" width="80" align="center">
@@ -468,8 +479,8 @@
             <template slot-scope="scope">{{ scope.row.nickName }}</template>
           </el-table-column>
 
-          <el-table-column prop="storeId" label="商户号 " align="center">
-            <template slot-scope="scope">{{ scope.row.storeId }}</template>
+          <el-table-column prop="mchid" label="商户号 " align="center">
+            <template slot-scope="scope">{{ scope.row.mchid }}</template>
           </el-table-column>
 
           <el-table-column prop="phone" label="手机号 " align="center">
@@ -491,13 +502,13 @@
         <div style="text-align:right">
           <el-pagination
             background
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
+            @size-change="handleSizeChange1"
+            @current-change="handleCurrentChange1"
             layout="total, sizes,prev, pager, next,jumper"
-            :page-size="listQuery.pageSize"
+            :page-size="listQuery1.pageSize"
             :page-sizes="[5, 10, 15]"
-            :current-page.sync="listQuery.pageNum"
-            :total="total"
+            :current-page.sync="listQuery1.pageNum"
+            :total="total1"
           ></el-pagination>
         </div>
       </el-dialog>
@@ -505,7 +516,16 @@
   </el-card>
 </template>
 <script>
-import { getAreaList, createDealer } from "@/api/dealer/dealer";
+import {
+  getAreaList,
+  createDealer,
+  getUserInfo,
+  monitorWeChantPay,
+  monitorFirmPay,
+  monitorProfitShare,
+  lastDealer,
+  updateDealer
+} from "@/api/dealer/dealer";
 import { get } from "@/utils/auth";
 import SingleUploadImg from "@/components/Upload/singleUploadImg";
 import { fetchList, getAdmin, listDealer } from "@/api/admin";
@@ -524,6 +544,7 @@ export default {
   },
   data() {
     return {
+      detection: false,
       listQuery: {
         pageNum: 1,
         pageSize: 10,
@@ -532,6 +553,15 @@ export default {
       list: null,
       total: null,
       listLoading: true,
+
+      listQuery1: {
+        pageNum: 1,
+        pageSize: 10,
+        storeId: get("storeId")
+      },
+      list1: null,
+      total1: null,
+      listLoading1: true,
       blance: {
         dialogVisible: false,
         id: null
@@ -587,15 +617,93 @@ export default {
   },
   created() {
     this.getAreaList();
-    // if (this.isEdit) {
-    //   getWtWaterCardActivate(this.$route.query.id).then(response => {
-    //     this.wtWaterCardActivate = response.data;
-    //   });
-    // } else {
-    //   this.wtWaterCardActivate = Object.assign({}, defaultWtWaterCardActivate);
-    // }
+    if (this.isEdit) {
+      this.getUserInfo();
+    }
   },
   methods: {
+    getUserInfo() {
+      getUserInfo(this.$route.query.id).then(response => {
+        this.value = JSON.parse(
+          (
+            JSON.stringify(response.data.appletSet) +
+            JSON.stringify(response.data.user)
+          ).replace(/}{/, ",")
+        );
+        this.value.type = String(this.value.type);
+        this.value.city = Number(this.value.city);
+        this.value.county = Number(this.value.county);
+        this.value.levelId = String(this.value.level);
+        this.value.applyStatus = String(this.value.status);
+        this.value.selfType = String(this.value.selfType);
+
+        if (this.value.selfType == "1") {
+          this.detection = true;
+          this.appShow = true;
+          this.accountShow = false;
+        } else if (this.value.selfType == "2") {
+          this.detection = false;
+          this.appShow = false;
+          this.accountShow = true;
+        }
+        this.level(this.value.level);
+        if (this.value.province) {
+          this.getSecondData(this.value.province);
+        }
+        if (this.value.city) {
+          this.getThirdData(this.value.city);
+        }
+      });
+    },
+    // 监测上级账号是否开通企业付款功能
+    monitorFirmPay() {
+      monitorFirmPay(Number(this.value.parentUserId)).then(response => {});
+    },
+    // 监测上级账号的企业付款到零钱功能
+    monitorWeChantPay() {
+      let param = {
+        parentUserId: this.value.parentUserId,
+        receiptAccount: this.value.receiptAccount
+      };
+      monitorWeChantPay(param).then(response => {});
+    },
+    monitorProfitShare() {
+      let param = {
+        appid: this.value.appid,
+        appsecret: this.value.appsecret,
+        mchid: this.value.mchid,
+        notifyurl: process.env.BASE_API
+      };
+      // if (this.proportionShow) {
+      //   param.receivers = [
+      //     {
+      //       type: "MERCHANT_ID",
+      //       account: this.mchid,
+      //       amount: 100,
+      //       description: "分到商户"
+      //     },
+      //     {
+      //       type: "MERCHANT_ID",
+      //       account: this.mchid1,
+      //       amount: 100,
+      //       description: "分到商户"
+      //     }
+      //   ];
+      // }
+
+      // if (this.zproportionShow) {
+      //   param.receivers = [
+      //     {
+      //       type: "MERCHANT_ID",
+      //       account: this.mchid,
+      //       amount: 100,
+      //       description: "分到商户"
+      //     }
+      //   ];
+      // }
+
+      monitorProfitShare(param).then(response => {});
+    },
     searchBrandList() {
       this.list = null;
       this.listQuery.pageNum = 1;
@@ -605,7 +713,7 @@ export default {
       this.listLoading = true;
       listDealer(this.listQuery).then(response => {
         this.listLoading = false;
-        this.list = response.data.records;
+        this.list = response.data;
         this.total = response.data.total;
         this.totalPage = response.data.pages;
         this.pageSize = response.data.size;
@@ -622,6 +730,7 @@ export default {
     },
     chooseZ() {
       this.listQuery = {
+        level: 1,
         pageNum: 1,
         pageSize: 10,
         storeId: get("storeId")
@@ -632,11 +741,12 @@ export default {
     },
     handleChoose(index, row) {
       this.value.pid = row.id;
-      this.value.gid = 0;
+      this.value.gid = row.pid;
       this.blance.dialogVisible = false;
     },
     chooseZ1() {
       this.listQuery = {
+        level: 2,
         pageNum: 1,
         pageSize: 10,
         storeId: get("storeId")
@@ -645,28 +755,55 @@ export default {
       this.listLoading = false;
       this.blance1.dialogVisible = true;
     },
+
     handleChoose1(index, row) {
       this.value.pid = row.id;
       this.value.gid = row.pid;
       // getAdmin(row.pid).then(response => {
-      //   this.role = response.data;
+      // console.log(response.data)
       // });
       this.blance1.dialogVisible = false;
     },
     chooseZ2() {
-      this.listQuery = {
+      this.listQuery1 = {
         pageNum: 1,
         pageSize: 10,
         storeId: get("storeId")
       };
-      this.list = null;
-      this.listLoading = false;
+      this.list1 = null;
+      this.listLoading1 = false;
       this.blance2.dialogVisible = true;
     },
     handleChoose2(index, row) {
       this.value.parentUserId = row.id;
       this.blance2.dialogVisible = false;
     },
+    searchBrandList1() {
+      this.list1 = null;
+      this.listQuery1.pageNum = 1;
+      this.listQuery1.level = this.value.levelId;
+      this.getList1();
+    },
+    handleSizeChange1(val) {
+      this.listQuery1.pageNum = 1;
+      this.listQuery1.pageSize = val;
+      this.getList1();
+    },
+    handleCurrentChange1(val) {
+      this.listQuery1.pageNum = val;
+      this.getLis1t();
+    },
+    getList1() {
+      this.listLoading1 = true;
+      lastDealer(this.listQuery1).then(response => {
+        this.listLoading1 = false;
+        this.list1 = response.data;
+        this.total1 = response.data.total;
+        this.totalPage1 = response.data.pages;
+        this.pageSize1 = response.data.size;
+      });
+    },
+
     getAreaList() {
       let param = {
         deep: 0
@@ -702,7 +839,6 @@ export default {
         pid: e
       };
       getAreaList(param).then(response => {
-        // this.thirdArea = response.data.records;
         for (var i = 0; i < response.data.pages; i++) {
           getAreaList({ pid: e, pageNum: i + 1 }).then(res => {
             for (var j = 0; j < res.data.records.length; j++) {
@@ -712,13 +848,15 @@ export default {
         }
       });
     },
-    goback() {},
+    goback() {
+      this.$router.back();
+    },
     level(e) {
-      this.value.pid = "";
-      this.value.gid = "";
+      // this.value.pid = "";
+      // this.value.gid = "";
 
-      this.value.firstSeparate = "";
-      this.value.secondSeparate = "";
+      // this.value.firstSeparate = "";
+      // this.value.secondSeparate = "";
       if (e == "1") {
         this.ownerShow = false;
         this.jxsShow = false;
@@ -738,21 +876,33 @@ export default {
         this.jxsShow = false;
         this.fxsShow = true;
         this.proportionShow = true;
-        this.zproportionShow = true;
+        this.zproportionShow = false;
       }
     },
     selftypeChange(e) {
       if (e == "1") {
+        this.detection = true;
         this.appShow = true;
         this.accountShow = false;
-        this.value.parentUserId = "";
-        this.value.receiptAccount = "";
+        if (this.value.parentUserId) {
+          this.value.parentUserId = null;
+        }
+        if (this.value.receiptAccount) {
+          this.value.receiptAccount = null;
+        }
       } else if (e == "2") {
+        this.detection = false;
         this.appShow = false;
         this.accountShow = true;
-        this.value.appid = "";
-        this.value.appsecret = "";
-        this.value.mchid = "";
+        if (this.value.appid) {
+          this.value.appid = null;
+        }
+        if (this.value.appsecret) {
+          this.value.appsecret = null;
+        }
+        if (this.value.mchid) {
+          this.value.mchid = null;
+        }
       }
     },
     onSubmit(formName) {
@@ -763,7 +913,59 @@ export default {
             cancelButtonText: "取消",
             type: "warning"
           }).then(() => {
-            this.$emit("submitDealerInfo", this.isEdit);
+            if (this.isEdit) {
+              let formData = {
+                appletSet: {
+                  appid: this.value.appid,
+                  appsecret: this.value.appsecret,
+                  firstSeparate: this.value.firstSeparate,
+                  levelId: this.value.levelId,
+                  mchid: this.value.mchid,
+                  parentUserId: this.value.parentUserId,
+                  receiptAccount: this.value.receiptAccount,
+                  secondSeparate: this.value.secondSeparate,
+                  selfType: this.value.selfType,
+                  thirdSeparate: this.value.thirdSeparate
+                },
+                user: {
+                  address: this.value.address,
+                  applyStatus: this.value.applyStatus,
+                  city: this.value.city,
+                  county: this.value.county,
+                  dealerName: this.value.dealerName,
+                  dealerPhone: this.value.dealerPhone,
+                  gid: this.value.gid,
+                  icon: this.value.icon,
+                  pid: this.value.pid,
+                  province: this.value.province,
+                  realname: this.value.realname,
+                  type: this.value.type,
+                  username: this.value.dealerPhone,
+                  nickName: this.value.dealerName,
+                  level: this.value.levelId,
+                  id: this.$route.query.id
+                }
+              };
+
+              updateDealer(this.$route.query.id, formData).then(response => {
+                if (response.code == 200) {
+                  this.$message({
+                    message: "修改成功",
+                    type: "success",
+                    duration: 1000
+                  });
+                  this.getUserInfo();
+                } else {
+                  this.$message({
+                    message: response.msg,
+                    type: "error",
+                    duration: 1000
+                  });
+                }
+              });
+            } else {
+              this.$emit("submitDealerInfo", this.isEdit);
+            }
           });
         } else {
           this.$message({
