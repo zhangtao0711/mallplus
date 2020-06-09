@@ -36,4 +36,8 @@ public class GoodsDetailResult implements Serializable {
 
     private PmsProduct goods;
     private SysStore storeInfo;
+
+    private String manOnceTime;
+    private String dayTime;
+    private String manTime;
 }

@@ -29,7 +29,7 @@ public class AccountWxapp extends BaseEntity implements Serializable {
     /**
      *
      **/
-    @TableField("acid")
+    @TableId(value = "acid",type = IdType.AUTO)
     private Integer acid;
 
 
@@ -78,7 +78,7 @@ public class AccountWxapp extends BaseEntity implements Serializable {
     /**
      *
      **/
-    @TableField("key")
+    @TableField("`key`")
     private String key;
 
 
@@ -150,6 +150,10 @@ public class AccountWxapp extends BaseEntity implements Serializable {
     @TableField("qr_code")
     private String qrCode;
 
-
+    /**
+     * 小程序状态 0关闭 1开启 2已连接 3连接失败
+     */
+    @TableField("status")
+    private Integer status;
 
 }

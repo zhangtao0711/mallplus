@@ -4,7 +4,7 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.zscat.mallplus.ums.entity.SysAppletSet">
-        <id column="store_id" property="storeId"/>
+        <id column="user_id" property="userId"/>
         <result column="appid" property="appid"/>
         <result column="appsecret" property="appsecret"/>
         <result column="mchid" property="mchid"/>
@@ -17,12 +17,50 @@
         <result column="templateId4" property="templateId4"/>
         <result column="templateId5" property="templateId5"/>
         <result column="templateId6" property="templateId6"/>
+        <result column="store_id" property="storeId"/>
+        <result column="level_id" property="levelId"/>
+        <result column="self_type" property="selfType"/>
+        <result column="parent_user_id" property="parentUserId"/>
+        <result column="receipt_account" property="receiptAccount"/>
+        <result column="first_separate" property="firstSeparate"/>
+        <result column="second_separate" property="secondSeparate"/>
+        <result column="third_separate" property="thirdSeparate"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         appid, appsecret, mchid, paySignKey, certName, notifyUrl, templateId1, templateId2, templateId3, templateId4,
-        templateId5, templateId6, store_id
+        templateId5, templateId6, store_id,user_id,level_id,self_type,parent_user_id,receipt_account,first_separate,
+        second_separate,third_separate
     </sql>
 
+    <!-- 根据手机号，微信昵称，商户号选择经销商 不等于某个等级-->
+    <select id="getMonitorFirm" resultType="Map">
+        SELECT
+        a.id as "id",
+        a.nick_name as "nickName",
+        a.username as "username",
+        ifnull(a.dealer_name,'') as "dealerName",
+        ifnull(a.realname,'') as "realname",
+        ifnull(a.phone,'') as "phone",
+        ifnull(b.mchid,0) as "mchid"
+        FROM
+        sys_user a,
+        sys_applet_set b
+        WHERE
+        a.id = b.user_id
+        <if test="level != null and level != '' and level == 1">
+            and a.id = #{level}
+        </if>
+        <if test="level != null and level != '' and level == 2">
+            and a.level != #{level} and a.level != '3'
+        </if>
+        <if test="level != null and level != '' and level == 3">
+            and a.level != #{level}
+        </if>
+        <if test="value != null and value != ''">
+            AND (a.phone = #{value} or a.nick_name = #{value} or b.mchid = #{value})
+        </if>
+        and a.store_id = #{storeId}
+    </select>
 </mapper>

@@ -317,4 +317,49 @@ public class PmsProduct extends BaseEntity implements Serializable {
     List<PmsSkuStock> skuStockList;
     @TableField(exist = false)
     List<UmsMemberTag> tagList ;
+
+    @TableField("sale_distributor_price")
+    private BigDecimal saleDistributorPrice;
+    @TableField("agency_price")
+    private BigDecimal agencyPrice;
+    @TableField("distributor_price")
+    private BigDecimal distributorPrice;
+    @TableField("pay_type")
+    private Integer payType;
+    @TableField("auto_delivery")
+    private Integer autoDelivery;
+    @TableField("hot_status")
+    private Integer hotStatus;
+    @TableField("pinkageStatus")
+    private Integer pinkageStatus;
+    @TableField("discount_status")
+    private Integer discountStatus;
+    @TableField("encode")
+    private String encode;
+    @TableField("barcode")
+    private String barcode;
+    @TableField("is_show_stock")
+    private Integer isShowStock;
+    @TableField("cut_stock")
+    private Integer cutStock;
+    @TableField("enable_spec")
+    private Integer enableSpec;
+    @TableField("product_type")
+    private Integer productType;
+    @TableField("integral_info")
+    private String integralInfo;
+    @TableField("integral_buy")
+    private String integralBuy;
+    @TableField("ums_level")
+    private Long umsLevel;
+    @TableField("ums_level_buy")
+    private Long umsLevelBuy;
+    @TableField("is_focus")
+    private Integer isFocus;
+    @TableField("focus_set")
+    private String focusSet;
+    @TableField("share")
+    private String share;
+    @TableField("dealer_id")
+    private Long dealerId;
 }

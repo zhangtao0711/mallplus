@@ -362,10 +362,10 @@ public class MerchatBusinessMaterialsController {
         return new CommonResult().failed("上传失败！");
     }
 
-    @SysLog(MODULE = "merchat", REMARK = "上传文件到本地")
+    @SysLog(MODULE = "merchat", REMARK = "上传文件到本地-专用")
     @PostMapping("/uploadLocal")
     public Object uploadLocal(@RequestParam MultipartFile file){
-        String path = MerchantUtil.uploadLocal(file,"");
+        String path = MerchantUtil.uploadLocal(file,"merchant_cert");
         if (path.isEmpty()){
             return new CommonResult().failed("文件上传失败！");
         }

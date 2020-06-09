@@ -13,6 +13,7 @@ import com.zscat.mallplus.wxminiapp.service.IAccountWxappService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +22,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author lyn
@@ -36,6 +38,8 @@ public class AccountWechatsController {
     private IAccountWechatsService IAccountWechatsService;
     @Resource
     private IAccountWxappService accountWxappService;
+    @Resource
+    private JdbcTemplate jdbcTemplate;
 
     @SysLog(MODULE = "weixin", REMARK = "根据条件查询所有微信公众号列表")
     @ApiOperation("根据条件查询所有微信公众号列表")
@@ -69,7 +73,8 @@ public class AccountWechatsController {
         entity.setUniacid(count);
         try {
             entity.setCreateTime(new Date());
-
+            Map<String,Object> map = jdbcTemplate.queryForMap("select mp_url from admin_dsn_domin where id =1");
+            entity.setAppdomain(map.get("mp_url").toString()+count.toString());
             if (IAccountWechatsService.save(entity)) {
                 return new CommonResult().success();
             }

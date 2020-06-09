@@ -6,9 +6,11 @@ import com.zscat.mallplus.sys.entity.SysPermission;
 import com.zscat.mallplus.sys.entity.SysRole;
 import com.zscat.mallplus.sys.entity.SysUser;
 import com.zscat.mallplus.sys.entity.SysUserVo;
+import com.zscat.mallplus.ums.vo.SysDealerVo;
 import com.zscat.mallplus.vo.SmsCode;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -63,4 +65,6 @@ public interface ISysUserService extends IService<SysUser> {
     public boolean updateUsernameById(String username,Long id);
 
     Object updatePhoneById(String oldPhone, String newPhone, String authCode, Long id);
+
+    List<Map<String,Object>> listDealer(Integer level, String value,  Integer storeId);
 }

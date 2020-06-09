@@ -11,8 +11,11 @@ import com.zscat.mallplus.cms.service.ICmsSubjectCommentService;
 import com.zscat.mallplus.cms.service.ICmsSubjectService;
 import com.zscat.mallplus.cms.service.ISysAreaService;
 import com.zscat.mallplus.enums.ConstansValue;
+import com.zscat.mallplus.exception.ApiMallPlusException;
 import com.zscat.mallplus.fenxiao.entity.FenxiaoConfig;
 import com.zscat.mallplus.fenxiao.mapper.FenxiaoConfigMapper;
+import com.zscat.mallplus.oms.entity.OmsOrder;
+import com.zscat.mallplus.oms.mapper.OmsOrderMapper;
 import com.zscat.mallplus.pms.entity.*;
 import com.zscat.mallplus.pms.mapper.PmsProductCategoryMapper;
 import com.zscat.mallplus.pms.mapper.PmsProductMapper;
@@ -41,6 +44,10 @@ import com.zscat.mallplus.util.JsonUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import com.zscat.mallplus.vo.Rediskey;
+import com.zscat.mallplus.weixinmp.entity.AccountWechats;
+import com.zscat.mallplus.weixinmp.mapper.AccountWechatsMapper;
+import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
+import com.zscat.mallplus.wxminiapp.mapper.AccountWxappMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -120,6 +127,12 @@ public class SingePmsController extends ApiBaseAction {
 
     @Autowired
     private IUmsMemberService memberService;
+    @Resource
+    private OmsOrderMapper orderMapper;
+    @Resource
+    private AccountWxappMapper accountWxappMapper;
+    @Resource
+    private AccountWechatsMapper wechatsMapper;
 
 
     @SysLog(MODULE = "pms", REMARK = "查询商品详情信息")
@@ -599,6 +612,7 @@ public class SingePmsController extends ApiBaseAction {
     @ApiOperation(value = "查询带团购商品列表")
     @GetMapping(value = "/groupHotGoods/list")
     public Object groupHotGoods(PmsProduct product,
+                                @RequestParam(value = "memberId",required = false)Long memberId,
                                 @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
                                 @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum) {
         List<SmsGroup> groupList = groupService.list(new QueryWrapper<>());
@@ -607,11 +621,21 @@ public class SingePmsController extends ApiBaseAction {
             if (ValidatorUtils.empty(group.getHours())) {
                 continue;
             }
+            //判定新老用户的限制
+            if (group.getLimitMan()==0) {
+                int firstOrder = orderMapper.selectCount(new QueryWrapper<OmsOrder>().eq("member_id", memberId));
+                if (firstOrder > 0) {
+                    continue;
+                }
+            }
             Long nowT = System.currentTimeMillis();
             Date endTime = DateUtils.convertStringToDate(DateUtils.addHours(group.getEndTime(), group.getHours()), "yyyy-MM-dd HH:mm:ss");
             if (nowT > group.getStartTime().getTime() && nowT < endTime.getTime()) {
                 PmsProduct g = pmsProductService.getById(group.getGoodsId());
                 if (g != null) {
+                    if (g.getPublishStatus()==0){
+                        continue;
+                    }
                     group.setGoods(g);
                     result.add(group);
                 }
@@ -667,6 +691,13 @@ public class SingePmsController extends ApiBaseAction {
         Map<String, Object> map = new HashMap<>();
         UmsMember umsMember = memberService.getNewCurrentMember();
         if (umsMember != null && umsMember.getId() != null) {
+            //判定新老用户的限制
+            /*if (group.getLimitMan()==0) {
+                int firstOrder = orderMapper.selectCount(new QueryWrapper<OmsOrder>().eq("member_id", umsMember.getId()));
+                if (firstOrder > 0) {
+                    return new CommonResult().failed("该拼团只允许新用户参与！");
+                }
+            }*/
             PmsProduct p = goods.getGoods();
             p.setHit(recordGoodsFoot(id));
             PmsFavorite query = new PmsFavorite();
@@ -700,11 +731,26 @@ public class SingePmsController extends ApiBaseAction {
     @IgnoreAuth
     @ApiOperation(value = "查询礼物商品列表")
     @GetMapping(value = "/gift/list")
-    public Object giftList(PmsGifts product,
+    public Object giftList(PmsProduct product,
+                           @RequestParam(value = "uniacid", required = false, defaultValue = "0") Integer uniacid,
                            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
                            @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum) {
+        AccountWxapp accountWxapp = new AccountWxapp();
+        accountWxapp.setUniacid(uniacid);
+        AccountWxapp wxapp = accountWxappMapper.selectOne(new QueryWrapper<>(accountWxapp));
+        if (wxapp ==null){
+            AccountWechats accountWechats = new AccountWechats();
+            accountWechats.setUniacid(uniacid);
+            AccountWechats wechats = wechatsMapper.selectOne(new QueryWrapper<>(accountWechats));
+            if (wechats==null){
+                return new CommonResult().failed("小程序没有绑定经销商！");
+            }
+            product.setDealerId(wechats.getCreateBy());
+        }else {
+            product.setDealerId(wxapp.getCreateBy());
+        }
 
-        IPage<PmsGifts> list = giftsService.page(new Page<PmsGifts>(pageNum, pageSize), new QueryWrapper<>(product));
+        IPage<PmsProduct> list = pmsProductService.page(new Page<PmsProduct>(pageNum, pageSize), new QueryWrapper<>(product));
         return new CommonResult().success(list);
 
     }
@@ -751,12 +797,13 @@ public class SingePmsController extends ApiBaseAction {
         return new CommonResult().success(map);
     }
 
-    @SysLog(MODULE = "pms", REMARK = "查询商品详情信息")
+    @SysLog(MODULE = "pms", REMARK = "查询积分商品详情信息")
     @IgnoreAuth
     @GetMapping(value = "/gift/detail")
-    @ApiOperation(value = "查询礼物商品详情信息")
+    @ApiOperation(value = "查询积分商品详情信息")
     public Object giftDetail(@RequestParam(value = "id", required = false, defaultValue = "0") Long id) {
-        PmsGifts goods = giftsService.getById(id);
+//        PmsGifts goods = giftsService.getById(id);
+        PmsProduct goods = productMapper.selectById(id);
         Map<String, Object> map = new HashMap<>();
         UmsMember umsMember = memberService.getNewCurrentMember();
         if (umsMember != null && umsMember.getId() != null) {
@@ -772,6 +819,7 @@ public class SingePmsController extends ApiBaseAction {
             }
         }
         map.put("goods", goods);
+        //如果前台无法判断是积分兑换还是立即购买和加购，那么在后台返回
         return new CommonResult().success(map);
     }
 

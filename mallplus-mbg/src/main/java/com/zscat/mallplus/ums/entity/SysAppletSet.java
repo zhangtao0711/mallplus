@@ -1,11 +1,14 @@
 package com.zscat.mallplus.ums.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.zscat.mallplus.utils.BaseEntity;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -53,6 +56,17 @@ public class SysAppletSet extends BaseEntity implements Serializable {
     private String templateid6;
 
     private Integer storeId;
+    @TableId(value = "user_id")
     private Long userId;
 
+    private Integer levelId;
+    private Integer selfType;
+    private Long parentUserId;
+    private String receiptAccount;
+    private BigDecimal firstSeparate;
+    private BigDecimal secondSeparate;
+    private BigDecimal thirdSeparate;
+
+    @TableField(exist = false)
+    private String receivers;
 }

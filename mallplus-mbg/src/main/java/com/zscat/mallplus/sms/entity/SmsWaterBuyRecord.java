@@ -121,5 +121,37 @@ public class SmsWaterBuyRecord extends BaseEntity implements Serializable {
     @TableField("prepay_id")
     private String prepayId;
 
+    /**
+     * 微信支付订单号
+     */
+    @TableField("transaction_id")
+    private String transactionId;
+
+    /**
+     * 分账唯一订单号
+     */
+    @TableField("rout_out_order_no")
+    private String routOutOrderNo;
+
+    /**
+     * 微信分账单号，微信系统返回的唯一标识
+     */
+    @TableField("order_id")
+    private String orderId;
+
+    @TableField("first_amount")
+    private BigDecimal firstAmount;
+
+    @TableField("second_amount")
+    private BigDecimal secondAmount;
+
+    @TableField("third_amount")
+    private BigDecimal thirdAmount;
+
+    @TableField("rout_status")
+    private Integer routStatus;
+    @TableField("withdraw_status")
+    private String withdrawStatus;
+
 
 }

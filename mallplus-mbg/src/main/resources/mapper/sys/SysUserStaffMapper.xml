@@ -5,6 +5,11 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.zscat.mallplus.sys.entity.SysUserStaff">
         <id column="id" property="id"/>
+        <result column="uniacid" property="uniacid"/>
+        <result column="uid" property="uid"/>
+        <result column="groupid" property="groupid"/>
+        <result column="pid" property="pid"/>
+        <result column="gid" property="gid"/>
         <result column="username" property="username"/>
         <result column="password" property="password"/>
         <result column="phone" property="phone"/>
@@ -17,11 +22,20 @@
         <result column="login_time" property="loginTime"/>
         <result column="status" property="status"/>
         <result column="supply_id" property="supplyId"/>
+        <result column="store_id" property="storeId"/>
+        <result column="store_name" property="storeName"/>
+        <result column="weixin_openid" property="weixinOpenid"/>
+        <result column="avatar" property="avatar"/>
+        <result column="pay_max" property="payMax"/>
+        <result column="weixin" property="weixin"/>
+        <result column="icon" property="icon"/>
+        <result column="balance" property="balance"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, username, password, phone,device_group_id,staff_name,province,city,county, create_time, login_time, status, supply_id
+        id,uniacid,uid,groupid,pid,gid,username, password, phone,device_group_id,staff_name,province,city,county, create_time, login_time, status, supply_id,
+        store_id,store_name,weixin_openid,avatar,pay_max,weixin,icon,balance
     </sql>
 
     <!-- 修改密码接口 -->

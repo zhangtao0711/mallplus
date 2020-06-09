@@ -14,6 +14,7 @@ import com.zscat.mallplus.ums.entity.Sms;
 import com.zscat.mallplus.ums.entity.UmsMember;
 import com.zscat.mallplus.ums.mapper.UmsMemberMapper;
 import com.zscat.mallplus.ums.service.RedisService;
+import com.zscat.mallplus.ums.vo.SysDealerVo;
 import com.zscat.mallplus.util.JsonUtil;
 import com.zscat.mallplus.util.JwtTokenUtil;
 import com.zscat.mallplus.util.UserUtils;
@@ -576,5 +577,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return new CommonResult().failed("验证码错误");
         }
         return adminMapper.updatePhoneById(newPhone,id);
+    }
+
+    @Override
+    public List<Map<String,Object>> listDealer(Integer level, String value,Integer storeId) {
+        return adminMapper.listDealer(level,value,storeId);
     }
 }

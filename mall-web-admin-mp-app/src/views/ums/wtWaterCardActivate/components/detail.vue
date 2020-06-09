@@ -28,8 +28,8 @@
       </el-form-item>
     </el-form>
 
-
     <div class="table-container">
+      <h3>有效号段</h3>
       <el-table
         ref="wtWaterCardActivateTable"
         :data="list"

@@ -28,9 +28,11 @@ import com.zscat.mallplus.sms.entity.SmsRechargeRecord;
 import com.zscat.mallplus.sms.mapper.SmsGroupMapper;
 import com.zscat.mallplus.sms.mapper.SmsRechargeRecordMapper;
 import com.zscat.mallplus.sms.vo.SmsRechargeRecordVo;
+import com.zscat.mallplus.sys.entity.SysUserStaff;
+import com.zscat.mallplus.sys.mapper.SysUserStaffMapper;
 import com.zscat.mallplus.ums.entity.SysAppletSet;
 import com.zscat.mallplus.ums.entity.UmsMember;
-import com.zscat.mallplus.ums.mapper.SysAppletSetMapper;
+import com.zscat.mallplus.ums.service.ISysAppletSetService;
 import com.zscat.mallplus.ums.service.IUmsMemberBlanceLogService;
 import com.zscat.mallplus.ums.service.IUmsMemberService;
 import com.zscat.mallplus.ums.service.RedisService;
@@ -42,7 +44,10 @@ import com.zscat.mallplus.util.applet.StringConstantUtil;
 import com.zscat.mallplus.util.applet.WechatRefundApiResult;
 import com.zscat.mallplus.util.applet.WechatUtil;
 import com.zscat.mallplus.utils.CommonResult;
-import com.zscat.mallplus.weixinmp.entity.AccountWechats;
+import com.zscat.mallplus.water.entity.WtWaterCard;
+import com.zscat.mallplus.water.entity.WtWaterCardVirtual;
+import com.zscat.mallplus.water.mapper.WtWaterCardMapper;
+import com.zscat.mallplus.water.mapper.WtWaterCardVirtualMapper;
 import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
 import com.zscat.mallplus.wxminiapp.mapper.AccountWxappMapper;
 import com.zscat.mallplus.wxpay.WxPayApi;
@@ -86,7 +91,7 @@ public class PayController extends ApiBaseAction {
     @Autowired
     private IOmsPaymentsService paymentsService;
     @Resource
-    private SysAppletSetMapper appletSetMapper;
+    private ISysAppletSetService appletSetService;
     @Resource
     private MerchatFacilitatorConfigMapper configMapper;
     @Resource
@@ -99,6 +104,12 @@ public class PayController extends ApiBaseAction {
     private AccountWxappMapper wxappMapper;
     @Resource
     private RedisService redisService;
+    @Resource
+    private WtWaterCardMapper waterCardMapper;
+    @Resource
+    private WtWaterCardVirtualMapper virtualMapper;
+    @Resource
+    private SysUserStaffMapper staffMapper;
     @Resource
     private IUmsMemberBlanceLogService blanceLogService;
     @Resource
@@ -196,7 +207,7 @@ public class PayController extends ApiBaseAction {
     }
 
     /**
-     * 余额支付
+     * 积分兑换
      */
     @SysLog(MODULE = "pay", REMARK = "积分兑换")
     @ApiOperation(value = "积分兑换")
@@ -317,7 +328,7 @@ public class PayController extends ApiBaseAction {
                     history.setNote("小程序支付");
                     orderOperateHistoryService.save(history);
 
-                    memberService.addIntegration(user.getId(), orderInfo.getPayAmount().multiply(new BigDecimal("0.1")).intValue(), 1, "小程序支付添加积分", AllEnum.ChangeSource.order.code(), user.getUsername());
+                    memberService.addIntegration(user.getId(), orderInfo.getPayAmount().multiply(new BigDecimal("0.1")).intValue(), 1, "小程序支付添加积分", AllEnum.ChangeSource.order.code(), user.getUsername(),orderInfo.getPayAmount());
 
                     return toResponsObject(200, "微信统一订单下单成功", resultObj);
                 }
@@ -466,14 +477,17 @@ public class PayController extends ApiBaseAction {
         }
     }
 
-
-    /**
-     * 代客充值/用户自己充值/后台充值（可能用不到)
-     */
     @SysLog(MODULE = "pay", REMARK = "代客充值/用户自己充值/后台充值（可能用不到)")
     @ApiOperation(value = "代客充值/用户自己充值/后台充值（可能用不到)")
     @PostMapping("rechargeWaterCard")
     public Object rechargeWaterCard(@RequestBody SmsRechargeRecordVo entity){
+        //校验单笔信息，是不是可以代客充值
+        if (entity.getRechargeType()==1){
+            SysUserStaff userStaff = staffMapper.selectById(entity.getReplaceId());
+            if (userStaff.getPayMax().compareTo(entity.getPayFee())<0){
+                return new CommonResult().failed("支付金额不能超过员工单笔充值最大额度");
+            }
+        }
         //添加记录信息
         String outTradeNo = WxPayKit.generateStr();
         SmsRechargeRecord record = new SmsRechargeRecord();
@@ -561,7 +575,7 @@ public class PayController extends ApiBaseAction {
         SysAppletSet set = new SysAppletSet();
         set.setStoreId(wxapp.getStoreId());
         set.setUserId(wxapp.getCreateBy());
-        SysAppletSet appletSet = appletSetMapper.selectOne(new QueryWrapper<>(set));
+        SysAppletSet appletSet = appletSetService.getOne(new QueryWrapper<>(set));
         apiConfig = WxPayApiConfig.builder()
                 .appId(config.getAppid())
                 .mchId(config.getMchId())
@@ -590,6 +604,7 @@ public class PayController extends ApiBaseAction {
         String returnCode = params.get("return_code");
         //3.获取订单编号，根据订单编号获取唯一的订单
         String out_trade_no = params.get("out_trade_no");
+        String transaction_id = params.get("transaction_id");
         SmsRechargeRecord rechargeRecord = new SmsRechargeRecord();
         rechargeRecord.setOutTradeNo(out_trade_no);
         SmsRechargeRecord record = recordMapper.selectOne(new QueryWrapper<>(rechargeRecord));
@@ -604,7 +619,39 @@ public class PayController extends ApiBaseAction {
                 if (record.getStatus()==StringConstantUtil.rechargeStatus_2){
                     record.setStatus(StringConstantUtil.rechargeStatus_3);
                     recordMapper.updateById(record);
-                    //TODO 这里把实际到账钱数放进用户的会员卡信息里面
+                    //这里把实际到账钱数放进用户的会员卡信息里面
+                    //先看看是不是实体卡
+                    WtWaterCard wtWaterCard = new WtWaterCard();
+                    wtWaterCard.setCardNo(record.getCardNo());
+                    WtWaterCard waterCard = waterCardMapper.selectOne(new QueryWrapper<>(wtWaterCard));
+                    if (waterCard==null){
+                        //不是，再看看是不是虚拟卡
+                        WtWaterCardVirtual waterCardVirtual = new WtWaterCardVirtual();
+                        waterCardVirtual.setCardNo(record.getCardNo());
+                        WtWaterCardVirtual virtual = virtualMapper.selectOne(new QueryWrapper<>(waterCardVirtual));
+                        virtual.setCardMoney(virtual.getCardMoney().add(record.getPayFee()).setScale(BigDecimal.ROUND_DOWN,2));
+                    }else {
+                        waterCard.setCardMoney(waterCard.getCardMoney().add(record.getPayFee()).setScale(BigDecimal.ROUND_DOWN,2));
+                    }
+                    //添加积分只有用户自己充值才送积分
+                    if (record.getRechargeType()==2){
+                        //计算积分
+                        memberService.addIntegration(record.getMemberId(), record.getUniacid(), 0, "充值套餐添加积分", AllEnum.ChangeSource.order.code(), record.getMemberName(),record.getActualAccount());
+                    }else if (record.getRechargeType()==1){
+                        SysUserStaff userStaff = staffMapper.selectById(record.getReplaceId());
+                        if (userStaff.getBalance()==null){
+                            userStaff.setBalance(new BigDecimal("0"));
+                        }
+                        userStaff.setBalance(userStaff.getBalance().add(record.getReward()).setScale(BigDecimal.ROUND_DOWN,2));
+                        staffMapper.updateById(userStaff);
+                    }
+
+                    //--- 另外还有分账，用户购买之后需要分账给经销商
+                    String ip = IpKit.getRealIp(request);
+                    if (StrKit.isBlank(ip)) {
+                        ip = "127.0.0.1";
+                    }
+                    appletSetService.getRout(record.getDealerId(),record.getActualAccount(),ip,transaction_id,record.getId(),2);
                 }
                 // 发送通知等
                 Map<String, String> xml = new HashMap<String, String>(2);
@@ -633,7 +680,6 @@ public class PayController extends ApiBaseAction {
     @ApiOperation(value = "查询订单状态")
     @GetMapping("orderQuery")
     public Object orderQuery(@RequestParam String out_trade_no,@RequestParam Integer uid) throws Exception {
-        String orderquery = "https://api.mch.weixin.qq.com/pay/orderquery";
         SmsRechargeRecord rechargeRecord = new SmsRechargeRecord();
         rechargeRecord.setOutTradeNo(out_trade_no);
         SmsRechargeRecord order = recordMapper.selectOne(new QueryWrapper<>(rechargeRecord));
