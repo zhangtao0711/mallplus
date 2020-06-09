@@ -195,27 +195,27 @@ public class UmsMember implements Serializable {
     /**
      * 实体卡号
      */
-    private String cardNo;
+    private transient String cardNo;
     /**
      * 余额
      */
-    private BigDecimal cardMoney;
+    private transient BigDecimal cardMoney;
     /**
      * 用户标签
      */
-    private List<SmsLabelSet> labelList;
+    private transient List<SmsLabelSet> labelList;
     /**
      * 公众号名称
      */
-    private String uniacName;
+    private transient String uniacName;
     /**
      * 推荐人名称
      */
-    private String recommendName;
+    private transient String recommendName;
     /**
      * 推荐用户数
      */
-    private String recommendNum;
+    private transient String recommendNum;
 //    /**
 //     * 用户标签ids
 //     */

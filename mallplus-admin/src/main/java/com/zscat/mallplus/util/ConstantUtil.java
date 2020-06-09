@@ -42,6 +42,10 @@ public class ConstantUtil {
     //制卡状态
     public static final String card_create_state_0="0";//0未制卡
     public static final String card_create_state_1="1";//1已制卡
+    //卡类型（0实体卡1虚拟卡）
+    public static final String card_type="0";
+    public static final String card_type_virtual="1";
+
 
     //水卡状态（0正常1复制卡2挂失卡3删除卡4非经销商卡）
     public static final String water_code_state_0="0";//正常

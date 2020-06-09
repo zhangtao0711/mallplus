@@ -64,6 +64,13 @@ public class WtSimUrlInfo implements Serializable {
     @NotEmpty
     @Length(min=1, max=100, message="运营商名称长度必须介于 1 和 100 之间!")
     private String operators;
+    /**
+     * 套餐编码
+     **/
+    @TableField("product_id")
+    @NotEmpty
+    @Length(min=1, max=100, message="套餐编码长度必须介于 1 和 100 之间!")
+    private String productId;
 
     /**
      * 创建日期

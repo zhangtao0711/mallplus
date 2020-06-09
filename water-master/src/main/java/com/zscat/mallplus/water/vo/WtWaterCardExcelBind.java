@@ -1,5 +1,6 @@
 package com.zscat.mallplus.water.vo;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -25,15 +26,17 @@ import java.util.Date;
 public class WtWaterCardExcelBind {
 
     /**
-     * 卡号
+     * 会员卡号
      **/
     @TableField("card_no")
+    @Excel(name = "会员卡号", width = 15)
     private String cardNo;
 
     /**
-     * 绑定用户id
+     * 用户登录账号
      **/
     @TableField("ums_member_id")
+    @Excel(name = "用户登录账号", width = 15)
     private Long umsMemberId;
 
 

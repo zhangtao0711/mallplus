@@ -42,18 +42,19 @@ public class WtSimUrlInfoServiceImpl extends ServiceImpl
         }
     }
 
+
     /**
-     * 物联网卡余量查询
+     * 获取账号余额
      * @param id
      * @return
      */
-    public SimEntity getChaxun(Long id,String cardno) {
+    public SimEntity getAmount(Long id) {
         try {
             if (ValidatorUtils.empty(id)) {
                 return null;
             }
             WtSimUrlInfo coupon = wtSimUrlInfoMapper.selectById(id);
-            String ss= SimCodeUtil.getChaxun(coupon,cardno);
+            String ss= SimCodeUtil.getAmount(coupon);
             return null;
         } catch (Exception e) {
             log.error("物联网卡余量查询：%s", e.getMessage(), e);

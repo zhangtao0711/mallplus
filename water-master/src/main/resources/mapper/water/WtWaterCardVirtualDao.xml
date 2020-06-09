@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.water.mapper.WtWaterCardVirtualMapper">
+
+
+
+    <!-- 根据条件查询所有会员表列表 -->
+    <select id="selectData" resultType="com.zscat.mallplus.ums.entity.UmsMember">
+        SELECT
+        b.username AS "username",
+        b.phone AS "phone",
+        c.NAME AS "uniacName",
+        GROUP_CONCAT( e.label_name ) AS "labelName",
+        f.eqcode,
+        h.eq_address AS "eqAddress",
+        e.username AS "umsMemberReferrerName"
+        a.*
+        FROM
+        wt_water_card_virtual a
+        LEFT JOIN ums_member b ON a.ums_member_id=b.id
+        LEFT JOIN account_wechats c ON c.acid = a.acid
+        LEFT JOIN sms_label_member d ON d.member_id = b.id
+        LEFT JOIN sms_label_set e ON d.label_id = e.id
+        LEFT JOIN (SELECT eqcode,card_no
+        from wt_equipment_warter_card
+        GROUP BY card_no
+        )f ON f.card_no=a.card_no
+        LEFT JOIN wt_equipment h ON f.eqcode=h.eqcode
+        LEFT JOIN ums_member e ON a.ums_member_referrer_id = e.id
+        WHERE a.del_flag=#{entity.delFlag}
+        <if test="entity.cardNo != null and entity.cardNo != ''">
+            AND a.card_no=#{entity.cardNo}
+        </if>
+        <if test="entity.username != null and entity.username != ''">
+            AND b.username=#{entity.username}
+        </if>
+        <if test="entity.weixinOpenid != null and entity.weixinOpenid != ''">
+            AND b.weixin_openid=#{entity.weixinOpenid}
+        </if>
+        <if test="entity.id != null and entity.id != ''">
+            AND a.id=#{entity.id}
+        </if>
+
+        <if test="entity.umsMemberName != null and entity.umsMemberName != ''">
+            AND c.name like concat('%',#{entity.umsMemberName},'%')
+        </if>
+        <if test="entity.umsMemberReferrerName != null and entity.umsMemberReferrerName != ''">
+            AND e.username=#{entity.umsMemberReferrerName}
+        </if>
+        GROUP BY a.id
+    </select>
+</mapper>

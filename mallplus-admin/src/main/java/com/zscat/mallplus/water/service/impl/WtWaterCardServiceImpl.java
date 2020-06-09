@@ -1,5 +1,7 @@
 package com.zscat.mallplus.water.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.water.entity.WtWaterCard;
 import com.zscat.mallplus.water.mapper.WtWaterCardMapper;
 import com.zscat.mallplus.water.service.IWtWaterCardService;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author lyn
@@ -47,6 +50,10 @@ public class WtWaterCardServiceImpl extends ServiceImpl
     //根据卡号修改卡状态
     public boolean updateStateByCard(String cardNo, String state, Long updateBy){
         return wtWaterCardMapper.updateStateByCard(cardNo, state, updateBy);
+    }
+    //检索数据
+    public IPage<Map<String, Object>> selectData(Page<Map<String,Object>> page, WtWaterCard entity){
+        return page.setRecords(wtWaterCardMapper.selectData(page,entity));
     }
 
 }

@@ -68,28 +68,23 @@ public class SimCodeUtil {
      * @throws InvalidKeyException
      * @throws Exception
      */
-    public static String getChaxun(WtSimUrlInfo info,String cardno) throws NoSuchAlgorithmException
+    public static JSONObject getChaxun(WtSimUrlInfo info,String cardno) throws NoSuchAlgorithmException
             , UnsupportedEncodingException, InvalidKeyException,Exception {
 
-//        Calendar cd = Calendar.getInstance();
-//        SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US);
-//        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         String datetime = String.valueOf((int) (System.currentTimeMillis() / 1000));
         // 签名
         String auth = MD5("userId="+info.getAppid()+"&apikey="+info.getAppkey()+"&times="+datetime);
-                ;
+
         // 请求方法
         String method = "GET";
 
         // 查询参数
         Map<String, String> queryParams = new HashMap<String, String>();
         queryParams.put("userId",info.getAppid());
+        queryParams.put("times",datetime);
         queryParams.put("cardno",cardno);
         queryParams.put("sign",auth);
 
-//        // body参数
-//        Map<String, String> bodyParams = new HashMap<String, String>();
-//        bodyParams.put("vin", vin);
         // url参数拼接
         String url = info.getUrl()+"/api/v1/getChaxun";
         if (!queryParams.isEmpty()) {
@@ -104,8 +99,8 @@ public class SimCodeUtil {
             //发送GET请求
             String getback = SendPostUtil.sendGet(url, null);
             //解析返回参数
-            JSONObject parse2 = (JSONObject)JSONObject.parse(getback);
-            return parse2.getString("data");
+//            JSONObject parse2 = (JSONObject)JSONObject.parse(getback);
+            return (JSONObject)JSONObject.parse(getback);
            // System.out.println(result);
 
         } catch (Exception e) {
@@ -122,6 +117,297 @@ public class SimCodeUtil {
         }
         return null;
     }
+    /**
+     * 查询账号余额
+     * @param info
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws UnsupportedEncodingException
+     * @throws InvalidKeyException
+     * @throws Exception
+     */
+    public static String wlkpacksearch(WtSimUrlInfo info,String cardno) throws NoSuchAlgorithmException
+            , UnsupportedEncodingException, InvalidKeyException,Exception {
+
+        String datetime = String.valueOf((int) (System.currentTimeMillis() / 1000));
+        // 签名
+        String auth = MD5("userId="+info.getAppid()+"&apikey="+info.getAppkey()+"&times="+datetime);
+        ;
+        // 请求方法
+        String method = "GET";
+
+        // 查询参数
+        Map<String, String> queryParams = new HashMap<String, String>();
+        queryParams.put("userId",info.getAppid());
+        queryParams.put("times",datetime);
+        queryParams.put("cardno",cardno);
+        queryParams.put("sign",auth);
+
+        // url参数拼接
+        String url = info.getUrl()+"/api/v1/wlkpacksearch";
+        if (!queryParams.isEmpty()) {
+            url += "?" + urlencode(queryParams);
+        }
+
+        BufferedReader in = null;
+
+        //设置请求头
+        HashMap<String, String > stringSendGetUtilHashMap = new HashMap<>();
+        try {
+            //发送GET请求
+            String getback = SendPostUtil.sendGet(url, null);
+            //解析返回参数
+            JSONObject parse2 = (JSONObject)JSONObject.parse(getback);
+            return parse2.getString("data");
+            // System.out.println(result);
+
+        } catch (Exception e) {
+            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+        return null;
+    }
+    /**
+     * 停机
+     * @param info
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws UnsupportedEncodingException
+     * @throws InvalidKeyException
+     * @throws Exception
+     */
+    public static JSONObject stop(WtSimUrlInfo info,String cardno) throws NoSuchAlgorithmException
+            , UnsupportedEncodingException, InvalidKeyException,Exception {
+
+        String datetime = String.valueOf((int) (System.currentTimeMillis() / 1000));
+        // 签名
+        String auth = MD5("userId="+info.getAppid()+"&apikey="+info.getAppkey()+"&times="+datetime);
+        ;
+        // 请求方法
+        String method = "GET";
+
+        // 查询参数
+        Map<String, String> queryParams = new HashMap<String, String>();
+        queryParams.put("userId",info.getAppid());
+        queryParams.put("times",datetime);
+        queryParams.put("cardno",cardno);
+        queryParams.put("sign",auth);
+
+        // url参数拼接
+        String url = info.getUrl()+"/api/v1/stop";
+        if (!queryParams.isEmpty()) {
+            url += "?" + urlencode(queryParams);
+        }
+
+        BufferedReader in = null;
+
+        //设置请求头
+        HashMap<String, String > stringSendGetUtilHashMap = new HashMap<>();
+        try {
+            //发送GET请求
+            String getback = SendPostUtil.sendGet(url, null);
+            //解析返回参数
+//            JSONObject parse2 = (JSONObject)JSONObject.parse(getback);
+            return (JSONObject)JSONObject.parse(getback);
+            // System.out.println(result);
+
+        } catch (Exception e) {
+            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+        return null;
+    }
+    /**
+     * 复机
+     * @param info
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws UnsupportedEncodingException
+     * @throws InvalidKeyException
+     * @throws Exception
+     */
+    public static JSONObject start(WtSimUrlInfo info,String cardno) throws NoSuchAlgorithmException
+            , UnsupportedEncodingException, InvalidKeyException,Exception {
+
+        String datetime = String.valueOf((int) (System.currentTimeMillis() / 1000));
+        // 签名
+        String auth = MD5("userId="+info.getAppid()+"&apikey="+info.getAppkey()+"&times="+datetime);
+        ;
+        // 请求方法
+        String method = "GET";
+
+        // 查询参数
+        Map<String, String> queryParams = new HashMap<String, String>();
+        queryParams.put("userId",info.getAppid());
+        queryParams.put("times",datetime);
+        queryParams.put("cardno",cardno);
+        queryParams.put("sign",auth);
+
+        // url参数拼接
+        String url = info.getUrl()+"/api/v1/start";
+        if (!queryParams.isEmpty()) {
+            url += "?" + urlencode(queryParams);
+        }
+
+        BufferedReader in = null;
+
+        //设置请求头
+        HashMap<String, String > stringSendGetUtilHashMap = new HashMap<>();
+        try {
+            //发送GET请求
+            String getback = SendPostUtil.sendGet(url, null);
+            //解析返回参数
+//            JSONObject parse2 = (JSONObject)JSONObject.parse(getback);
+            return (JSONObject)JSONObject.parse(getback);
+            // System.out.println(result);
+
+        } catch (Exception e) {
+            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+        return null;
+    }
+    /**
+     * 充值
+     * @param info
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws UnsupportedEncodingException
+     * @throws InvalidKeyException
+     * @throws Exception
+     */
+    public static JSONObject sendOrder(WtSimUrlInfo info,String cardno) throws NoSuchAlgorithmException
+            , UnsupportedEncodingException, InvalidKeyException,Exception {
+
+        String datetime = String.valueOf((int) (System.currentTimeMillis() / 1000));
+        // 签名
+        String auth = MD5("userId="+info.getAppid()+"&apikey="+info.getAppkey()+"&times="+datetime);
+        ;
+        // 请求方法
+        String method = "GET";
+
+        // 查询参数
+        Map<String, String> queryParams = new HashMap<String, String>();
+        queryParams.put("userId",info.getAppid());
+        queryParams.put("times",datetime);
+        queryParams.put("product_id",info.getProductId());//产品编码
+//        queryParams.put("iseffect",);//0为当月生效，1为次月生效，非1即默认为0
+        queryParams.put("out_trade_no","");//商户订单号，可选参数，最多支持40位的字符串
+        queryParams.put("cardno",cardno);
+        queryParams.put("sign",auth);
+
+        // url参数拼接
+        String url = info.getUrl()+"/api/v1/sendOrder";
+        if (!queryParams.isEmpty()) {
+            url += "?" + urlencode(queryParams);
+        }
+
+        BufferedReader in = null;
+
+        //设置请求头
+        HashMap<String, String > stringSendGetUtilHashMap = new HashMap<>();
+        try {
+            //发送GET请求
+            String getback = SendPostUtil.sendGet(url, null);
+            //解析返回参数
+//            JSONObject parse2 = (JSONObject)JSONObject.parse(getback);
+            return (JSONObject)JSONObject.parse(getback);
+            // System.out.println(result);
+
+        } catch (Exception e) {
+            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+        return null;
+    }
+    /**
+     * 获取账号余额
+     * @param info
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws UnsupportedEncodingException
+     * @throws InvalidKeyException
+     * @throws Exception
+     */
+    public static String getAmount(WtSimUrlInfo info) throws NoSuchAlgorithmException
+            , UnsupportedEncodingException, InvalidKeyException,Exception {
 
 
+        String datetime = String.valueOf((int) (System.currentTimeMillis() / 1000));
+        // 签名
+        String auth = MD5("userId="+info.getAppid()+"&apikey="+info.getAppkey()+"&times="+datetime);
+        ;
+        // 请求方法
+        String method = "GET";
+
+        // 查询参数
+        Map<String, String> queryParams = new HashMap<String, String>();
+        queryParams.put("userId",info.getAppid());
+        queryParams.put("times",datetime);
+        queryParams.put("sign",auth);
+
+        // url参数拼接
+        String url = info.getUrl()+"/api/v1/getAmount";
+        if (!queryParams.isEmpty()) {
+            url += "?" + urlencode(queryParams);
+        }
+
+        BufferedReader in = null;
+
+        //设置请求头
+        HashMap<String, String > stringSendGetUtilHashMap = new HashMap<>();
+        try {
+            //发送GET请求
+            String getback = SendPostUtil.sendGet(url, null);
+            //解析返回参数
+            JSONObject parse2 = (JSONObject)JSONObject.parse(getback);
+            return parse2.getString("data");
+            // System.out.println(result);
+
+        } catch (Exception e) {
+            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+        return null;
+    }
 }

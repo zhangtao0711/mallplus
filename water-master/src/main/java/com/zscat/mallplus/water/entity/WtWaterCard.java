@@ -61,6 +61,11 @@ public class WtWaterCard extends BaseEntity implements Serializable {
      **/
     @TableField("ums_member_id")
     private Long umsMemberId;
+    /**
+     * 卡状态 card_type
+     **/
+    @TableField("card_type")
+    private String cardType;
 
     /**
      * 卡状态 字典water_code_state
@@ -152,5 +157,66 @@ public class WtWaterCard extends BaseEntity implements Serializable {
      **/
     @TableField("sale_state")
     private String saleState;
+    /**
+     * 水卡状态激活状态(0-未激活,1-激活)
+     **/
+    @TableField("activation_state")
+    private String activationState;
+    /**
+     * 售卡日期
+     **/
+    @TableField("sale_time")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date saleTime;
+    /**
+     * 售卡人
+     **/
+    @TableField("sale_by")
+    private Long saleBy;
 
+    /**
+     * 推荐人
+     **/
+    @TableField("ums_member_referrer_id")
+    private String umsMemberReferrerId;
+
+
+    /**
+     * 关联公众号id
+     **/
+    @TableField("acid")
+    private Integer acid;
+
+    /**
+     * 绑定用户名称
+     **/
+    private String umsMemberName;
+    /**
+     * 登录名称
+     */
+    private String weixinOpenid;
+    /**
+     * 公众号名称
+     */
+    private String uniacName;
+    /**
+     * 会员等级
+     */
+    private String memberLevelName;
+    /**
+     * 设备id
+     */
+    private String eqcode;
+    /**
+     * 设备地址
+     */
+    private String eqAddress;
+    /**
+     * 售卡人名
+     **/
+    private Long saleByName;
+    /**
+     * 推荐人名
+     **/
+    private String umsMemberReferrerName;
 }

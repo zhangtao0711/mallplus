@@ -1,9 +1,12 @@
 package com.zscat.mallplus.water.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.water.entity.WtWaterCard;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author lyn
@@ -20,4 +23,6 @@ public interface IWtWaterCardService extends IService<WtWaterCard> {
 
     //根据卡号修改卡状态
     boolean updateStateByCard(String cardNo, String state, Long updateBy);
+    //检索数据
+    IPage<Map<String, Object>> selectData(Page<Map<String,Object>> page, WtWaterCard entity);
 }

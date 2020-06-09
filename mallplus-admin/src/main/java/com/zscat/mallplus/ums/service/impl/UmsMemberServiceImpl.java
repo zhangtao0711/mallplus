@@ -14,6 +14,7 @@ import com.zscat.mallplus.ums.entity.UmsMemberLevel;
 import com.zscat.mallplus.ums.mapper.UmsMemberMapper;
 import com.zscat.mallplus.ums.service.IUmsMemberLevelService;
 import com.zscat.mallplus.ums.service.IUmsMemberService;
+import com.zscat.mallplus.ums.vo.UmsMemberSelect;
 import com.zscat.mallplus.util.ConstantUtil;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
@@ -97,12 +98,12 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
             Map<String,List<SmsLabelSet>> labelList= new HashMap<>();
             labelList.put("labelList",smsLabelMemberMapper.getLableList(data.get("id")));
         }
-        return page.setRecords(memberMapper.selectMember(page,entity));
+        return page.setRecords(umsMembers);
     }
     //查询会员详情
     @Override
     public UmsMember getById(Long id){
-        return memberMapper.getById(id);
+        return super.getById(id);
     }
 
     //保存会员详情
@@ -143,5 +144,15 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     //删除用户标签
     public boolean removeLabel(Long id, Long umsMemberId){
         return memberMapper.removeLabel(id, umsMemberId);
+    }
+
+    //高级查询
+    public IPage<Map<String, Object>> selectSenior(Page<Map<String,Object>> page, UmsMemberSelect entity){
+        List<Map<String,Object>> umsMembers =memberMapper.selectSenior(page,entity);
+        for(Map<String,Object> data : umsMembers){
+            Map<String,List<SmsLabelSet>> labelList= new HashMap<>();
+            labelList.put("labelList",smsLabelMemberMapper.getLableList(data.get("id")));
+        }
+        return page.setRecords(umsMembers);
     }
 }
