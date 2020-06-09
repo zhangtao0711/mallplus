@@ -27,12 +27,17 @@ import java.io.Serializable;
  */
 @Data
 @TableName("wt_water_card_recharge")
-public class WtWaterCardRecharge extends BaseEntity implements Serializable {
+public class WtWaterCardRecharge  implements Serializable {
 
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    /**
+     * 卡状态 card_type
+     **/
+    @TableField("card_type")
+    private String cardType;
 
     /**
      * 充值金额类型（0充值金额1充值体验金）字典recharge_money_type

@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
 import com.zscat.mallplus.sys.entity.SysUser;
+import com.zscat.mallplus.ums.entity.UmsMember;
+import com.zscat.mallplus.ums.entity.UmsMemberLevel;
+import com.zscat.mallplus.ums.service.IUmsMemberService;
 import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.util.UserUtils;
 import com.zscat.mallplus.water.entity.WtWaterCard;
@@ -24,6 +27,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author lyn
@@ -37,6 +41,8 @@ public class WtWaterCardController {
 
     @Resource
     private IWtWaterCardService IWtWaterCardService;
+    @Resource
+    private IUmsMemberService IUmsMemberService;
 
     @SysLog(MODULE = "water", REMARK = "根据条件查询所有水卡列表")
     @ApiOperation("根据条件查询所有水卡列表")
@@ -47,7 +53,9 @@ public class WtWaterCardController {
                                        @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         try {
-            return new CommonResult().success(IWtWaterCardService.page(new Page<WtWaterCard>(pageNum, pageSize), new QueryWrapper<>(entity)));
+//            return new CommonResult().success(IWtWaterCardService.page(new Page<WtWaterCard>(pageNum, pageSize), new QueryWrapper<>(entity)));
+            return new CommonResult().success(IWtWaterCardService.selectData(new Page<Map<String, Object>>(pageNum, pageSize),
+                    entity));
         } catch (Exception e) {
             log.error("根据条件查询所有水卡列表：%s", e.getMessage(), e);
         }
@@ -74,9 +82,9 @@ public class WtWaterCardController {
 
     @SysLog(MODULE = "water", REMARK = "更新水卡")
     @ApiOperation("更新水卡")
-    @PostMapping(value = "/update/{id}")
+    @PostMapping(value = "/updateSale/{id}")
     @PreAuthorize("hasAuthority('water:wtWaterCard:update')")
-    public Object updateWtWaterCard(@RequestBody WtWaterCard entity) {
+    public Object updateWtWaterCardSale(@RequestBody WtWaterCard entity) {
         try {
             entity.setUpdateTime(new Date());
             if (IWtWaterCardService.updateById(entity)) {
@@ -84,6 +92,25 @@ public class WtWaterCardController {
             }
         } catch (Exception e) {
             log.error("更新水卡：%s", e.getMessage(), e);
+            return new CommonResult().failed(e.getMessage());
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "water", REMARK = "水卡分配")
+    @ApiOperation("水卡分配")
+    @PostMapping(value = "/update/{id}")
+    @PreAuthorize("hasAuthority('water:wtWaterCard:update')")
+    public Object updateWtWaterCard(@RequestBody WtWaterCard entity) {
+        try {
+            WtWaterCard coupon = IWtWaterCardService.getById(entity.getId());
+            coupon.setSaleBy(entity.getSaleBy());//售卡人
+            entity.setUpdateTime(new Date());
+            if (IWtWaterCardService.updateById(entity)) {
+                return new CommonResult().success();
+            }
+        } catch (Exception e) {
+            log.error("水卡分配：%s", e.getMessage(), e);
             return new CommonResult().failed(e.getMessage());
         }
         return new CommonResult().failed();
@@ -108,7 +135,7 @@ public class WtWaterCardController {
         return new CommonResult().failed();
     }
 
-    @SysLog(MODULE = "water", REMARK = "给水卡分配水卡")
+    @SysLog(MODULE = "water", REMARK = "查询水卡明细")
     @ApiOperation("查询水卡明细")
     @GetMapping(value = "/{id}")
     @PreAuthorize("hasAuthority('water:wtWaterCard:read')")
@@ -161,18 +188,27 @@ public class WtWaterCardController {
     @SysLog(MODULE = "water", REMARK = "批量绑定")
     @PostMapping("/importExcelBind")
     @PreAuthorize("hasAuthority('water:wtWaterCard:update')")
-    public void importExcelBind(@RequestParam MultipartFile file) {
+    public Object importExcelBind(@RequestParam MultipartFile file) {
         List<WtWaterCardExcelBind> personList = EasyPoiUtils.importExcel(file, WtWaterCardExcelBind.class);
         for (WtWaterCardExcelBind wtWaterCardExcelBind : personList){
             WtWaterCard entity = new WtWaterCard();
+            entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCardNo(wtWaterCardExcelBind.getCardNo());
             entity = IWtWaterCardService.getOneBy(entity);
+            if(entity==null || entity.getId()==null){
+                return new CommonResult().success("没有找到对应的实体卡，卡号【"+wtWaterCardExcelBind.getCardNo()+"】！");
+            }
+            UmsMember coupon = IUmsMemberService.getById(wtWaterCardExcelBind.getUmsMemberId());
+            if(coupon==null || coupon.getId()==null){
+                return new CommonResult().success("没有找到对应的用户id，id【"+wtWaterCardExcelBind.getUmsMemberId()+"】！");
+            }
             entity.setUmsMemberId(wtWaterCardExcelBind.getUmsMemberId());
             entity.setUpdateTime(new Date());
             SysUser user = UserUtils.getCurrentMember();
             entity.setUpdateBy(user.getId());
             IWtWaterCardService.updateById(entity);
         }
+        return new CommonResult().success("批量绑定成功！");
     }
 
     @SysLog(MODULE = "water", REMARK = "会员卡导出")

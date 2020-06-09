@@ -108,7 +108,7 @@ public class WtWaterCardLimitController {
                 return new CommonResult().failed("终止卡号必须大于等于起始卡号！");
             }
             //单次不能超过200张
-            if(Long.valueOf(entity.getEndNo())-Long.valueOf(entity.getStartNo())+1 <= 200){
+            if(Long.valueOf(entity.getEndNo())-Long.valueOf(entity.getStartNo())+1 > 200){
                 return new CommonResult().failed("单次不能超过200张！");
             }
             //获取卡号关联经销商和登录者经销商是否一致

@@ -78,7 +78,7 @@ public class WtWaterCardRechargeController {
                     return new CommonResult().failed("制卡卡号最大值是"+ ConstantUtil.max_card_no +"！");
                 }
                 //单次不能超过200张
-                if(Long.valueOf(entity.getEndNo())-Long.valueOf(entity.getStartNo())+1 <= 200){
+                if(Long.valueOf(entity.getEndNo())-Long.valueOf(entity.getStartNo())+1 > 200){
                     return new CommonResult().failed("单次不能超过200张！");
                 }
                 //获取卡号关联经销商和登录者经销商是否一致
@@ -87,6 +87,9 @@ public class WtWaterCardRechargeController {
                 }
             //选择充值体验金额
             }else{
+                if(entity.getCardType().equals(ConstantUtil.card_type_virtual)){
+                    return new CommonResult().failed("体验金额只能充值到实体卡中！");
+                }
                 //按卡号充值
                 if(entity.getRechargeType().equals(ConstantUtil.recharge_type_1)){
                     //必须输入校验
@@ -197,17 +200,17 @@ public class WtWaterCardRechargeController {
             if(entity.getRechargePackage()==null || entity.getRechargePackage().isEmpty()){
                 return new CommonResult().failed("请选择充值套餐！");
             }
-            //判断有没有购买充值套餐功能
-            if(!IWtWaterCardRechargeService.getSalesInfo(entity.getDealerId(),ConstantUtil.recharge_package_id)){
-                return new CommonResult().failed("您尚未购买此功能，或已到期。请开通此功能后再次使用！");
-            }
+//            //判断有没有购买充值套餐功能
+//            if(!IWtWaterCardRechargeService.getSalesInfo(entity.getDealerId(),ConstantUtil.recharge_package_id)){
+//                return new CommonResult().failed("您尚未购买此功能，或已到期。请开通此功能后再次使用！");
+//            }
 
             //套餐充值
             entity.setRechargeType(ConstantUtil.recharge_type_0);
             entity.setRechargeMoneyType(ConstantUtil.recharge_money_type_0);//充值金额
             //必须输入校验
             if(entity.getCardNo().isEmpty()
-                    ||entity.getRechargeMoney()==null|| entity.getReceivedMoney()==null){
+                    ||entity.getReceivedMoney()==null){
                 return new CommonResult().failed("卡号、实收金额必须输入！");
             }
             if(Long.valueOf(entity.getCardNo())> ConstantUtil.max_card_no){
@@ -222,7 +225,9 @@ public class WtWaterCardRechargeController {
             List<String> rechargePackageIds = Arrays.asList(entity.getRechargePackage().split(","));
             for(String id:rechargePackageIds){
                 SmsRechargePackage coupon = ISmsRechargePackageService.getById(id);
-                entity.setRechargeMoney(entity.getRechargeMoney().add(coupon.getActualFee().subtract(coupon.getDonateFee())));//充值金额=实际到账金额-赠送金额
+                if(coupon !=null && coupon.getActualFee() !=null && coupon.getDonateFee() !=null){
+                    entity.setRechargeMoney(entity.getRechargeMoney().add(coupon.getActualFee().subtract(coupon.getDonateFee())));//充值金额=实际到账金额-赠送金额
+                }
             }
 
 //            entity.setDelFlag(ConstantUtil.delFlag);
@@ -324,7 +329,7 @@ public class WtWaterCardRechargeController {
 
     @SysLog(MODULE = "water", REMARK = "导入充值")
     @PostMapping("/importExcelCreate")
-    public void importExcelCreate(@RequestParam MultipartFile file) {
+    public Object importExcelCreate(@RequestParam MultipartFile file) {
         List<WtWaterCardRechargeExcelCreate> personList = EasyPoiUtils.importExcel(file, WtWaterCardRechargeExcelCreate.class);
         for(WtWaterCardRechargeExcelCreate data :personList){
             try {
@@ -332,30 +337,33 @@ public class WtWaterCardRechargeController {
                 entity.setRechargeType(ConstantUtil.recharge_type_0);//充值金额//普通充值
                 entity.setRechargeMoneyType(ConstantUtil.recharge_money_type_0);//充值金额
                 //必须输入校验
-                if(data.getCardNo().isEmpty()
+                if(data.getCardNo()==null
                         ||data.getRechargeMoney()==null|| data.getReceivedMoney()==null){
                     log.error("导入失败充值金额实收金额必须输入！");
-                    return ;
+                    return new CommonResult().failed("导入失败充值金额实收金额必须输入！");
                 }
                 if(Long.valueOf(data.getCardNo())> ConstantUtil.max_card_no){
                     log.error("导入失败超出卡号最大值！");
-                    return ;
+                    return new CommonResult().failed("导入失败超出卡号最大值！");
                 }
                 //获取卡号关联经销商和登录者经销商是否一致
                 SysUser user = UserUtils.getCurrentMember();
-                if (!IWtWaterCardRechargeService.getDealerId(Long.valueOf(data.getCardNo())
+                if (user==null || !IWtWaterCardRechargeService.getDealerId(Long.valueOf(data.getCardNo())
                         ,Long.valueOf(data.getCardNo()),user.getStoreId().longValue())) {
 
                     log.error("导入失败此卡没有绑定在您的账号下！");
-                    return ;
+                    return new CommonResult().failed("导入失败此卡没有绑定在您的账号下！");
                 }
                 entity.setCreateBy(user.getId());
                 entity.setCreateTime(new Date());
                 IWtWaterCardRechargeService.save(entity);
+
             } catch (Exception e) {
                 log.error("保存充值：%s", e.getMessage(), e);
+                return new CommonResult().failed(e.getMessage());
             }
         }
+        return new CommonResult().success("导入成功！");
     }
 
 

@@ -157,16 +157,16 @@ public class WtSimUrlInfoController {
         IWtSimUrlInfoService.saveBatch(personList);
     }
 
-    @SysLog(MODULE = "water", REMARK = "物联网卡余量查询")
-    @ApiOperation("物联网卡余量查询")
-    @GetMapping(value = "/getChaxun/{id}/{cardno}")
+    @SysLog(MODULE = "water", REMARK = "获取账号余额")
+    @ApiOperation("获取账号余额")
+    @GetMapping(value = "/getAmount/{id}")
 //    @PreAuthorize("hasAuthority('water:wtSimCard:read')")
-    public Object getChaxun(@ApiParam("SIM卡第三方appkeyid")@PathVariable Long id,@ApiParam("SIM卡号")@PathVariable String cardno) {
+    public Object getAmount(@ApiParam("SIM卡第三方appkeyid")@PathVariable Long id) {
         try {
-            SimEntity coupon = IWtSimUrlInfoService.getChaxun(id,cardno);
+            SimEntity coupon = IWtSimUrlInfoService.getAmount(id);
             return new CommonResult().success(coupon);
         } catch (Exception e) {
-            log.error("物联网卡余量查询：%s", e.getMessage(), e);
+            log.error("获取账号余额：%s", e.getMessage(), e);
             return new CommonResult().failed();
         }
     }

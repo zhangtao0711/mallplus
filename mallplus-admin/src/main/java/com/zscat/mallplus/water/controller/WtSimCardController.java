@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
 import com.zscat.mallplus.util.ConstantUtil;
+import com.zscat.mallplus.water.entity.SimEntity;
 import com.zscat.mallplus.water.entity.WtSimCard;
 import com.zscat.mallplus.water.service.IWtSimCardService;
 import com.zscat.mallplus.util.EasyPoiUtils;
@@ -67,6 +68,82 @@ public class WtSimCardController {
             return new CommonResult().failed(e.getMessage());
         }
         return new CommonResult().failed();
+    }
+
+//    @SysLog(MODULE = "water", REMARK = "SIM卡时查询")
+//    @ApiOperation("添加SIM卡时查询")
+//    @GetMapping(value = "/getCardInfo")
+////    @PreAuthorize("hasAuthority('water:wtSimCard:read')")
+//    public Object getCardInfo(@ApiParam("SIM卡号") @RequestParam String cardno) {
+//        try {
+//            if (ValidatorUtils.empty(cardno)) {
+//                return new CommonResult().paramFailed("请输入SIM卡号！");
+//            }
+//            WtSimCard coupon = IWtSimCardService.getByCardno(cardno);
+//            if(coupon!=null && coupon.getId()!=null){
+//                return new CommonResult().paramFailed("此卡号已经添加过，不能重复添加！");
+//            }
+//            coupon = IWtSimCardService.getByCardnoUrl(cardno);
+//            return new CommonResult().success(coupon);
+//        } catch (Exception e) {
+//            log.error("查询SIM卡列表明细：%s", e.getMessage(), e);
+//            return new CommonResult().failed();
+//        }
+//    }
+
+    @SysLog(MODULE = "water", REMARK = "物联网卡余量查询")
+    @ApiOperation("物联网卡余量查询")
+    @GetMapping(value = "/getChaxun/{cardno}")
+//    @PreAuthorize("hasAuthority('water:wtSimCard:read')")
+    public Object getChaxun(@ApiParam("SIM卡号")@PathVariable String cardno) {
+        try {
+            SimEntity coupon = IWtSimCardService.getChaxun(cardno);
+            return new CommonResult().success(coupon);
+        } catch (Exception e) {
+            log.error("物联网卡余量查询：%s", e.getMessage(), e);
+            return new CommonResult().failed();
+        }
+    }
+
+    @SysLog(MODULE = "water", REMARK = "物联网卡停机")
+    @ApiOperation("物联网卡停机")
+    @GetMapping(value = "/stop/{cardno}")
+//    @PreAuthorize("hasAuthority('water:wtSimCard:read')")
+    public Object stop(@ApiParam("SIM卡号")@PathVariable String cardno) {
+        try {
+            SimEntity coupon = IWtSimCardService.stop(cardno);
+            return new CommonResult().success(coupon);
+        } catch (Exception e) {
+            log.error("物联网卡余量查询：%s", e.getMessage(), e);
+            return new CommonResult().failed();
+        }
+    }
+    @SysLog(MODULE = "water", REMARK = "物联网卡复机")
+    @ApiOperation("物联网卡复机")
+    @GetMapping(value = "/start/{cardno}")
+//    @PreAuthorize("hasAuthority('water:wtSimCard:read')")
+    public Object start(@ApiParam("SIM卡号")@PathVariable String cardno) {
+        try {
+            SimEntity coupon = IWtSimCardService.start(cardno);
+            return new CommonResult().success(coupon);
+        } catch (Exception e) {
+            log.error("物联网卡余量查询：%s", e.getMessage(), e);
+            return new CommonResult().failed();
+        }
+    }
+
+    @SysLog(MODULE = "water", REMARK = "物联网卡充值")
+    @ApiOperation("物联网卡充值")
+    @GetMapping(value = "/sendOrder/{cardno}")
+//    @PreAuthorize("hasAuthority('water:wtSimCard:read')")
+    public Object sendOrder(@ApiParam("SIM卡号")@PathVariable String cardno) {
+        try {
+            SimEntity coupon = IWtSimCardService.sendOrder(cardno);
+            return new CommonResult().success(coupon);
+        } catch (Exception e) {
+            log.error("物联网卡余量查询：%s", e.getMessage(), e);
+            return new CommonResult().failed();
+        }
     }
 
     @SysLog(MODULE = "water", REMARK = "更新SIM卡列表")

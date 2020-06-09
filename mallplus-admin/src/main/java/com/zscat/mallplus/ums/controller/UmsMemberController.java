@@ -18,6 +18,7 @@ import com.zscat.mallplus.ums.service.IUmsMemberBlanceLogService;
 import com.zscat.mallplus.ums.service.IUmsMemberLevelService;
 import com.zscat.mallplus.ums.service.IUmsMemberLogService;
 import com.zscat.mallplus.ums.service.IUmsMemberService;
+import com.zscat.mallplus.ums.vo.UmsMemberSelect;
 import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.util.StringUtils;
@@ -90,6 +91,22 @@ public class UmsMemberController {
 //            }
 //            return new CommonResult().success(IUmsMemberService.page(new Page<UmsMember>(pageNum, pageSize), new QueryWrapper<>(entity).ge("buy_count", entity.getBuyCountss()).orderByDesc("create_time")));
 
+        } catch (Exception e) {
+            log.error("根据条件查询所有会员表列表：%s", e.getMessage(), e);
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "ums", REMARK = "高级查询")
+    @ApiOperation("高级查询")
+    @GetMapping(value = "/listSenior")
+    public Object getListSenior(UmsMemberSelect entity,
+                                     @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                     @RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize
+    ) {
+        try {
+            return new CommonResult().success(IUmsMemberService.selectSenior(new Page<Map<String, Object>>(pageNum, pageSize),
+                    entity));
         } catch (Exception e) {
             log.error("根据条件查询所有会员表列表：%s", e.getMessage(), e);
         }

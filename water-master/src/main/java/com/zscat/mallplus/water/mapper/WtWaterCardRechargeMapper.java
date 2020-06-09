@@ -21,5 +21,5 @@ public interface WtWaterCardRechargeMapper extends BaseMapper<WtWaterCardRecharg
     //更新用户标签使用次数
     boolean updateSalesCount(@Param("data")WtWaterCardRecharge entity,@Param("perssionId") String perssionId);
     //获取经销商充值套餐权限
-    SetSalesBuy getSalesInfo(@Param("dealerId")Long dealerId, String perssionId);
+    SetSalesBuy getSalesInfo(@Param("dealerId")Long dealerId, @Param("perssionId")String perssionId);
 }
