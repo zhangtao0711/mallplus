@@ -155,7 +155,5 @@ public interface IUmsMemberService extends IService<UmsMember> {
     public  UmsMember selectByUsernameLeader(String username);
 
     public UmsMember selectByUsernameStaff(String username);
-
-    public void addMemberLabel(Integer uniacid,Long memberId,String openId );
 }
 

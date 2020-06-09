@@ -149,8 +149,6 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     private WtWaterCardMapper waterCardMapper;
     @Resource
     private SetSalesBuyMapper buyMapper;
-    @Resource
-    private SmsLabelMemberMapper smsLabelMemberMapper;
     private OkHttpClient okHttpClient = new OkHttpClient();
 
     /**
@@ -1460,33 +1458,6 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
         return memberMapper.selectByUsernameStaff(username);
     }
 
-    @Override
-    public void addMemberLabel(Integer uniacid,Long memberId,String openId) {
-        //首先验证小程序的经销商买没买客户标签功能
-        AccountWxapp accountWxapp = new AccountWxapp();
-        accountWxapp.setUniacid(uniacid);
-        AccountWxapp wxapp = accountWxappMapper.selectOne(new QueryWrapper<>(accountWxapp));
-        Long dealerId = wxapp.getCreateBy();
-        SetSalesBuy salesBuy = new SetSalesBuy();
-        salesBuy.setDealerId(dealerId);
-        salesBuy.setPerssionId(CommonConstant.member_label);
-        SetSalesBuy buy = buyMapper.selectOne(new QueryWrapper<>(salesBuy));
-        if (buy.getEndTime().before(new Date())){
-            return;
-        }
-        SmsLabelMember labelMember = new SmsLabelMember();
-        labelMember.setOpenId(openId);
-        labelMember.setLabelId(CommonConstant.label_member_community);
-        labelMember.setMemberId(memberId);
-        labelMember.setTagId(CommonConstant.tag_member_community);
-        smsLabelMemberMapper.insert(labelMember);
-        SmsLabelMember member = new SmsLabelMember();
-        member.setOpenId(openId);
-        member.setLabelId(CommonConstant.label_member_level);
-        member.setMemberId(memberId);
-        member.setTagId(CommonConstant.tag_member_level);
-        smsLabelMemberMapper.insert(member);
-        //TODO 微信公众号添加标签感觉好像是标签组，有问题待确定
-    }
+
 }
 

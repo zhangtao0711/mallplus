@@ -24,7 +24,7 @@
 	    left JOIN sys_permission m ON m.id = rm.permission_id
 	    LEFT JOIN sys_user u ON rm.admin_id = u.id
 	    Left join set_sales_buy sb on sb.perssion_id = rm.permission_id and sb.dealer_id = rm.admin_id
-	    where ur.admin_id = #{id} and m.status=1
+	    where rm.admin_id = #{id} and m.status=1
         and unix_timestamp(sb.end_time) &lt; unix_timestamp(NOW())
     </select>
 
@@ -35,7 +35,7 @@
         m.`value`,m.`type`,m.icon,m.sort,m.create_time
         from sys_user_permission rm
         right JOIN sys_permission m ON m.id = rm.permission_id
-	    LEFT JOIN sys_user u ON rm.admin_id = u.id where ur.admin_id = #{id} and m.status=1
+	    LEFT JOIN sys_user u ON rm.admin_id = u.id where rm.admin_id = #{id} and m.status=1
 
     </select>
 
@@ -45,6 +45,6 @@
         m.`value`
         from sys_user_permission rm
         right JOIN sys_permission m ON m.id = rm.permission_id
-	    LEFT JOIN sys_user u ON rm.admin_id = u.id where ur.admin_id = #{id} and m.status=1
+	    LEFT JOIN sys_user u ON rm.admin_id = u.id where rm.admin_id = #{id} and m.status=1
     </select>
 </mapper>

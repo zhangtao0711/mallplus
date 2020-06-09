@@ -63,7 +63,7 @@ public class ConstantUtil {
     public static final String recharge_type_2="2";//筛选充值
     //筛选记号
     public static final Map<String,String> where_mark= new HashMap<>();
-    public static String water_code_sale_state_1 = "1";
+//    public static String water_code_sale_state_1 = "1";
 
     {
         where_mark.put("0",">");

@@ -29,4 +29,13 @@
     <sql id="Base_Column_List">
         acid,uniacid,token,encodingaeskey,level,account,original,`key`,secret,name,appdomain,auth_refresh_token,create_by,create_time,store_id,store_name,logo,qr_code,status
     </sql>
+
+    <select id="getDealerIdByUniacid" resultType="Long">
+        SELECT
+            c.create_by
+        FROM
+            ( SELECT create_by,uniacid FROM account_wxapp UNION SELECT create_by,uniacid FROM account_wechats ) AS c
+        WHERE
+        c.uniacid = #{uniacid}
+    </select>
 </mapper>

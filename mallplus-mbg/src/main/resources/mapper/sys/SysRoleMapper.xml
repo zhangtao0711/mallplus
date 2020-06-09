@@ -4,17 +4,17 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.zscat.mallplus.sys.entity.SysRole">
-        <id column="role_id" property="role_id"/>
-        <result column="role_name" property="role_name"/>
-        <result column="role_key" property="role_key"/>
-        <result column="role_sort" property="role_sort"/>
-        <result column="data_scope" property="data_scope"/>
+        <id column="role_id" property="roleId"/>
+        <result column="role_name" property="roleName"/>
+        <result column="role_key" property="roleKey"/>
+        <result column="role_sort" property="roleSort"/>
+        <result column="data_scope" property="dataScope"/>
         <result column="status" property="status"/>
-        <result column="del_flag" property="del_flag"/>
-        <result column="create_by" property="create_by"/>
-        <result column="create_time" property="create_time"/>
-        <result column="update_by" property="update_by"/>
-        <result column="update_time" property="update_time"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
         <result column="remark" property="remark"/>
     </resultMap>
 
@@ -24,7 +24,7 @@
     </sql>
     <select id="getRoleListByUserId" resultMap="BaseResultMap">
         select r.*
-        from sys_user_role ar left join sys_role r on ar.role_id = r.id
+        from sys_user_role ar left join sys_role r on ar.role_id = r.role_id
         where ar.admin_id = #{adminId}
     </select>
 

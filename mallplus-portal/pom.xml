@@ -168,6 +168,12 @@
             <artifactId>okhttp</artifactId>
             <version>3.14.4</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-open</artifactId>
+            <version>3.8.0</version>
+        </dependency>
     </dependencies>
 
     <build>
