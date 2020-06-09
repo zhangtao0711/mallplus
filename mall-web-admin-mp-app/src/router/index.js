@@ -33,7 +33,7 @@ export const constantRouterMap = [
     component: Layout,
     redirect: '/dealer/dealerList',
     name: 'dealer',
-    meta: { title: '经销商管理管理', icon: 'home' },
+    meta: { title: '经销商管理', icon: 'home' },
     children: [
       {
         path: 'dealerList',
@@ -45,13 +45,13 @@ export const constantRouterMap = [
         path: 'addDealer',
         name: 'addDealer',
         component: () => import('@/views/dealer/addDealer/add'),
-        meta: { title: '经销商配置', icon: 'product-list' }
+        meta: { title: '添加经销商', icon: 'product-list' }
       },
       {
         path: 'updateDealer',
         name: 'updateDealer',
         component: () => import('@/views/dealer/addDealer/update'),
-        meta: { title: '经销商配置', icon: 'product-list' }
+        meta: { title: '修改经销商', icon: 'product-list' }
       },
       {
         path: 'addDealerInfo',
