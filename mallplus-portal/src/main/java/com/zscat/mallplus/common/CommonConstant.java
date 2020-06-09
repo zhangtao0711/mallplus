@@ -57,4 +57,41 @@ public class CommonConstant {
     public static final int VOTE_LIMITED = 301;
 
     public static final String CUSTOM_COURSE_SALT = "FITCAMP_CUSTOMCOURSE_";
+
+    //商品类型. 1->配件商品 2->积分商品 3->普通商品；其中只有3经销商可以添加，其余的均是
+    public static final Integer productType_1 = 1;
+    public static final Integer productType_2 = 2;
+    public static final Integer productType_3 = 3;
+
+    //促销类型：0->没有促销使用原价;1->使用促销价；2->使用会员价；3->使用阶梯价格；4->使用满减价格；5->限时购; 6->积分抵扣
+    public static final Integer promotion_type_0 = 0;
+    public static final Integer promotion_type_1 = 1;
+    public static final Integer promotion_type_2 = 2;
+    public static final Integer promotion_type_3 = 3;
+    public static final Integer promotion_type_4 = 4;
+    public static final Integer promotion_type_5 = 5;
+    public static final Integer promotion_type_6 = 6;
+
+    //营销功能的id问题
+    public static final Long register_integral = 593L;
+    public static final Long integral_store = 595L;
+    public static final Long group_purchase = 92L;
+    public static final Long recharge_package = 596L;
+    public static final Long recommend_card = 597L;
+    public static final Long member_label = 598L;
+    public static final Long store_decorate = 599L;
+
+    //系统标签问题
+    public static final Long label_member_card=0L;
+    public static final Long label_use_water=0L;
+    public static final Long label_recommend_time=0L;
+    public static final Long label_member_community=0L;
+    public static final Long label_member_level=0L;
+
+    public static final Long tag_member_card=0L;
+    public static final Long tag_use_water=0L;
+    public static final Long tag_recommend_time=0L;
+    public static final Long tag_member_community=0L;
+    public static final Long tag_member_level=0L;
+
 }

@@ -10,6 +10,7 @@ import com.zscat.mallplus.vo.AppletLoginnewParam;
 import com.zscat.mallplus.vo.SmsCode;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -108,11 +109,11 @@ public interface IUmsMemberService extends IService<UmsMember> {
      * 添加积分记录 并更新用户积分
      *
      * @param id
-     * @param integration
+     * @param uniacid
      */
-    void addIntegration(Long id, Integer integration, int changeType, String note, int sourceType, String operateMan);
+    void addIntegration(Long id, Integer uniacid, int changeType, String note, int sourceType, String operateMan, BigDecimal price);
 
-    Map<String, Object> appLogin(String openid, Integer sex, String headimgurl, String unionid, String nickname, String city, Integer source);
+    Map<String, Object> appLogin(String openid, Integer sex, String headimgurl, String unionid, String nickname, String city, Integer source,Integer uniacid);
 
 
     Object initMemberRedis();
@@ -154,5 +155,7 @@ public interface IUmsMemberService extends IService<UmsMember> {
     public  UmsMember selectByUsernameLeader(String username);
 
     public UmsMember selectByUsernameStaff(String username);
+
+    public void addMemberLabel(Integer uniacid,Long memberId,String openId );
 }
 

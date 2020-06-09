@@ -249,8 +249,11 @@ public class WtWaterCardCreateController {
     @SysLog(MODULE = "water", REMARK = "导入社区数据")
     @PostMapping("/importExcel")
     public void importUsers(@RequestParam MultipartFile file) {
-        List<WtWaterCardCreate> personList = EasyPoiUtils.importExcel(file, WtWaterCardCreate.class);
-        IWtWaterCardCreateService.saveBatch(personList);
+        List<WtWaterCardExcel> personList = EasyPoiUtils.importExcel(file, WtWaterCardExcel.class);
+        for (WtWaterCardExcel wtWaterCardExcel: personList){
+            wtWaterCardExcel.getQrCode();
+        }
+//        IWtWaterCardCreateService.saveBatch(personList);
     }
 }
 

@@ -148,8 +148,6 @@ public class SysUserStaff extends BaseEntity implements Serializable {
     private String weixinOpenid;
     @TableField("avatar")
     private String avatar;
-    @TableField("apply_status")
-    private Integer applyStatus;
 
     //充值额度
     @TableField("pay_max")
@@ -159,4 +157,6 @@ public class SysUserStaff extends BaseEntity implements Serializable {
     private String weixin;
     @TableField("icon")
     private String icon;
+    @TableField("balance")
+    private BigDecimal balance;
 }

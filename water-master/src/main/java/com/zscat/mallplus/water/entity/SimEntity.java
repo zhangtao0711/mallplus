@@ -15,21 +15,34 @@ import java.util.Date;
  * SIM卡第三方appkey
  */
 @Data
-public class SimEntity implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class SimEntity {
 
     /**
-     * code
+     * 物联网卡状态
      **/
-    private String code;
+    private String status;
     /**
-     * msg
+     * 物联网卡状态描述
      **/
-    private String msg;
+    private String message;
     /**
-     * data
+     * 	卡有效期
      **/
-    private SimDataEntity data;
-
+    private Date expired_at;
+    /**
+     * 卡号
+     **/
+    private String cardno;
+    /**
+     * 使用流量(-1表示未知，单位KB，时间当月)
+     **/
+    private String used;
+    /**
+     * 剩余流量(单位KB)
+     **/
+    private String surplus;
+    /**
+     * 订单号
+     **/
+    private String order_id;
 }

@@ -7,12 +7,16 @@ import lombok.Data;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 
@@ -64,7 +68,22 @@ public class WtSimUrlInfo implements Serializable {
     @NotEmpty
     @Length(min=1, max=100, message="运营商名称长度必须介于 1 和 100 之间!")
     private String operators;
+    /**
+     * 套餐编码
+     **/
+    @TableField("product_id")
+    @NotEmpty
+    @Length(min=1, max=100, message="套餐编码长度必须介于 1 和 100 之间!")
+    private String productId;
 
+    /**
+     * 充值金额
+     **/
+    @TableField("product_money")
+    @DecimalMin(value="0.01")
+    @DecimalMax(value="99999999.99")
+    @Digits(integer=8, fraction=2,message="充值金额不能设定大于99999999.99,小数位数只支持2位。")
+    private BigDecimal productMoney;
     /**
      * 创建日期
      **/

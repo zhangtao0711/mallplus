@@ -3,6 +3,7 @@ package com.zscat.mallplus.ums.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
+import com.zscat.mallplus.common.CommonConstant;
 import com.zscat.mallplus.config.MallplusProperties;
 import com.zscat.mallplus.enums.AllEnum;
 import com.zscat.mallplus.exception.ApiMallPlusException;
@@ -10,6 +11,10 @@ import com.zscat.mallplus.jifen.entity.JifenDealerIntegrationChangeHistory;
 import com.zscat.mallplus.jifen.mapper.JifenDealerIntegrationChangeHistoryMapper;
 import com.zscat.mallplus.oms.mapper.OmsOrderMapper;
 import com.zscat.mallplus.oms.vo.OrderStstic;
+import com.zscat.mallplus.set.entity.SetSalesBuy;
+import com.zscat.mallplus.set.mapper.SetSalesBuyMapper;
+import com.zscat.mallplus.sms.entity.SmsLabelMember;
+import com.zscat.mallplus.sms.mapper.SmsLabelMemberMapper;
 import com.zscat.mallplus.sys.entity.SysUser;
 import com.zscat.mallplus.sys.mapper.SysAreaMapper;
 import com.zscat.mallplus.sys.mapper.SysUserMapper;
@@ -22,9 +27,10 @@ import com.zscat.mallplus.ums.service.*;
 import com.zscat.mallplus.util.*;
 import com.zscat.mallplus.util.applet.StringConstantUtil;
 import com.zscat.mallplus.utils.CommonResult;
-import com.zscat.mallplus.util.MatrixToImageWriter;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import com.zscat.mallplus.vo.*;
+import com.zscat.mallplus.water.entity.WtWaterCard;
+import com.zscat.mallplus.water.mapper.WtWaterCardMapper;
 import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
 import com.zscat.mallplus.wxminiapp.mapper.AccountWxappMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -139,6 +145,12 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     private JifenDealerIntegrationChangeHistoryMapper jifenDealerIntegrationChangeHistoryMapper;
     @Resource
     private AccountWxappMapper accountWxappMapper;
+    @Resource
+    private WtWaterCardMapper waterCardMapper;
+    @Resource
+    private SetSalesBuyMapper buyMapper;
+    @Resource
+    private SmsLabelMemberMapper smsLabelMemberMapper;
     private OkHttpClient okHttpClient = new OkHttpClient();
 
     /**
@@ -212,10 +224,10 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
                     token = jwtTokenUtil.generateToken(umsMember.getUsername());
                     resultObj.put("userId", umsMember.getId());
                     resultObj.put("userInfo", umsMember);
-                    addIntegration(umsMember.getId(), regJifen, 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername());
+                    addIntegration(umsMember.getId(), regJifen, 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername(),null);
 
                 } else {
-                    addIntegration(userVo.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), userVo.getUsername());
+                    addIntegration(userVo.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), userVo.getUsername(),null);
 
                     token = jwtTokenUtil.generateToken(userVo.getUsername());
                     resultObj.put("userId", userVo.getId());
@@ -340,7 +352,7 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
      * @param uniacid 小程序的id
      */
     @Override
-    public void addIntegration(Long id, Integer uniacid, int changeType, String note, int sourceType, String operateMan) {
+    public void addIntegration(Long id, Integer uniacid, int changeType, String note, int sourceType, String operateMan,BigDecimal price) {
         // 这里是每个经销商都不一样，看那个经销商的小程序
         Integer integration = 0;
         BigDecimal waterFee = new BigDecimal("0");
@@ -358,6 +370,14 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
         JifenDealerIntegrationChangeHistory integrationHistory = new JifenDealerIntegrationChangeHistory();
         history.setMemberId(id);
         if (sourceType == AllEnum.ChangeSource.register.code()) {
+            //校验经销商有没有注册赠送的功能
+            SetSalesBuy salesBuy = new SetSalesBuy();
+            salesBuy.setPerssionId(593L);
+            salesBuy.setDealerId(wxapp.getCreateBy());
+            SetSalesBuy buy = buyMapper.selectOne(new QueryWrapper<>(salesBuy));
+            if (buy==null||buy.getEndTime().before(new Date())){
+                return;
+            }
             if (setting.getRegister()!=null&&setting.getRegister()!=0){
                 integration = setting.getRegister();
                 history.setChangeCount(integration);
@@ -374,8 +394,12 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
             integrationHistory.setChangeCount(integration);
         }
         if (sourceType == AllEnum.ChangeSource.order.code()) {
-            history.setChangeCount(setting.getOrders() * integration);
-            integration = setting.getOrders() * integration;
+            if (setting.getOrdersStatus()==0 || setting.getDeductionPerAmount()==null){
+                return;
+            }
+            Integer change = price.multiply(new BigDecimal(setting.getDeductionPerAmount())).setScale(BigDecimal.ROUND_DOWN,0).intValue();
+            history.setChangeCount(change);
+            integration = change;
             integrationHistory.setChangeCount(integration);
         }
         if (sourceType == AllEnum.ChangeSource.sign.code()) {
@@ -406,7 +430,27 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
             //确定一下是赠送积分还是水费,水费的话
             if (waterFee.compareTo(new BigDecimal("0"))>0){
                 //设计还没确定水费谁出----鑫鑫 5-28 11:41:17 我问了甄姐了，甄姐说不用扣,这个就是白送
-                //TODO 会员亚楠还没做，这里给水卡加费用待定
+                //todo 在这里把水费加上，找到卡，一个经销商一个用户一张虚拟卡
+                WtWaterCard waterCard=new WtWaterCard();
+                //加上卡的type
+                waterCard.setDealerId(wxapp.getCreateBy());
+                waterCard.setUmsMemberId(id);
+                WtWaterCard card = waterCardMapper.selectOne(new QueryWrapper<>(waterCard));
+                if (card.getCardMoney()==null){
+                    card.setCardMoney(new BigDecimal("0"));
+                }
+                if (card.getGiveMoney()==null){
+                    card.setGiveMoney(new BigDecimal("0"));
+                }
+                card.setGiveMoney(card.getGiveMoney().add(waterFee).setScale(BigDecimal.ROUND_DOWN,2));
+                card.setCardMoney(card.getCardMoney().add(waterFee).setScale(BigDecimal.ROUND_DOWN,2));
+                card.setUpdateBy(1L);
+                card.setUpdateTime(new Date());
+                waterCardMapper.updateById(card);
+                history.setChangeFee(waterFee);
+                umsIntegrationChangeHistoryService.save(history);
+                redisService.set(String.format(Rediskey.MEMBER, member.getUsername()), JsonUtils.objectToJson(member));
+                return;
             }else if (integration==0){
                 return;
              }
@@ -629,8 +673,8 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
         }
 
         redisService.set(String.format(Rediskey.MEMBER, umsMember.getUsername()), JsonUtils.objectToJson(umsMember));
-
-        addIntegration(umsMember.getId(), user.getUniacid(), 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername());
+        //校验经销商有没有注册赠送的功能
+        addIntegration(umsMember.getId(), user.getUniacid(), 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername(),null);
         umsMember.setPassword(null);
         return new CommonResult().success("注册成功", null);
     }
@@ -704,12 +748,13 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     }
 
     @Override
-    public Map<String, Object> appLogin(String openid, Integer sex, String headimgurl, String unionid, String nickname, String city, Integer source) {
+    public Map<String, Object> appLogin(String openid, Integer sex, String headimgurl, String unionid, String nickname, String city, Integer source,Integer uniacid) {
         Map<String, Object> resultObj = new HashMap<String, Object>();
         UmsMember userVo = this.queryByOpenId(openid);
         String token = null;
         if (null == userVo) {
             UmsMember umsMember = new UmsMember();
+            umsMember.setUniacid(uniacid);
             umsMember.setUsername("wxapplet" + CharUtil.getRandomString(12));
             umsMember.setSourceType(source);
             umsMember.setPassword(passwordEncoder.encode("123456"));
@@ -736,10 +781,12 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
             token = jwtTokenUtil.generateToken(umsMember.getUsername());
             resultObj.put("userId", umsMember.getId());
             resultObj.put("userInfo", umsMember);
-            addIntegration(umsMember.getId(), regJifen, 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername());
+            addIntegration(umsMember.getId(), regJifen, 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername(),null);
 
+            //todo  在这里把用户标签添加上
+//            addMemberLabel(uniacid,umsMember.getId(),openid);
         } else {
-            addIntegration(userVo.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), userVo.getUsername());
+//            addIntegration(userVo.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), userVo.getUsername(),null);
 
             token = jwtTokenUtil.generateToken(userVo.getUsername());
             resultObj.put("userId", userVo.getId());
@@ -881,13 +928,13 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
                 token = jwtTokenUtil.generateToken(umsMember.getUsername());
                 resultObj.put("userId", umsMember.getId());
                 resultObj.put("userInfo", umsMember);
-                addIntegration(umsMember.getId(), regJifen, 1, "注册添加积分", AllEnum.ChangeSource.register.code(), userVo.getUsername());
+                addIntegration(umsMember.getId(), regJifen, 1, "注册添加积分", AllEnum.ChangeSource.register.code(), userVo.getUsername(),null);
 
 
             } else {
                 //  userVo = this.queryByOpenId(sessionData.getString("openid"));
                 if (ValidatorUtils.notEmpty(userVo.getWeixinOpenid())) {
-                    addIntegration(userVo.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), userVo.getUsername());
+                    addIntegration(userVo.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), userVo.getUsername(),null);
                     token = jwtTokenUtil.generateToken(userVo.getUsername());
                     resultObj.put("userId", userVo.getId());
                     resultObj.put("userInfo", userVo);
@@ -1025,11 +1072,11 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
                 token = jwtTokenUtil.generateToken(umsMember.getUsername());
                 resultObj.put("userId", umsMember.getId());
                 resultObj.put("userInfo", umsMember);
-                addIntegration(umsMember.getId(), regJifen, 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername());
+                addIntegration(umsMember.getId(), regJifen, 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername(),null);
 
 
             } else {
-                addIntegration(userVo.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), userVo.getUsername());
+                addIntegration(userVo.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), userVo.getUsername(),null);
                 token = jwtTokenUtil.generateToken(userVo.getUsername());
                 resultObj.put("userId", userVo.getId());
                 resultObj.put("userInfo", userVo);
@@ -1145,9 +1192,9 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
                 token = jwtTokenUtil.generateToken(umsMember.getUsername());
                 resultObj.put("userId", umsMember.getId());
                 resultObj.put("userInfo", umsMember);
-                addIntegration(umsMember.getId(), regJifen, 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername());
+                addIntegration(umsMember.getId(), regJifen, 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername(),null);
             } else {
-                addIntegration(userVo.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), userVo.getUsername());
+                addIntegration(userVo.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), userVo.getUsername(),null);
                 token = jwtTokenUtil.generateToken(userVo.getUsername());
                 resultObj.put("userId", userVo.getId());
                 resultObj.put("userInfo", userVo);
@@ -1241,9 +1288,9 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
                 token = jwtTokenUtil.generateToken(umsMember.getUsername());
                 resultObj.put("userId", umsMember.getId());
                 resultObj.put("userInfo", umsMember);
-                addIntegration(umsMember.getId(), regJifen, 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername());
+                addIntegration(umsMember.getId(), regJifen, 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername(),null);
             } else {
-                addIntegration(userVo.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), userVo.getUsername());
+                addIntegration(userVo.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), userVo.getUsername(),null);
                 token = jwtTokenUtil.generateToken(userVo.getUsername());
                 resultObj.put("userId", userVo.getId());
                 resultObj.put("userInfo", userVo);
@@ -1324,7 +1371,7 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
             SecurityContextHolder.getContext().setAuthentication(authentication);
             token = jwtTokenUtil.generateToken(userDetails);
             tokenMap.put("userInfo", member);
-            addIntegration(member.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), member.getUsername());
+            addIntegration(member.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), member.getUsername(),null);
         } catch (AuthenticationException e) {
             LOGGER.warn("登录异常:{}", e.getMessage());
 
@@ -1411,6 +1458,35 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     @Override
     public UmsMember selectByUsernameStaff(String username) {
         return memberMapper.selectByUsernameStaff(username);
+    }
+
+    @Override
+    public void addMemberLabel(Integer uniacid,Long memberId,String openId) {
+        //首先验证小程序的经销商买没买客户标签功能
+        AccountWxapp accountWxapp = new AccountWxapp();
+        accountWxapp.setUniacid(uniacid);
+        AccountWxapp wxapp = accountWxappMapper.selectOne(new QueryWrapper<>(accountWxapp));
+        Long dealerId = wxapp.getCreateBy();
+        SetSalesBuy salesBuy = new SetSalesBuy();
+        salesBuy.setDealerId(dealerId);
+        salesBuy.setPerssionId(CommonConstant.member_label);
+        SetSalesBuy buy = buyMapper.selectOne(new QueryWrapper<>(salesBuy));
+        if (buy.getEndTime().before(new Date())){
+            return;
+        }
+        SmsLabelMember labelMember = new SmsLabelMember();
+        labelMember.setOpenId(openId);
+        labelMember.setLabelId(CommonConstant.label_member_community);
+        labelMember.setMemberId(memberId);
+        labelMember.setTagId(CommonConstant.tag_member_community);
+        smsLabelMemberMapper.insert(labelMember);
+        SmsLabelMember member = new SmsLabelMember();
+        member.setOpenId(openId);
+        member.setLabelId(CommonConstant.label_member_level);
+        member.setMemberId(memberId);
+        member.setTagId(CommonConstant.tag_member_level);
+        smsLabelMemberMapper.insert(member);
+        //TODO 微信公众号添加标签感觉好像是标签组，有问题待确定
     }
 }
 

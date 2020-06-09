@@ -15,4 +15,8 @@ public class StringConstantUtil {
     //积分状态 0->冻结 1->正常
     public static final Integer integrationStatus_0 = 0;
     public static final Integer integrationStatus_1 = 0;
+
+    //通用了 1分账成功，0分账失败
+    public static final Integer rout_success = 1;
+    public static final Integer rout_failed = 0;
 }

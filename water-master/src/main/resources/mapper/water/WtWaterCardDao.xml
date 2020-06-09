@@ -76,4 +76,62 @@
         WHERE  card_no = #{cardNo}
 
     </update>
+
+    <!-- 根据条件查询所有会员表列表 -->
+    <select id="selectData" resultType="com.zscat.mallplus.ums.entity.UmsMember">
+        SELECT
+        b.username AS "username",
+        b.phone AS "phone",
+        c.NAME AS "uniacName",
+        GROUP_CONCAT( e.label_name ) AS "labelName",
+        f.eqcode,
+        h.eq_address AS "eqAddress",
+        i.username AS "saleByName",
+        j.username AS "umsMemberReferrerName",
+        a.*
+        FROM
+        wt_water_card a
+        LEFT JOIN ums_member b ON a.ums_member_id=b.id
+        LEFT JOIN account_wechats c ON c.uniacid = b.uniacid
+        LEFT JOIN sms_label_member d ON d.member_id = b.id
+        LEFT JOIN sms_label_set e ON d.label_id = e.id
+        LEFT JOIN (SELECT eqcode,card_no
+        from wt_equipment_warter_card
+        GROUP BY card_no
+        )f ON f.card_no=a.card_no
+        LEFT JOIN wt_equipment h ON f.eqcode=h.eqcode
+        LEFT JOIN sys_user_staff i ON a.sale_by = i.id
+        LEFT JOIN ums_member j ON a.ums_member_referrer_id = j.id
+        WHERE a.del_flag=#{entity.delFlag}
+        <if test="entity.cardType != null and entity.cardType != ''">
+            AND a.card_type=#{entity.cardType}
+        </if>
+        <if test="entity.cardNo != null and entity.cardNo != ''">
+            AND a.card_no=#{entity.cardNo}
+        </if>
+        <if test="entity.username != null and entity.username != ''">
+            AND b.username=#{entity.username}
+        </if>
+        <if test="entity.weixinOpenid != null and entity.weixinOpenid != ''">
+            AND b.weixin_openid=#{entity.weixinOpenid}
+        </if>
+        <if test="entity.id != null and entity.id != ''">
+            AND a.id=#{entity.id}
+        </if>
+
+        <if test="entity.umsMemberName != null and entity.umsMemberName != ''">
+            AND c.name like concat('%',#{entity.umsMemberName},'%')
+        </if>
+        <if test="entity.saleState != null and entity.saleState != ''">
+            AND a.sale_state=#{entity.saleState}
+        </if>
+        <if test="entity.activationState != null and entity.activationState != ''">
+            AND a.activation_state=#{entity.activationState}
+        </if>
+
+        <if test="entity.umsMemberReferrerName != null and entity.umsMemberReferrerName != ''">
+            AND j.username=#{entity.umsMemberReferrerName}
+        </if>
+        GROUP BY a.id
+    </select>
 </mapper>

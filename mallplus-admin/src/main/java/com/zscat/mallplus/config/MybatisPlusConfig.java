@@ -109,8 +109,9 @@ public class MybatisPlusConfig {
                 ||tableName.equals("merchat_facilitator_config")||tableName.equals("merchant_bank_info")
                         ||tableName.startsWith("sms_label")|| tableName.startsWith("sys_qiniu_config")
                         || tableName.startsWith("sys_qiniu_content")|| tableName.startsWith("wt_water_card_create")
-                        || tableName.startsWith("wt_equipment_warter_card")|| tableName.startsWith("sys_dict")
-                        || tableName.startsWith("ums_member_recommend")) {
+                ||tableName.equals("ums_integration_consume_setting")
+                         ||tableName.startsWith("wt_equipment_warter_card")|| tableName.startsWith("sys_dict")
+                        || tableName.startsWith("ums_member_recommend")){
                     return true;
                 }
                 return IGNORE_TENANT_TABLES.stream().anyMatch((e) -> e.equalsIgnoreCase(tableName));

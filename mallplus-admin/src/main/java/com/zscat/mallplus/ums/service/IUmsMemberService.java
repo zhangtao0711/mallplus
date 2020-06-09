@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zscat.mallplus.ums.entity.UmsMember;
+import com.zscat.mallplus.ums.vo.UmsMemberSelect;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -38,4 +39,6 @@ public interface IUmsMemberService extends IService<UmsMember> {
     boolean updateById(UmsMember umsMember);
     //删除用户标签
     boolean removeLabel(Long id, Long umsMemberId);
+    //高级查询
+    IPage<Map<String, Object>> selectSenior(Page<Map<String,Object>> mapPage, UmsMemberSelect entity);
 }

@@ -21,6 +21,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author wang
@@ -34,6 +35,8 @@ public class AccountWxappController {
 
     @Resource
     private IAccountWxappService IAccountWxappService;
+    @Resource
+    private JdbcTemplate jdbcTemplate;
 
     @SysLog(MODULE = "wxminiapp", REMARK = "根据条件查询所有小程序列表")
     @ApiOperation("根据条件查询所有小程序列表")
@@ -66,8 +69,10 @@ public class AccountWxappController {
         entity.setUniacid(count);
         try {
             entity.setCreateTime(new Date());
+            Map<String,Object> map = jdbcTemplate.queryForMap("select ma_url from admin_dsn_domin where id =1");
+            entity.setAppdomain(map.get("ma_url").toString()+count.toString());
             if (IAccountWxappService.save(entity)) {
-                return new CommonResult().success();
+                return new CommonResult().success(entity);
             }
         } catch (Exception e) {
             log.error("保存小程序：%s", e.getMessage(), e);

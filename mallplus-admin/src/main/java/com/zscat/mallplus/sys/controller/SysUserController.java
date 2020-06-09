@@ -3,6 +3,7 @@ package com.zscat.mallplus.sys.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.IgnoreAuth;
@@ -11,18 +12,18 @@ import com.zscat.mallplus.build.entity.BuildingCommunity;
 import com.zscat.mallplus.build.entity.UserCommunityRelate;
 import com.zscat.mallplus.build.mapper.BuildingCommunityMapper;
 import com.zscat.mallplus.build.mapper.UserCommunityRelateMapper;
-import com.zscat.mallplus.sys.entity.SysPermission;
-import com.zscat.mallplus.sys.entity.SysRole;
-import com.zscat.mallplus.sys.entity.SysUser;
-import com.zscat.mallplus.sys.entity.SysUserStaff;
+import com.zscat.mallplus.sys.entity.*;
 import com.zscat.mallplus.sys.mapper.SysPermissionMapper;
 import com.zscat.mallplus.sys.service.ISysPermissionService;
 import com.zscat.mallplus.sys.service.ISysRoleService;
 import com.zscat.mallplus.sys.service.ISysUserService;
 import com.zscat.mallplus.sys.service.ISysUserStaffService;
+import com.zscat.mallplus.ums.entity.SysAppletSet;
 import com.zscat.mallplus.ums.entity.UmsMember;
+import com.zscat.mallplus.ums.service.ISysAppletSetService;
 import com.zscat.mallplus.ums.service.IUmsMemberService;
 import com.zscat.mallplus.ums.service.RedisService;
+import com.zscat.mallplus.ums.vo.SysDealerVo;
 import com.zscat.mallplus.util.JsonUtil;
 import com.zscat.mallplus.util.JwtTokenUtil;
 import com.zscat.mallplus.util.StringUtils;
@@ -71,7 +72,7 @@ public class SysUserController extends ApiController {
     @Resource
     private ISysUserService sysUserService;
     @Resource
-    private ISysUserStaffService sysUserStaffService;
+    private ISysAppletSetService appletSetService;
     @Resource
     private IAccountWechatsService wechatsService;
     @Resource
@@ -100,11 +101,24 @@ public class SysUserController extends ApiController {
     ) {
         try {
             entity.setStoreId(UserUtils.getCurrentMember().getStoreId());
-            return new CommonResult().success(sysUserService.page(new Page<SysUser>(pageNum, pageSize), new QueryWrapper<>(entity)));
+            QueryWrapper queryWrapper = new QueryWrapper<>(entity);
+            queryWrapper.notIn("id",1);
+            return new CommonResult().success(sysUserService.page(new Page<SysUser>(pageNum, pageSize), queryWrapper));
         } catch (Exception e) {
             log.error("根据条件查询所有用户列表：%s", e.getMessage(), e);
         }
         return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "sys", REMARK = "添加经销商的时候需要的数据")
+    @ApiOperation("添加经销商的时候需要的数据")
+    @GetMapping(value = "/listDealer")
+    public Object listDealer(@RequestParam Integer level,
+                             @RequestParam Integer storeId,
+                             @RequestParam String value) {
+        List<Map<String,Object>> list = sysUserService.
+                listDealer(level,value,storeId);
+        return new CommonResult().success(list);
     }
 
     @SysLog(MODULE = "sys", REMARK = "保存用户")
@@ -124,6 +138,54 @@ public class SysUserController extends ApiController {
             return new CommonResult().failed();
         }
         return new CommonResult().failed("用户名已存在");
+    }
+
+    @SysLog(MODULE = "sys", REMARK = "添加经销商或者入驻的时候添加")
+    @ApiOperation("添加经销商或者入驻的时候添加")
+    @PostMapping(value = "/create")
+    @PreAuthorize("hasAuthority('sys:user:createUser')")
+    public Object createUser(@RequestBody SysDealerVo entity) {
+        SysUser user = entity.getUser();
+        SysAppletSet appletSet = entity.getAppletSet();
+        //校验基础数据
+        if (user==null){
+            return new CommonResult().failed("添加的经销商信息不能为空！");
+        }
+        if (appletSet==null){
+            return new CommonResult().failed("添加的经销商基本入驻信息不能为空！");
+        }
+        try {
+            if (ValidatorUtils.empty(user.getStoreId())) {
+                user.setStoreId(UserUtils.getCurrentMember().getStoreId());
+            }
+            if (ValidatorUtils.empty(user.getStoreName())) {
+                user.setStoreName(UserUtils.getCurrentMember().getStoreName());
+            }
+            //如果是后台添加的经销商信息，则需要添加之后获取它的id
+            if (ValidatorUtils.empty(user.getId())){
+                if (!sysUserService.saves(user)){
+                    return new CommonResult().failed("保存经销商信息失败，用户已存在！");
+                }
+                SysUser sysUser = new SysUser();
+                sysUser.setUsername(user.getUsername());
+                sysUser.setStoreId(user.getStoreId());
+                user = sysUserService.getOne(new QueryWrapper<>(sysUser));
+            }
+            //如果是需要入驻的信息
+            appletSet.setUserId(user.getId());
+            appletSet.setAppid("0");
+            appletSet.setStoreId(user.getStoreId());
+            appletSet.setLevelId(user.getLevel());
+            if (!appletSetService.save(appletSet)){
+                return new CommonResult().failed("添加经销商基本入驻信息错误！");
+            }
+            entity.setUser(user);
+            entity.setAppletSet(appletSet);
+            return new CommonResult().success(entity);
+        } catch (Exception e) {
+            log.error("保存用户：%s", e.getMessage(), e);
+            return new CommonResult().failed();
+        }
     }
 
     @SysLog(MODULE = "sys", REMARK = "更新用户")

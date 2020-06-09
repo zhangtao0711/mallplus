@@ -9,6 +9,7 @@ import com.zscat.mallplus.core.enums.TradeType;
 import com.zscat.mallplus.core.kit.HttpKit;
 import com.zscat.mallplus.core.kit.IpKit;
 import com.zscat.mallplus.core.kit.WxPayKit;
+import com.zscat.mallplus.enums.AllEnum;
 import com.zscat.mallplus.exception.ApiMallPlusException;
 import com.zscat.mallplus.merchant.entity.MerchatFacilitatorConfig;
 import com.zscat.mallplus.merchant.mapper.MerchatFacilitatorConfigMapper;
@@ -21,10 +22,19 @@ import com.zscat.mallplus.sms.mapper.SmsRechargePackageMapper;
 import com.zscat.mallplus.sms.mapper.SmsWaterBuyRecordMapper;
 import com.zscat.mallplus.sms.mapper.SmsWaterPageMapper;
 import com.zscat.mallplus.ums.entity.SysAppletSet;
+import com.zscat.mallplus.ums.entity.UmsMember;
 import com.zscat.mallplus.ums.mapper.SysAppletSetMapper;
+import com.zscat.mallplus.ums.service.ISysAppletSetService;
+import com.zscat.mallplus.ums.service.IUmsMemberService;
 import com.zscat.mallplus.ums.service.RedisService;
 import com.zscat.mallplus.util.applet.StringConstantUtil;
 import com.zscat.mallplus.utils.CommonResult;
+import com.zscat.mallplus.water.entity.WtWaterCard;
+import com.zscat.mallplus.water.entity.WtWaterCardVirtual;
+import com.zscat.mallplus.water.entity.WtWaterCardVituralConsume;
+import com.zscat.mallplus.water.mapper.WtWaterCardMapper;
+import com.zscat.mallplus.water.mapper.WtWaterCardVirtualMapper;
+import com.zscat.mallplus.water.mapper.WtWaterCardVituralConsumeMapper;
 import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
 import com.zscat.mallplus.wxminiapp.mapper.AccountWxappMapper;
 import com.zscat.mallplus.wxpay.WxPayApi;
@@ -59,11 +69,19 @@ public class SingleWaterPageController extends ApiBaseAction {
     @Resource
     private AccountWxappMapper wxappMapper;
     @Resource
-    private SysAppletSetMapper appletSetMapper;
+    private ISysAppletSetService appletSetService;
     @Resource
     private SmsWaterBuyRecordMapper recordMapper;
     @Resource
     private RedisService redisService;
+    @Resource
+    private IUmsMemberService memberService;
+    @Resource
+    private WtWaterCardMapper waterCardMapper;
+    @Resource
+    private WtWaterCardVirtualMapper virtualMapper;
+    @Resource
+    private WtWaterCardVituralConsumeMapper consumeMapper;
     private String notifyUrl = "http://java.chengguo.link:8081/api";
     private String refundNotifyUrl;
 
@@ -81,7 +99,7 @@ public class SingleWaterPageController extends ApiBaseAction {
         SysAppletSet set = new SysAppletSet();
         set.setStoreId(wxapp.getStoreId());
         set.setUserId(wxapp.getCreateBy());
-        SysAppletSet appletSet = appletSetMapper.selectOne(new QueryWrapper<>(set));
+        SysAppletSet appletSet = appletSetService.getOne(new QueryWrapper<>(set));
         apiConfig = WxPayApiConfig.builder()
                 .appId(config.getAppid())
                 .mchId(config.getMchId())
@@ -102,9 +120,8 @@ public class SingleWaterPageController extends ApiBaseAction {
     @SysLog(MODULE = "single", REMARK = "扫码之后的购水页面")
     @ApiOperation(value = "扫码之后的购水页面")
     @PostMapping("buyWaterPage")
-    public Object buyWaterPage(@RequestParam String appid,@RequestParam String deviceNo){
+    public Object buyWaterPage(@RequestParam String openid,@RequestParam String deviceNo){
         JSONObject j = new JSONObject();
-        //通过APPid找到那个经销商， 调起那个小程序的页面
         //通过deviceNo找到数据
         SmsClassConfig config = smsClassConfigMapper.selectByDeviceNo(deviceNo);
         List<String> waters = Arrays.asList(config.getWaterIds());
@@ -130,6 +147,29 @@ public class SingleWaterPageController extends ApiBaseAction {
     @ApiOperation(value = "买水")
     @PostMapping("waterBuy")
     public Object waterBuy(@RequestBody SmsWaterBuyRecord entity){
+        //通过openid找到用户， 有卡则把水卡信息返给前台
+        UmsMember umsMember = new UmsMember();
+        umsMember.setUniacid(entity.getUniacid());
+        umsMember.setWeixinOpenid(entity.getOpenId());
+        UmsMember member = memberService.getOne(new QueryWrapper<>(umsMember));
+        if (member!=null){
+            //水卡信息
+            JSONObject j = new JSONObject();
+            WtWaterCard wtWaterCard = new WtWaterCard();
+            wtWaterCard.setDealerId(entity.getDealerId());
+            wtWaterCard.setUmsMemberId(member.getId());
+            List<WtWaterCard> waterCard = waterCardMapper.selectList(new QueryWrapper<>(wtWaterCard));
+            WtWaterCardVirtual waterCardVirtual = new WtWaterCardVirtual();
+            waterCardVirtual.setDealerId(entity.getDealerId());
+            waterCardVirtual.setUmsMemberId(member.getId());
+            List<WtWaterCardVirtual> virtuals = virtualMapper.selectList(new QueryWrapper<>(waterCardVirtual));
+            if ((waterCard!=null&&waterCard.size()!=0)||(virtuals!=null&&virtuals.size()!=0) ) {
+                j.put("waterCard", waterCard);
+                j.put("virtuals", virtuals);
+                return new CommonResult().success(j);
+            }
+
+        }
         //添加记录信息
         String outTradeNo = WxPayKit.generateStr();
         //小程序支付统一下单-服务商支付
@@ -225,6 +265,19 @@ public class SingleWaterPageController extends ApiBaseAction {
                 if (record.getStatus()==StringConstantUtil.rechargeStatus_2){
                     record.setStatus(StringConstantUtil.rechargeStatus_3);
                     recordMapper.updateById(record);
+                    //获取用户，添加积分
+                    UmsMember umsMember = new UmsMember();
+                    umsMember.setUniacid(record.getUniacid());
+                    umsMember.setWeixinOpenid(record.getOpenId());
+                    UmsMember member = memberService.getOne(new QueryWrapper<>(umsMember));
+                    memberService.addIntegration(member.getId(),member.getUniacid(),0,"扫码买水赠积分", AllEnum.ChangeSource.order.code(),member.getUsername(),record.getActualAccount());
+                    //用户买水分账或者企业付款到零钱
+                    String ip = IpKit.getRealIp(request);
+                    if (StrKit.isBlank(ip)) {
+                        ip = "127.0.0.1";
+                    }
+                    String transaction_id = params.get("transaction_id");
+                    appletSetService.getRout(record.getDealerId(),record.getActualAccount(),ip,transaction_id,record.getId(),1);
                 }
                 // 发送通知等
                 Map<String, String> xml = new HashMap<String, String>(2);
@@ -253,7 +306,6 @@ public class SingleWaterPageController extends ApiBaseAction {
     @ApiOperation(value = "查询订单状态")
     @GetMapping("orderQuery")
     public Object orderQuery(@RequestParam String out_trade_no,@RequestParam Integer uid) throws Exception {
-        String orderquery = "https://api.mch.weixin.qq.com/pay/orderquery";
         SmsWaterBuyRecord waterBuyRecord = new SmsWaterBuyRecord();
         waterBuyRecord.setOutTradeNo(out_trade_no);
         SmsWaterBuyRecord order = recordMapper.selectOne(new QueryWrapper<>(waterBuyRecord));
@@ -362,5 +414,25 @@ public class SingleWaterPageController extends ApiBaseAction {
         order.setStatus(StringConstantUtil.rechargeStatus_6);
         recordMapper.updateById(order);
         return new CommonResult().success("交易已关闭");
+    }
+
+    @SysLog(MODULE = "single", REMARK = "会员卡购水")
+    @ApiOperation(value = "会员卡购水")
+    @PostMapping("buyWaterByCard")
+    public Object buyWaterByCard(WtWaterCardVituralConsume consume){
+       // 水卡的消费明细表，确定水卡的消费明细在谁那里 确定是实体卡还是虚拟卡 虚拟卡在我这里
+        if (consume.getType()==null){
+            return new CommonResult().failed("水卡类型参数不为空!");
+        }else if (consume.getType()==1){
+            //虚拟卡
+            WtWaterCardVirtual virtual = virtualMapper.selectById(consume.getVirtualId());
+            virtual.setCardMoney(virtual.getCardMoney().subtract(consume.getConsumeFee()).setScale(2,BigDecimal.ROUND_DOWN));
+            consume.setCardMoney(virtual.getCardMoney());
+            consumeMapper.insert(consume);
+            virtualMapper.updateById(virtual);
+        }else if (consume.getType()==2){
+            //TODO 实体卡
+        }
+        return new CommonResult().success();
     }
 }

@@ -42,6 +42,7 @@
         <result column="room_desc" property="roomDesc"/>
         <result column="weixin" property="weixin"/>
         <result column="integration_status" property="integrationStatus"/>
+        <result column="dealer_id" property="dealerId"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -49,7 +50,7 @@
         id, uniacid, uid, groupid, member_level_id, username, password, nickname, phone, status, create_time, icon, gender, birthday, city,
         job, personalized_signature, source_type, integration, growth, luckey_count, history_integration, avatar,
         weixin_openid, invitecode, blance, school_id,store_id,area_id,school_name,area_name,buy_count,buy_money,member_level_name,
-        room_nums,room_desc,weixin,integration_status
+        room_nums,room_desc,weixin,integration_status,dealer_id
     </sql>
 
     <select id="listByDate" resultMap="BaseResultMap">
@@ -197,4 +198,58 @@
         sms_label_member
         where label_id=#{id} AND member_id=#{umsMemberId}
   	</delete>
+    <!-- 高级查询 实体卡-->
+    <select id="selectSenior" resultType="com.zscat.mallplus.ums.entity.UmsMember">
+        SELECT
+        b.card_money
+        ,b.card_no
+        ,c.name AS "uniacName"
+        ,GROUP_CONCAT(e.label_name) AS "labelName"
+        ,f.recommendNum AS "recommendNum"
+        ,h.username AS "recommendName"
+        ,a.* FROM
+        ums_member a
+        LEFT JOIN wt_water_card b ON a.id=b.ums_member_id
+        AND b.del_flag='1'
+        LEFT JOIN account_wechats c ON c.uniacid=a.uniacid
+        LEFT JOIN sms_label_member d ON d.member_id=a.id
+        <if test="entity.memberLevelId != null and entity.memberLevelId != ''">
+            and d.label_id=#{entity.memberLevelId}
+        </if>
+        LEFT JOIN sms_label_set e ON d.label_id=e.id
+        LEFT JOIN (select f.member_id ,count(f.id) AS "recommendNum"
+        from ums_member_recommend f
+        GROUP BY f.member_id) f
+        ON f.member_id=a.id
+        LEFT JOIN ums_member_recommend g ON g.member_recommend_id=a.id
+        LEFT JOIN ums_member h ON h.id=g.member_id
+        LEFT JOIN sys_member_area i ON i.member_id=a.id
+        where 1=1
+
+        <if test="entity.dealerId != null and entity.dealerId != ''">
+            AND a.dealer_id=#{entity.dealerId}
+        </if>
+        <if test="entity.storeId != null and entity.storeId != ''">
+            AND a.store_id=#{entity.storeId}
+        </if>
+        <if test="entity.memberLevelId != null and entity.memberLevelId != ''">
+            AND a.member_level_id=#{entity.memberLevelId}
+        </if>
+        <if test="entity.objId != null and entity.objId != ''">
+            AND i.obj_id =#{entity.objId}
+        </if>
+
+        <if test="entity.cardMoneyGreater != null and entity.cardMoneyGreater != ''">
+            AND d.card_money>#{entity.cardMoneyGreater}
+        </if>
+        <if test="entity.cardMoneyEqual != null and entity.cardMoneyEqual != ''">
+            AND d.card_money=#{entity.cardMoneyEqual}
+        </if>
+        <if test="entity.cardMoneyLimit != null and entity.cardMoneyLimit != ''">
+            AND d.card_money&lt;#{entity.cardMoneyLimit}
+        </if>
+
+
+        GROUP BY a.id
+    </select>
 </mapper>

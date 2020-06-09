@@ -53,4 +53,26 @@
     <update id="updatePhoneById">
         update sys_user set phone = #{phone} where id = #{id}
     </update>
+
+    <!-- 根据手机号，微信昵称，商户号选择经销商-->
+    <select id="listDealer" resultType="Map">
+       SELECT
+          a.id as "id",
+          a.nick_name as "nickName",
+          a.username as "username",
+          ifnull(a.dealer_name,'') as "dealerName",
+          ifnull(a.realname,'') as "realname",
+          ifnull(a.phone,'') as "phone",
+          ifnull(b.mchid,0) as "mchid"
+        FROM
+            sys_user a,
+            sys_applet_set b
+        WHERE
+            a.id = b.user_id
+            and a.level = #{level}
+            <if test="value != null and value != ''">
+                AND (a.phone = #{value} or a.nick_name = #{value} or b.mchid = #{value})
+            </if>
+            and a.store_id = #{storeId}
+    </select>
 </mapper>

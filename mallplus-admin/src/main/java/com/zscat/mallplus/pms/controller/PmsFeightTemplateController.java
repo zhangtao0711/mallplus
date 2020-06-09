@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -56,6 +57,17 @@ public class PmsFeightTemplateController {
     public Object savePmsFeightTemplate(@RequestBody PmsFeightTemplate entity) {
         try {
             entity.setCreateTime(new Date());
+            if (entity.getIsDefault()==1){
+                PmsFeightTemplate template = new PmsFeightTemplate();
+                template.setDealerId(entity.getDealerId());
+                template.setStoreId(entity.getStoreId());
+                entity.setIsDefault(1);
+                PmsFeightTemplate feightTemplate = IPmsFeightTemplateService.getOne(new QueryWrapper<>(template));
+                if (feightTemplate!=null){
+                    feightTemplate.setIsDefault(0);
+                    IPmsFeightTemplateService.updateById(feightTemplate);
+                }
+            }
             if (IPmsFeightTemplateService.save(entity)) {
                 return new CommonResult().success();
             }

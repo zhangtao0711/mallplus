@@ -6,6 +6,9 @@ import com.zscat.mallplus.cms.service.ICmsPrefrenceAreaProductRelationService;
 import com.zscat.mallplus.cms.service.ICmsSubjectProductRelationService;
 import com.zscat.mallplus.enums.ConstansValue;
 import com.zscat.mallplus.fenxiao.mapper.FenxiaoConfigMapper;
+import com.zscat.mallplus.oms.entity.OmsOrder;
+import com.zscat.mallplus.oms.mapper.OmsOrderMapper;
+import com.zscat.mallplus.pay.utils.StringUtils;
 import com.zscat.mallplus.pms.entity.*;
 import com.zscat.mallplus.pms.mapper.*;
 import com.zscat.mallplus.pms.service.*;
@@ -29,6 +32,7 @@ import com.zscat.mallplus.ums.service.RedisService;
 import com.zscat.mallplus.ums.service.impl.RedisUtil;
 import com.zscat.mallplus.util.DateUtils;
 import com.zscat.mallplus.util.JsonUtils;
+import com.zscat.mallplus.util.TimeUtil;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import com.zscat.mallplus.vo.Rediskey;
@@ -165,6 +169,33 @@ public class PmsProductServiceImpl extends ServiceImpl<PmsProductMapper, PmsProd
         }
         GoodsDetailResult param = new GoodsDetailResult();
         param.setGoods(goods);
+        if (goods.getProductType()==2) {
+            UmsMember currentMember = memberService.getNewCurrentMember();
+            if (currentMember == null || currentMember.getId() == null) {
+                return null;
+            }
+            String manOnceTime = redisService.get("once" + goods.getId().toString() + currentMember.getId().toString() + System.currentTimeMillis());
+            if (!StringUtils.isNotBlank(manOnceTime)) {
+                manOnceTime = "0";
+                redisService.set("once" + goods.getId().toString() + currentMember.getId().toString() + System.currentTimeMillis(), manOnceTime);
+                redisService.expire("once" + goods.getId().toString() + currentMember.getId().toString() + System.currentTimeMillis(), TimeUtil.getSecondsTobeforedawn());
+            }
+            String dayTime = redisService.get(goods.getId().toString() + System.currentTimeMillis() + "dayTime");
+            if (!StringUtils.isNotBlank(dayTime)) {
+                dayTime = "0";
+                redisService.set(goods.getId().toString() + System.currentTimeMillis() + "dayTime", dayTime);
+                redisService.expire(goods.getId().toString() + System.currentTimeMillis() + "dayTime", TimeUtil.getSecondsTobeforedawn());
+            }
+            String manTime = redisService.get(goods.getId().toString() + currentMember.getId().toString() + System.currentTimeMillis());
+            if (!StringUtils.isNotBlank(manTime)) {
+                manTime = "0";
+                redisService.set(goods.getId().toString() + currentMember.getId().toString() + System.currentTimeMillis(), manTime);
+                redisService.expire(goods.getId().toString() + currentMember.getId().toString() + System.currentTimeMillis(), TimeUtil.getSecondsTobeforedawn());
+            }
+            param.setManOnceTime(manOnceTime);
+            param.setDayTime(dayTime);
+            param.setManTime(manTime);
+        }
         if (goods!=null){
             List<PmsSkuStock> skuStockList = skuStockMapper.selectList(new QueryWrapper<PmsSkuStock>().eq("product_id", goods.getId()));
             param.setSkuStockList(skuStockList);

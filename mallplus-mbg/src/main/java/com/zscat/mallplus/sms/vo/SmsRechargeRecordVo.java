@@ -60,6 +60,11 @@ public class SmsRechargeRecordVo extends BaseEntity implements Serializable {
      **/
     private Integer payWay;
 
+    /**
+     * 实体卡或者虚拟卡的id
+     */
+    private Long cardId;
+
 
     /**
      * 卡号

@@ -1,5 +1,7 @@
 package com.zscat.mallplus.weixinmp.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -21,7 +23,7 @@ public class AccountWechats extends BaseEntity implements Serializable {
     /**
      *
      **/
-    @TableField("acid")
+    @TableId(value = "acid",type = IdType.AUTO)
     private Integer acid;
 
 
@@ -126,7 +128,7 @@ public class AccountWechats extends BaseEntity implements Serializable {
     /**
      * 微信公众平台后台的AppId
      **/
-    @TableField("key")
+    @TableField("`key`")
     private String key;
 
 
@@ -174,7 +176,13 @@ public class AccountWechats extends BaseEntity implements Serializable {
     @TableField("store_id")
     private Integer storeId;
 
-    @TableField("store_name")
-    private String storeName;
+    @TableField("appdomain")
+    private String appdomain;
+
+    /**
+     * 小程序状态 0关闭 1开启 2已连接 3连接失败
+     */
+    @TableField("status")
+    private Integer status;
 
 }

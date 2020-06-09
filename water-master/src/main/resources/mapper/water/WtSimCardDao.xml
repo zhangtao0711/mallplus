@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.water.mapper.WtSimCardMapper">
+
+    <!-- 获取设备的经销商id -->
+    <select id="getByCardno" resultType="com.zscat.mallplus.water.entity.WtSimCard">
+        SELECT *
+        FROM wt_sim_card a
+        WHERE a.cardno=#{cardno}
+    </select>
+
+</mapper>

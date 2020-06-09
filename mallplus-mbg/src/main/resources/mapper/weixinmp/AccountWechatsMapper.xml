@@ -16,13 +16,11 @@
         <result column="country" property="country"/>
         <result column="province" property="province"/>
         <result column="city" property="city"/>
-        <result column="gender" property="gender"/>
-        <result column="birthday" property="birthday"/>
+        <result column="logo" property="logo"/>
+        <result column="qr_code" property="qrCode"/>
         <result column="city" property="city"/>
-        <result column="username" property="username"/>
-        <result column="password" property="password"/>
         <result column="lastupdate" property="lastupdate"/>
-        <result column="key" property="key"/>
+        <result column="`key`" property="key"/>
         <result column="secret" property="secret"/>
         <result column="styleid" property="styleid"/>
         <result column="subscribeurl" property="subscribeurl"/>
@@ -30,11 +28,12 @@
         <result column="create_by" property="createBy"/>
         <result column="create_time" property="createTime"/>
         <result column="store_id" property="storeId"/>
-        <result column="store_name" property="storeName"/>
+        <result column="appdomain" property="appdomain"/>
+        <result column="status" property="status"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        acid,uniacid,token,encodingaeskey,level,name,account,original,signature,country,province,city,username,password,lastupdate,key,secret,styleid,subscribeurl,auth_refresh_token,create_by,create_time,store_id,store_name
+        acid,uniacid,token,encodingaeskey,level,name,account,original,signature,country,province,city,logo,qr_code,lastupdate,`key`,secret,styleid,subscribeurl,auth_refresh_token,create_by,create_time,store_id,appdomain,status
     </sql>
 </mapper>

@@ -315,14 +315,15 @@ public class SingelHomeController {
 
                            @RequestParam String nickname,
                            @RequestParam String city,
-                           @RequestParam Integer source) {
+                           @RequestParam Integer source,
+                           @RequestParam Integer uniacid) {
 
         if (openid == null || "".equals(openid)) {
             return new CommonResult().validateFailed("openid为空");
         }
         try {
 
-            Map<String, Object> token = memberService.appLogin(openid, sex, headimgurl, unionid, nickname, city, source);
+            Map<String, Object> token = memberService.appLogin(openid, sex, headimgurl, unionid, nickname, city, source,uniacid);
             if (token.get("token") == null) {
                 return new CommonResult().validateFailed("用户名或密码错误");
             }

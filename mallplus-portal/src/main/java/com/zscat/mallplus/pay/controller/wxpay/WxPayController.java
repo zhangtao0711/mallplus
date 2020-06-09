@@ -12,6 +12,8 @@ import com.zscat.mallplus.core.kit.*;
 import com.zscat.mallplus.enums.AllEnum;
 import com.zscat.mallplus.enums.OrderStatus;
 import com.zscat.mallplus.exception.ApiMallPlusException;
+import com.zscat.mallplus.merchant.entity.MerchatFacilitatorConfig;
+import com.zscat.mallplus.merchant.mapper.MerchatFacilitatorConfigMapper;
 import com.zscat.mallplus.oms.entity.OmsOrder;
 import com.zscat.mallplus.oms.entity.OmsOrderItem;
 import com.zscat.mallplus.oms.entity.OmsPayments;
@@ -28,6 +30,8 @@ import com.zscat.mallplus.ums.service.IUmsMemberService;
 import com.zscat.mallplus.util.JsonUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
+import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
+import com.zscat.mallplus.wxminiapp.mapper.AccountWxappMapper;
 import com.zscat.mallplus.wxpay.WxPayApi;
 import com.zscat.mallplus.wxpay.WxPayApiConfig;
 import com.zscat.mallplus.wxpay.model.*;
@@ -79,6 +83,10 @@ public class WxPayController extends AbstractWxPayApiController {
 
     @Resource
     private SysAppletSetMapper appletSetMapper;
+    @Resource
+    private MerchatFacilitatorConfigMapper configMapper;
+    @Resource
+    private AccountWxappMapper wxappMapper;
     private String notifyUrl = "http://java.chengguo.link:8081/api";
     private String refundNotifyUrl;
 
@@ -144,6 +152,35 @@ public class WxPayController extends AbstractWxPayApiController {
 
         }
 
+        return apiConfig;
+    }
+
+    public WxPayApiConfig getApiConfig2(Integer uniacid){
+        WxPayApiConfig apiConfig = null;
+        //服务商的支付信息
+        MerchatFacilitatorConfig config = configMapper.selectById(1);
+        if (config==null){
+            return apiConfig;
+        }
+        //拿到经销商的数据,商户号和APPID等信息
+        AccountWxapp accountWxapp = new AccountWxapp();
+        accountWxapp.setUniacid(uniacid);
+        AccountWxapp wxapp = wxappMapper.selectOne(new QueryWrapper<>(accountWxapp));
+        SysAppletSet set = new SysAppletSet();
+        set.setStoreId(wxapp.getStoreId());
+        set.setUserId(wxapp.getCreateBy());
+        SysAppletSet appletSet = appletSetMapper.selectOne(new QueryWrapper<>(set));
+        apiConfig = WxPayApiConfig.builder()
+                .appId(config.getAppid())
+                .mchId(config.getMchId())
+                .slAppId(wxapp.getKey())
+                .slMchId(appletSet.getMchid())
+                .partnerKey(config.getSecret())
+//                .certPath(wxPayBean.getCertPath())
+                .domain("https://api.mch.weixin.qq.com")
+                .build();
+        notifyUrl = apiConfig.getDomain().concat("/api/pay/payNotify");
+        refundNotifyUrl = apiConfig.getDomain().concat("/api/pay/refundNotify");
         return apiConfig;
     }
 
@@ -286,7 +323,6 @@ public class WxPayController extends AbstractWxPayApiController {
                 return new CommonResult().failed("订单不是未支付，不能重新支付");
             }
             System.out.println(orderInfo.getPayAmount().multiply(new BigDecimal(100)).toPlainString());
-
             WxPayApiConfig wxPayApiConfig = this.getApiConfig();
             Map<String, String> params = UnifiedOrderModel
                     .builder()

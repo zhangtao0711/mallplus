@@ -37,6 +37,20 @@ public class PmsMemberPrice extends BaseEntity implements Serializable {
     @TableField("member_price")
     private BigDecimal memberPrice;
 
+    public BigDecimal getMemberDiscount() {
+        return memberDiscount;
+    }
+
+    public void setMemberDiscount(BigDecimal memberDiscount) {
+        this.memberDiscount = memberDiscount;
+    }
+
+    /**
+     * 会员折扣
+     */
+    @TableField("member_discount")
+    private BigDecimal memberDiscount;
+
     @TableField("member_level_name")
     private String memberLevelName;
 
@@ -88,6 +102,7 @@ public class PmsMemberPrice extends BaseEntity implements Serializable {
                 ", productId=" + productId +
                 ", memberLevelId=" + memberLevelId +
                 ", memberPrice=" + memberPrice +
+                ", memberDiscount" +memberDiscount +
                 ", memberLevelName=" + memberLevelName +
                 "}";
     }
