@@ -35,6 +35,7 @@
             <artifactId>nutz</artifactId>
             <version>${nutz-version}</version>
         </dependency>
+        sg
         <!-- 获取系统信息 -->
         <dependency>
             <groupId>com.github.oshi</groupId>
