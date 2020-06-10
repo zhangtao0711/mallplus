@@ -219,6 +219,9 @@ export default {
     };
   },
   created() {
+    if (this.$route.query.id) {
+      this.dealerId = this.$route.query.id
+    }
     if (this.isShareCard === true) {
       this.dealerUse.isShareCard = "1";
     } else {

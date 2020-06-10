@@ -31,15 +31,27 @@ export const constantRouterMap = [
   {
     path: '/dealer',
     component: Layout,
-    redirect: '/dealer/addDealer',
+    redirect: '/dealer/dealerList',
     name: 'dealer',
-    meta: { title: '经销商管理管理', icon: 'home' },
+    meta: { title: '经销商管理', icon: 'home' },
     children: [
+      {
+        path: 'dealerList',
+        name: 'dealerList',
+        component: () => import('@/views/dealer/dealerList/index'),
+        meta: { title: '经销商列表', icon: 'product-list' }
+      },
       {
         path: 'addDealer',
         name: 'addDealer',
         component: () => import('@/views/dealer/addDealer/add'),
-        meta: { title: '经销商配置', icon: 'product-list' }
+        meta: { title: '添加经销商', icon: 'product-list' }
+      },
+      {
+        path: 'updateDealer',
+        name: 'updateDealer',
+        component: () => import('@/views/dealer/addDealer/update'),
+        meta: { title: '修改经销商', icon: 'product-list' }
       },
       {
         path: 'addDealerInfo',
@@ -1047,7 +1059,14 @@ export const constantRouterMap = [
         meta: { title: '批量充值' },
         hidden: true
       },
-      
+      {
+        path: 'batchCardBinding',
+        name: 'batchCardBinding',
+        component: () => import('@/views/ums/wtWaterBindCard/batchCardBinding'),
+        meta: { title: '批量绑卡' },
+        hidden: true
+      },
+
 
 
       {

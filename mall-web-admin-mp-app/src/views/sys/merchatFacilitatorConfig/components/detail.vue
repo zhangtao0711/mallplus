@@ -311,28 +311,6 @@ export default {
         {},
         defaultMerchatFacilitatorConfig
       );
-    },
-    beforeUpload(file) {
-      let isLt2M = true;
-      isLt2M = file.size / 1024 / 1024 < 100;
-      if (!isLt2M) {
-        this.$message.error("上传文件大小不能超过 100MB!");
-      }
-      return isLt2M;
-    },
-    handleSuccess(response, file, fileList) {
-      this.resetForm();
-      this.$refs.upload.clearFiles();
-      this.$parent.init();
-    },
-    // 监听上传失败
-    handleError(e, file, fileList) {
-      const msg = JSON.parse(e.message);
-      this.$notify({
-        title: msg.message,
-        type: "error",
-        duration: 2500
-      });
     }
   }
 };

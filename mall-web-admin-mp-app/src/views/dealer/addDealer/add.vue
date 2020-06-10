@@ -93,28 +93,7 @@ export default {
       }
     },
     submitDealerInfo(isEdit) {
-      // if (this.isEdit) {
-      //   updateWtWaterCardActivate(
-      //     this.$route.query.id,
-      //     this.wtWaterCardActivate
-      //   ).then(response => {
-      //     if (response.code == 200) {
-      //       this.$refs[formName].resetFields();
-      //       this.$message({
-      //         message: "修改成功",
-      //         type: "success",
-      //         duration: 1000
-      //       });
-      //       this.$router.back();
-      //     } else {
-      //       this.$message({
-      //         message: response.msg,
-      //         type: "error",
-      //         duration: 1000
-      //       });
-      //     }
-      //   });
-      // } else {}
+
       let formData = {
         appletSet: {
           appid: this.dealerInfoData.appid,
@@ -135,6 +114,7 @@ export default {
           county: this.dealerInfoData.county,
           dealerName: this.dealerInfoData.dealerName,
           dealerPhone: this.dealerInfoData.dealerPhone,
+          phone: this.dealerInfoData.dealerPhone,
           gid: this.dealerInfoData.gid,
           icon: this.dealerInfoData.icon,
           pid: this.dealerInfoData.pid,
@@ -146,7 +126,6 @@ export default {
           level: this.dealerInfoData.levelId
         }
       };
-      // this.dealerInfoData = Object.assign({}, defaultDealerInfo);
 
       createDealer(formData).then(response => {
         if (response.code == 200) {
