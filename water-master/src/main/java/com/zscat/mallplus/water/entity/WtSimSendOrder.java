@@ -73,13 +73,6 @@ public class WtSimSendOrder extends BaseEntity implements Serializable {
 
 
     /**
-     * 所属店铺
-     **/
-    @TableField("store_id")
-    private Long storeId;
-
-
-    /**
      * 经销商id
      **/
     @TableField("dealer_id")
