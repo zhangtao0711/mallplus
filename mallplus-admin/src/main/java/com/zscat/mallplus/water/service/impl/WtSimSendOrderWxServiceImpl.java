@@ -17,7 +17,7 @@ public class WtSimSendOrderWxServiceImpl extends ServiceImpl
         <WtSimSendOrderWxMapper, WtSimSendOrderWx> implements IWtSimSendOrderWxService {
 
     @Resource
-    private WtSimSendOrderWxMapper wtSimSendOrderMapper;
+    private WtSimSendOrderWxMapper wtSimSendOrderWxMapper;
 
 
 }

@@ -28,11 +28,11 @@ import java.util.Date;
  */
 @Slf4j
 @RestController
-@RequestMapping("/water/wtSimSendOrder")
+@RequestMapping("/water/wtSimSendOrderWx")
 public class WtSimSendOrderWxController {
 
     @Resource
-    private IWtSimSendOrderWxService IWtSimSendOrderService;
+    private IWtSimSendOrderWxService IWtSimSendOrderWxService;
 
     @SysLog(MODULE = "water", REMARK = "根据条件查询所有SIM卡充值记录列表")
     @ApiOperation("根据条件查询所有SIM卡充值记录列表")
@@ -43,7 +43,7 @@ public class WtSimSendOrderWxController {
                                           @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         try {
-            return new CommonResult().success(IWtSimSendOrderService.page(new Page<WtSimSendOrderWx>(pageNum, pageSize), new QueryWrapper<>(entity)));
+            return new CommonResult().success(IWtSimSendOrderWxService.page(new Page<WtSimSendOrderWx>(pageNum, pageSize), new QueryWrapper<>(entity)));
         } catch (Exception e) {
             log.error("根据条件查询所有SIM卡充值记录列表：%s", e.getMessage(), e);
         }
@@ -57,7 +57,7 @@ public class WtSimSendOrderWxController {
     public Object saveWtSimSendOrder(@RequestBody WtSimSendOrderWx entity) {
         try {
             entity.setCreateTime(new Date());
-            if (IWtSimSendOrderService.save(entity)) {
+            if (IWtSimSendOrderWxService.save(entity)) {
                 return new CommonResult().success();
             }
         } catch (Exception e) {
@@ -73,7 +73,7 @@ public class WtSimSendOrderWxController {
     @PreAuthorize("hasAuthority('water:wtSimSendOrder:update')")
     public Object updateWtSimSendOrder(@RequestBody WtSimSendOrderWx entity) {
         try {
-            if (IWtSimSendOrderService.updateById(entity)) {
+            if (IWtSimSendOrderWxService.updateById(entity)) {
                 return new CommonResult().success();
             }
         } catch (Exception e) {
@@ -92,7 +92,7 @@ public class WtSimSendOrderWxController {
             if (ValidatorUtils.empty(id)) {
                 return new CommonResult().paramFailed("SIM卡充值记录id");
             }
-            if (IWtSimSendOrderService.removeById(id)) {
+            if (IWtSimSendOrderWxService.removeById(id)) {
                 return new CommonResult().success();
             }
         } catch (Exception e) {
@@ -111,7 +111,7 @@ public class WtSimSendOrderWxController {
             if (ValidatorUtils.empty(id)) {
                 return new CommonResult().paramFailed("SIM卡充值记录id");
             }
-            WtSimSendOrderWx coupon = IWtSimSendOrderService.getById(id);
+            WtSimSendOrderWx coupon = IWtSimSendOrderWxService.getById(id);
             return new CommonResult().success(coupon);
         } catch (Exception e) {
             log.error("查询SIM卡充值记录明细：%s", e.getMessage(), e);
@@ -126,7 +126,7 @@ public class WtSimSendOrderWxController {
     @PreAuthorize("hasAuthority('water:wtSimSendOrder:delete')")
     public Object deleteBatch(@RequestParam("ids") List
             <Long> ids) {
-        boolean count = IWtSimSendOrderService.removeByIds(ids);
+        boolean count = IWtSimSendOrderWxService.removeByIds(ids);
         if (count) {
             return new CommonResult().success(count);
         } else {
@@ -139,7 +139,7 @@ public class WtSimSendOrderWxController {
     @GetMapping("/exportExcel")
     public void export(HttpServletResponse response, WtSimSendOrderWx entity) {
         // 模拟从数据库获取需要导出的数据
-        List<WtSimSendOrderWx> personList = IWtSimSendOrderService.list(new QueryWrapper<>(entity));
+        List<WtSimSendOrderWx> personList = IWtSimSendOrderWxService.list(new QueryWrapper<>(entity));
         // 导出操作
         EasyPoiUtils.exportExcel(personList, "导出社区数据", "社区数据", WtSimSendOrderWx.class, "导出社区数据.xls", response);
 
@@ -149,7 +149,7 @@ public class WtSimSendOrderWxController {
     @PostMapping("/importExcel")
     public void importUsers(@RequestParam MultipartFile file) {
         List<WtSimSendOrderWx> personList = EasyPoiUtils.importExcel(file, WtSimSendOrderWx.class);
-        IWtSimSendOrderService.saveBatch(personList);
+        IWtSimSendOrderWxService.saveBatch(personList);
     }
 }
 
