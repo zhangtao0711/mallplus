@@ -77,21 +77,21 @@
         <el-input v-model="value.address" style="width: 370px;" />
       </el-form-item>
 
-      <div v-show="isEdit">
-        <el-form-item label="公众号/小程序名称" prop="startNo">
-          <el-input v-model="value.startNo" :disabled="true" style="width: 370px;" />
+      <div v-show="isEdit&&isUniacid">
+        <el-form-item label="公众号/小程序名称">
+          <el-input v-model="name" :disabled="true" style="width: 370px;" />
         </el-form-item>
 
-        <el-form-item label="总经销商账号" prop="startNo">
-          <el-input v-model="value.startNo" :disabled="true" style="width: 370px;" />
+        <el-form-item label="总经销商账号" v-show="isgName">
+          <el-input v-model="gName" :disabled="true" style="width: 370px;" />
         </el-form-item>
 
-        <el-form-item label="经销商账号" prop="startNo">
-          <el-input v-model="value.startNo" :disabled="true" style="width: 370px;" />
+        <el-form-item label="经销商账号" v-show="ispName">
+          <el-input v-model="pName" :disabled="true" style="width: 370px;" />
         </el-form-item>
 
-        <el-form-item label="分销商账号" prop="startNo">
-          <el-input v-model="value.startNo" :disabled="true" style="width: 370px;" />
+        <el-form-item label="分销商账号" v-show="issName">
+          <el-input v-model="sName" :disabled="true" style="width: 370px;" />
         </el-form-item>
       </div>
 
@@ -524,10 +524,11 @@ import {
   monitorFirmPay,
   monitorProfitShare,
   lastDealer,
-  updateDealer
+  updateDealer,
+  getOriginByUniacid
 } from "@/api/dealer/dealer";
 import { get } from "@/utils/auth";
-import SingleUploadImg from "@/components/Upload/singleUploadImg";
+import SingleUploadImg from "@/components/Upload/singleUploadPublic";
 import { fetchList, getAdmin, listDealer } from "@/api/admin";
 
 export default {
@@ -544,6 +545,14 @@ export default {
   },
   data() {
     return {
+      name: null,
+      gName: null,
+      pName: null,
+      sName: null,
+      isgName: false,
+      ispName: false,
+      issName: false,
+      isUniacid: false,
       detection: false,
       listQuery: {
         pageNum: 1,
@@ -620,6 +629,7 @@ export default {
     if (this.isEdit) {
       this.getUserInfo();
     }
+    
   },
   methods: {
     getUserInfo() {
@@ -652,6 +662,28 @@ export default {
         }
         if (this.value.city) {
           this.getThirdData(this.value.city);
+        }
+        if (response.data.user.uniacid) {
+          this.isUniacid = true;
+          getOriginByUniacid(response.data.user.uniacid).then(response => {
+            this.name = response.data.name
+
+            // 总经销商
+            if (response.data.gName) {
+              this.gName = response.data.gName
+              this.isgName = true;
+            }
+            // 经销商
+            if (response.data.pName) {
+              this.pName = response.data.pName
+              this.ispName = true;
+            }
+            // 分销商
+            if (response.data.sName) {
+              this.sName = response.data.sName
+              this.issName = true;
+            }
+          });
         }
       });
     },

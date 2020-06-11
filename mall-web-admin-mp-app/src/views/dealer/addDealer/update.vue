@@ -10,9 +10,9 @@
       :is-edit="isEdit"
       v-show="first"
     ></dealer-info>
-    <application-permissions v-show="second"></application-permissions>
+    <!-- <application-permissions v-show="second"></application-permissions>
     <related-official-account v-show="third"></related-official-account>
-    <related-mini-program v-show="fourth"></related-mini-program>
+    <related-mini-program v-show="fourth"></related-mini-program> -->
   </div>
 </template>
 <script>
@@ -50,7 +50,7 @@ export default {
       this.dealerId = this.$route.query.id;
     }
 
-    this.getDealerUse();
+    // this.getDealerUse();
   },
   methods: {
     getDealerUse() {

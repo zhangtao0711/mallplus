@@ -186,7 +186,7 @@ export default {
     dealerId: String,
     storeId: String,
     storeName: String,
-    value: Object,
+    value: Object
   },
   data() {
     return {
@@ -220,7 +220,7 @@ export default {
   },
   created() {
     if (this.$route.query.id) {
-      this.dealerId = this.$route.query.id
+      this.dealerId = this.$route.query.id;
     }
     if (this.isShareCard === true) {
       this.dealerUse.isShareCard = "1";
@@ -237,7 +237,9 @@ export default {
     } else {
       this.dealerUse.isRelation = "0";
     }
-    this.getDealerUse();
+    if (this.dealerId) {
+      this.getDealerUse();
+    }
   },
   methods: {
     searchBrandList() {
@@ -416,7 +418,7 @@ export default {
                     type: "success",
                     duration: 1000
                   });
-                  location.reload()
+                  location.reload();
                   // this.$router.back();
                   // this.getDealerUse();
                 } else {
@@ -441,7 +443,7 @@ export default {
                     type: "success",
                     duration: 1000
                   });
-                  location.reload()
+                  location.reload();
                   // this.$router.back();
                   // this.getDealerUse();
                 } else {

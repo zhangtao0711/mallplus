@@ -37,9 +37,7 @@ export default {
   data() {
     return {
       disabled: true,
-      dealerId: "516",
-      storeName: "平台自营",
-      storeId: "1",
+      dealerId: "",
       dealerInfoData: Object.assign({}, defaultDealerInfo),
       activeName: "first",
       first: false,
@@ -54,13 +52,15 @@ export default {
   },
   methods: {
     getDealerUse() {
-      getDealerUse(this.dealerId).then(response => {
-        if (!response.data.length) {
-          if (response.data.isRelation == "1") {
-            this.disabled = false;
+      if (this.dealerId) {
+        getDealerUse(this.dealerId).then(response => {
+          if (!response.data.length) {
+            if (response.data.isRelation == "1") {
+              this.disabled = false;
+            }
           }
-        }
-      });
+        });
+      }
     },
     handleClick(tab, event) {
       if (tab.name == "first") {
@@ -93,7 +93,6 @@ export default {
       }
     },
     submitDealerInfo(isEdit) {
-
       let formData = {
         appletSet: {
           appid: this.dealerInfoData.appid,
@@ -130,8 +129,6 @@ export default {
       createDealer(formData).then(response => {
         if (response.code == 200) {
           this.dealerId = response.data.user.id;
-          this.storeId = response.data.user.storeId;
-          this.storeName = response.data.user.storeName;
           this.dealerInfoData = Object.assign({}, defaultDealerInfo);
           this.$message({
             message: "提交成功",

@@ -10,11 +10,22 @@
           type="primary"
           size="small"
         >查询结果</el-button>
+        <el-button
+          style="float:right;margin-right: 15px"
+          @click="handleResetSearch()"
+          size="small"
+        >重置</el-button>
       </div>
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
-          <el-form-item label="输入搜索：">
-            <el-input style="width: 203px" v-model="listQuery.keyword" placeholder="类型名称/关键字"></el-input>
+          <el-form-item label="设备号">
+            <el-input style="width: 203px" v-model="listQuery.eqcode" placeholder="按代号查询"></el-input>
+          </el-form-item>
+          <el-form-item label="起始卡号">
+            <el-input style="width: 203px" v-model="listQuery.startNo" placeholder="按起始卡号查询"></el-input>
+          </el-form-item>
+          <el-form-item label="终止卡号">
+            <el-input style="width: 203px" v-model="listQuery.endNo" placeholder="按终止卡号查询"></el-input>
           </el-form-item>
         </el-form>
       </div>
@@ -81,18 +92,20 @@ import {
   deleteWtWaterCardActivate
 } from "@/api/water/wtWaterCardActivate";
 import { formatDate } from "@/utils/date";
-
+const defaultListQuery = {
+  pageNum: 1,
+  pageSize: 10,
+  eqcode: null,
+  startNo: null,
+  endNo: null,
+};
 export default {
   name: "wtWaterCardActivateList",
   data() {
     return {
       operates: [],
       operateType: null,
-      listQuery: {
-        keyword: null,
-        pageNum: 1,
-        pageSize: 10
-      },
+      listQuery: Object.assign({}, defaultListQuery),
       list: null,
       total: null,
       listLoading: true,
@@ -121,6 +134,10 @@ export default {
     }
   },
   methods: {
+    handleResetSearch() {
+      this.listQuery = Object.assign({}, defaultListQuery);
+      this.getList();
+    },
     getList() {
       this.listLoading = true;
       fetchList(this.listQuery).then(response => {

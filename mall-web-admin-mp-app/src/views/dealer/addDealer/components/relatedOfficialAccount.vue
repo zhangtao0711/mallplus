@@ -200,7 +200,7 @@
       <!-- <el-form-item>
         <el-button>暂不接入，先去查看管理功能</el-button>
         <el-button @click="goback">返回公众号列表</el-button>
-      </el-form-item> -->
+      </el-form-item>-->
     </el-form>
   </el-card>
 </template>
@@ -212,7 +212,7 @@ import {
   getAccount
 } from "@/api/dealer/miniProgramOfficialAccount";
 import { get } from "@/utils/auth";
-import SingleUploadImg from "@/components/Upload/singleUploadImg";
+import SingleUploadImg from "@/components/Upload/singleUploadPublic";
 import guide01 from "@/assets/images/guide-01.png";
 import guide02 from "@/assets/images/guide-02.png";
 import guide03 from "@/assets/images/guide-03.png";
@@ -286,9 +286,12 @@ export default {
   },
   created() {
     if (this.$route.query.id) {
-      this.dealerId = this.$route.query.id
+      this.dealerId = this.$route.query.id;
     }
-    this.getAccount();
+    if (this.dealerId) {
+      this.getAccount();
+    }
+
     this.getAreaList();
   },
   methods: {
@@ -326,10 +329,14 @@ export default {
         if (response.data) {
           this.isEdit = true;
           this.wtWaterCardActivate = response.data;
-          this.wtWaterCardActivate.province = Number(this.wtWaterCardActivate.province)
-          this.getSecondData(Number(this.wtWaterCardActivate.province))
-          this.wtWaterCardActivate.city = Number(this.wtWaterCardActivate.city)
-          this.wtWaterCardActivate.level = String(this.wtWaterCardActivate.level)
+          this.wtWaterCardActivate.province = Number(
+            this.wtWaterCardActivate.province
+          );
+          this.getSecondData(Number(this.wtWaterCardActivate.province));
+          this.wtWaterCardActivate.city = Number(this.wtWaterCardActivate.city);
+          this.wtWaterCardActivate.level = String(
+            this.wtWaterCardActivate.level
+          );
         } else {
           this.isEdit = false;
           this.wtWaterCardActivate = Object.assign(
