@@ -14,6 +14,7 @@ import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import com.zscat.mallplus.water.service.IWtWaterCardRechargeService;
 import com.zscat.mallplus.water.service.IWtWaterCardService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ import java.util.Date;
  */
 @Slf4j
 @RestController
+@Api(tags = "WtWarterCardEmpowerController", description = "水卡授权用户")
 @RequestMapping("/water/wtWarterCardEmpower")
 public class WtWarterCardEmpowerController {
 
@@ -64,7 +66,7 @@ public class WtWarterCardEmpowerController {
     @SysLog(MODULE = "water", REMARK = "保存水卡授权用户")
     @ApiOperation("保存水卡授权用户")
     @PostMapping(value = "/create")
-//    @PreAuthorize("hasAuthority('water:wtWarterCardEmpower:create')")
+    @PreAuthorize("hasAuthority('water:wtWarterCardEmpower:create')")
     public Object saveWtWarterCardEmpower(@RequestBody WtWarterCardEmpower entity) {
         try {
             //左补位到10位
@@ -76,7 +78,7 @@ public class WtWarterCardEmpowerController {
             //会员卡和授权人是否关联
             if(!IWtWaterCardService.checkCardUms(entity.getCardNo(),entity.getUmsMemberId()
                 ,ConstantUtil.delFlag,ConstantUtil.water_code_state_0)){
-                return new CommonResult().failed("填写的会员卡和授权人账号不一致!");
+                return new CommonResult().failed("填写的会员卡号没有绑定在授权人账号下!");
             }
             //授权人账号和授权人昵称是否一致
             if(!IUmsMemberService.checkUmsIdNickname(entity.getUmsMemberId(),entity.getUmsMemberNickname()

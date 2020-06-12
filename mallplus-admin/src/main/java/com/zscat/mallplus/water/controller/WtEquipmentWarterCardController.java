@@ -10,6 +10,7 @@ import com.zscat.mallplus.water.service.IWtEquipmentWarterCardService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ import java.util.Date;
  */
 @Slf4j
 @RestController
+@Api(tags = "WtEquipmentWarterCardController", description = "设备水卡关联信息表")
 @RequestMapping("/water/wtEquipmentWarterCard")
 public class WtEquipmentWarterCardController {
 

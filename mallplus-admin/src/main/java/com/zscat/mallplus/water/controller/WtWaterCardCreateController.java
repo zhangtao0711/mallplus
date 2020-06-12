@@ -22,6 +22,7 @@ import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
 import com.zscat.mallplus.wxminiapp.service.IAccountWxappService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
+@Api(tags = "WtWaterCardCreateController", description = "制卡")
 @RequestMapping("/water/wtWaterCardCreate")
 public class WtWaterCardCreateController {
 

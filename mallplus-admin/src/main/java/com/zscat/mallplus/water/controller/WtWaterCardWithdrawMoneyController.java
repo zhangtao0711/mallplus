@@ -11,6 +11,7 @@ import com.zscat.mallplus.water.service.IWtWaterCardWithdrawMoneyService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ import java.util.Date;
  */
 @Slf4j
 @RestController
+@Api(tags = "WtWaterCardWithdrawMoneyController", description = "水卡取现")
 @RequestMapping("/water/wtWaterCardWithdrawMoney")
 public class WtWaterCardWithdrawMoneyController {
 
