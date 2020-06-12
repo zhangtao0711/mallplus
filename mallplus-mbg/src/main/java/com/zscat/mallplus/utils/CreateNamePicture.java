@@ -21,7 +21,7 @@ public class CreateNamePicture {
      **/
     public static void main(String[] args) throws IOException {
         String name = "张三";
-        generateImg(name, "E:\\shenzhuan\\aliyun\\temp", name);
+        generateImg(name, "D:\\temppath", name);
     }
  
  
@@ -54,7 +54,10 @@ public class CreateNamePicture {
                 nameWritten = name.substring(0, 2).toUpperCase();
             }
         }
- 
+        File file1 = new File(outputPath);
+        if (!file1.exists()){
+            file1.mkdirs();
+        }
         String filename = outputPath + File.separator + outputName + ".jpg";
         File file = new File(filename);
         //Font font = new Font("微软雅黑", Font.PLAIN, 30);
