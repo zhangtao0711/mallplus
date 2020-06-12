@@ -32,4 +32,8 @@ public class TimeUtil {
         Date time = calendar.getTime();
         return time;
     }
+
+    public static String getDate(){
+        return new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+    }
 }

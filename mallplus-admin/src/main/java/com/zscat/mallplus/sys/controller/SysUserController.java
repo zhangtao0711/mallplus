@@ -191,10 +191,24 @@ public class SysUserController extends ApiController {
     @SysLog(MODULE = "sys", REMARK = "更新用户")
     @ApiOperation("更新用户")
     @PostMapping(value = "/update/{id}")
-    public Object updateUser(@RequestBody SysUser entity) {
+    public Object updateUser(@RequestBody SysDealerVo entity) {
+        SysUser user = entity.getUser();
+        SysAppletSet appletSet = entity.getAppletSet();
+        //校验基础数据
+        if (user==null){
+            return new CommonResult().failed("添加的经销商信息不能为空！");
+        }
+        if (appletSet==null){
+            return new CommonResult().failed("添加的经销商基本入驻信息不能为空！");
+        }
         try {
-            if (sysUserService.updates(entity.getId(), entity)) {
-                return new CommonResult().success();
+            if (sysUserService.updates(user.getId(), user)) {
+                appletSet.setUserId(user.getId());
+                if (appletSetService.updateById(appletSet)) {
+                    return new CommonResult().success();
+                }else {
+                    return new CommonResult().failed();
+                }
             }
         } catch (Exception e) {
             log.error("更新用户：%s", e.getMessage(), e);
@@ -216,6 +230,7 @@ public class SysUserController extends ApiController {
                 return new CommonResult().paramFailed("管理员账号不能删除");
             }
             if (sysUserService.removeById(id)) {
+                appletSetService.removeById(id);
                 return new CommonResult().success();
             }
         } catch (Exception e) {
@@ -233,8 +248,12 @@ public class SysUserController extends ApiController {
             if (ValidatorUtils.empty(id)) {
                 return new CommonResult().paramFailed("用户id");
             }
-            SysUser coupon = sysUserService.getById(id);
-            coupon.setPassword(null);
+            SysDealerVo coupon = new SysDealerVo();
+            SysUser user = sysUserService.getById(id);
+            user.setPassword(null);
+            coupon.setUser(user);
+            SysAppletSet set = appletSetService.getById(id);
+            coupon.setAppletSet(set);
             return new CommonResult().success(coupon);
         } catch (Exception e) {
             log.error("查询用户明细：%s", e.getMessage(), e);

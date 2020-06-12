@@ -11,6 +11,7 @@ import com.zscat.mallplus.water.service.IWtProductGroupService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
+@Api(tags = "WtProductGroupController", description = "设备分组")
 @RequestMapping("/water/wtProductGroup")
 public class WtProductGroupController {
 

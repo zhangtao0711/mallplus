@@ -16,6 +16,7 @@ import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import com.zscat.mallplus.water.vo.WtWaterCardExcelBind;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
+@Api(tags = "WtWaterCardController", description = "水卡")
 @RequestMapping("/water/wtWaterCard")
 public class WtWaterCardController {
 

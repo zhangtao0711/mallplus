@@ -10,6 +10,7 @@ import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import com.zscat.mallplus.water.entity.WtFilterElementType;
 import com.zscat.mallplus.water.service.IWtFilterElementTypeService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RestController
+@Api(tags = "WtFilterElementTypeController", description = "滤芯类型")
 @RequestMapping("/water/wtFilterElementType")
 public class WtFilterElementTypeController {
 
@@ -40,7 +42,7 @@ public class WtFilterElementTypeController {
 //    @SysLog(MODULE = "water", REMARK = "根据条件查询所有滤芯类型列表")
 //    @ApiOperation("根据条件查询所有滤芯类型列表")
     @GetMapping(value = "/list")
-//    @PreAuthorize("hasAuthority('water:wtFilterElementType:read')")
+    @PreAuthorize("hasAuthority('water:wtFilterElementType:read')")
     public Object getWtFilterElementTypeByPage(WtFilterElementType entity,
                                                @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                                                @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
@@ -62,7 +64,7 @@ public class WtFilterElementTypeController {
             entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCreateTime(new Date());
             if (IWtFilterElementTypeService.save(entity)) {
-                return new CommonResult().success();
+                return new CommonResult().success(entity);
             }
         } catch (Exception e) {
             log.error("保存滤芯类型：%s", e.getMessage(), e);

@@ -35,6 +35,7 @@ import com.zscat.mallplus.wxpay.WxPayApiConfig;
 import com.zscat.mallplus.wxpay.model.CloseOrderModel;
 import com.zscat.mallplus.wxpay.model.OrderQueryModel;
 import com.zscat.mallplus.wxpay.model.UnifiedOrderModel;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +60,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
+@Api(tags = "WtSimCardController", description = "SIM卡列表")
 @RequestMapping("/water/wtSimCard")
 public class WtSimCardController {
 
@@ -139,7 +141,7 @@ public class WtSimCardController {
     @SysLog(MODULE = "water", REMARK = "物联网卡余量查询")
     @ApiOperation("物联网卡余量查询")
     @GetMapping(value = "/getChaxun/{cardno}")
-//    @PreAuthorize("hasAuthority('water:wtSimCard:read')")
+    @PreAuthorize("hasAuthority('water:wtSimCard:read')")
     public Object getChaxun(@ApiParam("SIM卡号")@PathVariable String cardno) {
         try {
             SimEntity coupon = IWtSimCardService.getChaxun(cardno);
@@ -153,7 +155,7 @@ public class WtSimCardController {
     @SysLog(MODULE = "water", REMARK = "物联网卡停机")
     @ApiOperation("物联网卡停机")
     @GetMapping(value = "/stop/{cardno}")
-//    @PreAuthorize("hasAuthority('water:wtSimCard:read')")
+    @PreAuthorize("hasAuthority('water:wtSimCard:read')")
     public Object stop(@ApiParam("SIM卡号")@PathVariable String cardno) {
         try {
             SimEntity coupon = IWtSimCardService.stop(cardno);
@@ -166,7 +168,7 @@ public class WtSimCardController {
     @SysLog(MODULE = "water", REMARK = "物联网卡复机")
     @ApiOperation("物联网卡复机")
     @GetMapping(value = "/start/{cardno}")
-//    @PreAuthorize("hasAuthority('water:wtSimCard:read')")
+    @PreAuthorize("hasAuthority('water:wtSimCard:read')")
     public Object start(@ApiParam("SIM卡号")@PathVariable String cardno) {
         try {
             SimEntity coupon = IWtSimCardService.start(cardno);

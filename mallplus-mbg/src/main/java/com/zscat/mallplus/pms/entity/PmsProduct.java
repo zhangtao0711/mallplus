@@ -330,7 +330,7 @@ public class PmsProduct extends BaseEntity implements Serializable {
     private Integer autoDelivery;
     @TableField("hot_status")
     private Integer hotStatus;
-    @TableField("pinkageStatus")
+    @TableField("pinkage_status")
     private Integer pinkageStatus;
     @TableField("discount_status")
     private Integer discountStatus;

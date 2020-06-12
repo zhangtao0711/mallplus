@@ -27,7 +27,13 @@ public class WtFilterElement extends BaseEntity implements Serializable {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
-
+    /**
+     * 滤芯名称
+     **/
+    @TableField("name")
+    @NotEmpty(message = "滤芯名称不能为空")
+    @Length(min=1, max=200, message="滤芯名称长度必须介于 1 和 200 之间!")
+    private String name;
     /**
      * 设备号
      **/

@@ -30,7 +30,7 @@ public class SysApaySet extends BaseEntity implements Serializable {
     /**
      * 经销商id
      **/
-    @TableField("user_id")
+    @TableId(value = "user_id")
     private Long userId;
 
 

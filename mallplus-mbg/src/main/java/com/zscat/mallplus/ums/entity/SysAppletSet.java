@@ -4,11 +4,13 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.zscat.mallplus.ums.vo.Receivers;
 import com.zscat.mallplus.utils.BaseEntity;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * <p>
@@ -66,6 +68,9 @@ public class SysAppletSet extends BaseEntity implements Serializable {
     private BigDecimal firstSeparate;
     private BigDecimal secondSeparate;
     private BigDecimal thirdSeparate;
+
+    @TableField(exist = false)
+    private List<Receivers> receiversList;
 
     @TableField(exist = false)
     private String receivers;

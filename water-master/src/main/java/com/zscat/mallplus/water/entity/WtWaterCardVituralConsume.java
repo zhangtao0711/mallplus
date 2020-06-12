@@ -83,5 +83,6 @@ public class WtWaterCardVituralConsume extends BaseEntity implements Serializabl
     @TableField(exist = false)
     private Integer type;
 
+    private Integer storeId;
 
 }

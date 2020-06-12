@@ -1,5 +1,6 @@
 package com.zscat.mallplus.ums.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jfinal.kit.StrKit;
 import com.zscat.mallplus.common.CommonConstant;
@@ -17,11 +18,14 @@ import com.zscat.mallplus.sys.entity.SysUser;
 import com.zscat.mallplus.sys.mapper.SysUserMapper;
 import com.zscat.mallplus.ums.entity.SysApaySet;
 import com.zscat.mallplus.ums.entity.SysAppletSet;
+import com.zscat.mallplus.ums.entity.UmsMember;
 import com.zscat.mallplus.ums.mapper.SysApaySetMapper;
 import com.zscat.mallplus.ums.mapper.SysAppletSetMapper;
 import com.zscat.mallplus.ums.service.ISysAppletSetService;
 import com.zscat.mallplus.util.applet.StringConstantUtil;
 import com.zscat.mallplus.utils.CommonResult;
+import com.zscat.mallplus.water.entity.WtWaterCard;
+import com.zscat.mallplus.water.mapper.WtWaterCardMapper;
 import com.zscat.mallplus.wxpay.WxPayApi;
 import com.zscat.mallplus.wxpay.model.ProfitSharingModel;
 import com.zscat.mallplus.wxpay.model.TransferModel;
@@ -29,10 +33,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -57,6 +58,8 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
     private SmsRechargeRecordMapper record1Mapper;
     @Resource
     private SysApaySetMapper apaySetMapper;
+    @Resource
+    private WtWaterCardMapper cardMapper;
     @Override
     public boolean getRout(Long dealerId, BigDecimal actualFee,String ip,String transaction_id, Long recordId,Integer type) {
         //type的类型，如果是1则是买水的分账记录，如果是2则是充值的分账记录
@@ -82,15 +85,15 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
             }
             //2.获取支付信息receivers
             SysUser user = adminMapper.selectById(dealerId);
-            SysAppletSet last = appletSetMapper.selectById(user.getPid());
-            SysAppletSet lastLast = appletSetMapper.selectById(user.getGid());
+            SysUser last = adminMapper.selectById(user.getPid());
+            SysUser lastLast = adminMapper.selectById(user.getGid());
             List<Map<String,String>> receivers = new ArrayList<>();
             Map<String,String> receiver1 = new HashMap<>();
             if (user.getLevel()==1){
                 return false;
             }else if (user.getLevel()==2){
-                receiver1.put("type","MERCHANT_ID");
-                receiver1.put("account",last.getMchid());
+                receiver1.put("type","PERSONAL_WECHATID");
+                receiver1.put("account",last.getWeixinOpenid());
                 BigDecimal amount = set.getFirstSeparate().multiply(actualFee).setScale(2,BigDecimal.ROUND_DOWN);
                 BigDecimal secondAmount = (new BigDecimal("1").subtract(set.getFirstSeparate()).multiply(actualFee).setScale(2,BigDecimal.ROUND_DOWN));
                 receiver1.put("amount",amount.multiply(new BigDecimal("100")).setScale(0,BigDecimal.ROUND_DOWN).toString());
@@ -103,14 +106,14 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
                     record1.setSecondAmount(secondAmount);
                 }
             } else if (user.getLevel()==3){
-                receiver1.put("type","MERCHANT_ID");
-                receiver1.put("account",last.getMchid());
+                receiver1.put("type","PERSONAL_WECHATID");
+                receiver1.put("account",last.getWeixinOpenid());
                 BigDecimal secondAmount = set.getSecondSeparate().multiply(actualFee).setScale(2,BigDecimal.ROUND_DOWN);
                 receiver1.put("amount",secondAmount.multiply(new BigDecimal("100")).setScale(0,BigDecimal.ROUND_DOWN).toString());
                 receivers.add(receiver1);
                 Map<String,String> receiver2 = new HashMap<>();
-                receiver2.put("type","MERCHANT_ID");
-                receiver2.put("account",lastLast.getMchid());
+                receiver2.put("type","PERSONAL_WECHATID");
+                receiver2.put("account",lastLast.getWeixinOpenid());
                 BigDecimal amount = set.getFirstSeparate().multiply(actualFee).setScale(2,BigDecimal.ROUND_DOWN);
                 BigDecimal thirdAmount = (new BigDecimal("1").subtract(set.getFirstSeparate()).subtract(set.getSecondSeparate())).multiply(actualFee).setScale(2,BigDecimal.ROUND_DOWN);
                 receiver2.put("amount",amount.multiply(new BigDecimal("100")).setScale(0,BigDecimal.ROUND_DOWN).toString());
@@ -142,7 +145,7 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
                     .receivers(receivers.toString())
                     .build()
                     .createSign(config.getSecret(),SignType.HMACSHA256, false);
-            String rout = WxPayApi.profitSharing(param, config.getApiclientCertP12(),config.getMchId());
+            String rout = WxPayApi.profitSharing(param, config.getCertCatalog(),config.getMchId());
             Map<String, String> map = WxPayKit.xmlToMap(rout);
             String returncode = map.get("return_code");
             String resultCode = map.get("result_code");
@@ -487,5 +490,29 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
             }
         }
         return false;
+    }
+
+    @Override
+    public void donateVirtualCard(UmsMember member, Long dealerId) {
+        WtWaterCard wtWaterCard = new WtWaterCard();
+        wtWaterCard.setCardType(StringConstantUtil.card_type_1);
+        wtWaterCard.setDealerId(dealerId);
+        wtWaterCard.setUmsMemberId(member.getId());
+        List<WtWaterCard> waterCards = cardMapper.selectList(new QueryWrapper<>(wtWaterCard));
+        if (waterCards==null||waterCards.size()==0) {
+            WtWaterCard waterCard = new WtWaterCard();
+            waterCard.setCardType(StringConstantUtil.card_type_1);
+            waterCard.setCardNo("");//生成规则不清楚
+            waterCard.setAcid(member.getUniacid());
+            waterCard.setUmsMemberId(member.getId());
+            waterCard.setDealerId(dealerId);
+            waterCard.setState("0");
+            waterCard.setCardMoney(new BigDecimal("0"));
+            waterCard.setRemarks("买水的时候没卡直接制卡送卡");
+            waterCard.setCreateTime(new Date());
+            waterCard.setStoreId(member.getStoreId());
+            waterCard.setDelFlag("0");
+            cardMapper.insert(waterCard);
+        }
     }
 }

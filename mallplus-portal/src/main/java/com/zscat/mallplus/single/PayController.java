@@ -45,9 +45,7 @@ import com.zscat.mallplus.util.applet.WechatRefundApiResult;
 import com.zscat.mallplus.util.applet.WechatUtil;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.water.entity.WtWaterCard;
-import com.zscat.mallplus.water.entity.WtWaterCardVirtual;
 import com.zscat.mallplus.water.mapper.WtWaterCardMapper;
-import com.zscat.mallplus.water.mapper.WtWaterCardVirtualMapper;
 import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
 import com.zscat.mallplus.wxminiapp.mapper.AccountWxappMapper;
 import com.zscat.mallplus.wxpay.WxPayApi;
@@ -106,8 +104,6 @@ public class PayController extends ApiBaseAction {
     private RedisService redisService;
     @Resource
     private WtWaterCardMapper waterCardMapper;
-    @Resource
-    private WtWaterCardVirtualMapper virtualMapper;
     @Resource
     private SysUserStaffMapper staffMapper;
     @Resource
@@ -620,19 +616,12 @@ public class PayController extends ApiBaseAction {
                     record.setStatus(StringConstantUtil.rechargeStatus_3);
                     recordMapper.updateById(record);
                     //这里把实际到账钱数放进用户的会员卡信息里面
-                    //先看看是不是实体卡
+                    //先看看是不是实体卡,现在实体卡和虚拟卡一张表
                     WtWaterCard wtWaterCard = new WtWaterCard();
                     wtWaterCard.setCardNo(record.getCardNo());
                     WtWaterCard waterCard = waterCardMapper.selectOne(new QueryWrapper<>(wtWaterCard));
-                    if (waterCard==null){
-                        //不是，再看看是不是虚拟卡
-                        WtWaterCardVirtual waterCardVirtual = new WtWaterCardVirtual();
-                        waterCardVirtual.setCardNo(record.getCardNo());
-                        WtWaterCardVirtual virtual = virtualMapper.selectOne(new QueryWrapper<>(waterCardVirtual));
-                        virtual.setCardMoney(virtual.getCardMoney().add(record.getPayFee()).setScale(BigDecimal.ROUND_DOWN,2));
-                    }else {
-                        waterCard.setCardMoney(waterCard.getCardMoney().add(record.getPayFee()).setScale(BigDecimal.ROUND_DOWN,2));
-                    }
+                    waterCard.setCardMoney(waterCard.getCardMoney().add(record.getPayFee()).setScale(BigDecimal.ROUND_DOWN,2));
+                    waterCardMapper.updateById(waterCard);
                     //添加积分只有用户自己充值才送积分
                     if (record.getRechargeType()==2){
                         //计算积分

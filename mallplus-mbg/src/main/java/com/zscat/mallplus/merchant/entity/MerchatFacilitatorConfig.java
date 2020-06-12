@@ -76,6 +76,10 @@ public class MerchatFacilitatorConfig implements Serializable {
     @NotEmpty(message = "商户证书路径不能为空！")
     private String apiclientCertP12;
 
+    @TableField("cert_catalog")
+    @NotEmpty(message = "商户证书目录不能为空！")
+    private String certCatalog;
+
 
     /**
      * 微信支付平台证书路径
@@ -84,6 +88,9 @@ public class MerchatFacilitatorConfig implements Serializable {
     @NotEmpty(message = "微信支付平台证书路径不能为空！")
     private String publicKeyPath;
 
+    @TableField("wx_cert_catalog")
+    @NotEmpty(message = "微信支付平台证书目录不能为空！")
+    private String wxCertCatalog;
 
     /**
      * 创建人

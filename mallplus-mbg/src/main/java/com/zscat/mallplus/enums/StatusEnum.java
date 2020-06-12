@@ -23,15 +23,15 @@ public class StatusEnum {
         /**
          * 初始状态
          */
-        INIT(1, "init"),
+        INIT(2, "init"),
         /**
          * 审核成功
          */
-        FAIL(2, "fail"),
+        FAIL(3, "fail"),
         /**
          * 审核失败
          */
-        SUCESS(3, "sucess"),
+        SUCESS(1, "sucess"),
         ;
 
         private int code;

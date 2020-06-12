@@ -111,7 +111,8 @@ public class MybatisPlusConfig {
                         || tableName.startsWith("sys_qiniu_content")|| tableName.startsWith("wt_water_card_create")
                 ||tableName.equals("ums_integration_consume_setting")
                          ||tableName.startsWith("wt_equipment_warter_card")|| tableName.startsWith("sys_dict")
-                        || tableName.startsWith("ums_member_recommend")){
+                        || tableName.startsWith("ums_member_recommend")
+                ||tableName.equals("sys_user_permission")){
                     return true;
                 }
                 return IGNORE_TENANT_TABLES.stream().anyMatch((e) -> e.equalsIgnoreCase(tableName));

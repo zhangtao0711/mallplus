@@ -18,6 +18,9 @@ import com.zscat.mallplus.ums.entity.SysAppletSet;
 import com.zscat.mallplus.ums.service.ISysApaySetService;
 import com.zscat.mallplus.ums.service.ISysAppletSetService;
 import com.zscat.mallplus.ums.service.RedisService;
+import com.zscat.mallplus.ums.vo.Receivers;
+import com.zscat.mallplus.util.ConstantUtil;
+import com.zscat.mallplus.util.StringUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import com.zscat.mallplus.wxpay.WxPayApi;
@@ -99,7 +102,7 @@ public class SysAppletSetController {
     public Object updateSysAppletSet(@RequestBody SysAppletSet entity) {
         try {
 
-            if (ISysAppletSetService.update(entity, new QueryWrapper<>())) {
+            if (ISysAppletSetService.updateById(entity)){
                 return new CommonResult().success();
             }
         } catch (Exception e) {
@@ -135,11 +138,7 @@ public class SysAppletSetController {
             if (ValidatorUtils.empty(id)) {
                 return new CommonResult().paramFailed("id");
             }
-            SysAppletSet coupon = ISysAppletSetService.getOne(new QueryWrapper<>());
-            if (coupon == null) {
-                coupon = new SysAppletSet();
-                ISysAppletSetService.save(coupon);
-            }
+            SysAppletSet coupon = ISysAppletSetService.getById(id);
             return new CommonResult().success(coupon);
         } catch (Exception e) {
             log.error("查询明细：%s", e.getMessage(), e);
@@ -176,10 +175,13 @@ public class SysAppletSetController {
     @SysLog(MODULE = "ums", REMARK = "监测账号有没有设置付款功能")
     @ApiOperation("监测账号有没有设置付款功能")
     @PostMapping(value = "/monitorFirmPay")
-    public Object monitorFirmPay(@RequestBody SysAppletSet entity, HttpServletRequest request) {
+    public Object monitorFirmPay(@RequestParam Long parentUserId) {
         //这里是测试企业付款到零钱，卡设置，等设置写了
-        SysApaySet apaySet = sysApaySetService.getById(entity.getParentUserId());
-        if (apaySet==null){
+        if (parentUserId==null){
+            return new CommonResult().failed("参数不能为空！");
+        }
+        SysApaySet apaySet = sysApaySetService.getById(parentUserId);
+        if (apaySet==null||apaySet.getEnable()== ConstantUtil.fail){
             return new CommonResult().failed("该账号没有开通企业付款功能！");
         }
         return new CommonResult().success(apaySet);
@@ -189,9 +191,9 @@ public class SysAppletSetController {
     @ApiOperation("监测上级账号的企业付款到零钱功能")
     @PostMapping(value = "/monitorWeChantPay")
     public Object monitorWeChantPay(@RequestBody SysAppletSet entity, HttpServletRequest request) {
-        Long userId = entity.getUserId();
+        Long parentUserId = entity.getParentUserId();
         String receiptAccount = entity.getReceiptAccount();
-        if (ValidatorUtils.empty(userId)||ValidatorUtils.empty(receiptAccount)){
+        if (ValidatorUtils.empty(parentUserId)||ValidatorUtils.empty(receiptAccount)){
             return new CommonResult().failed("参数不能为空！");
         }
         //2.获取IP
@@ -200,8 +202,8 @@ public class SysAppletSetController {
             ip = "127.0.0.1";
         }
         //其实这里应该获取的是企业付款到零钱的付款设置信息
-        entity = ISysAppletSetService.getById(userId);
-        if (entity==null){
+        entity = ISysAppletSetService.getById(entity.getParentUserId());
+        if (entity==null||StringUtils.isBlank(entity.getMchid())){
             return new CommonResult().failed("数据不存在，请检查参数！");
         }
         //这里是测试企业付款到零钱，卡设置，等设置写了上级数据
@@ -236,8 +238,6 @@ public class SysAppletSetController {
     }
 
 
-
-
     @SysLog(MODULE = "ums", REMARK = "监测分账功能")
     @ApiOperation("监测分账功能")
     @PostMapping(value = "/monitorProfitShare")
@@ -246,14 +246,20 @@ public class SysAppletSetController {
         if (StrKit.isBlank(ip)) {
             ip = "127.0.0.1";
         }
-        if (entity.getSelfType()==2){
-            //有代收账号，走的是微信企业付款到零钱
-        }
         //这里走的是分账
         //1.服务商的支付信息
         MerchatFacilitatorConfig config = configService.getById(1);
         if (config==null){
             return new CommonResult().failed("服务商的支付数据不存在，请检查参数！");
+        }
+
+        //这里添加分账接收方，添加完成后拼接成数据
+        String receives = addReceiver(entity.getReceiversList());
+        if (StringUtils.isBlank(receives)){
+            return new CommonResult().failed("添加分账接收方失败，接收方数据不存在,请先绑定公众号");
+        }
+        if(!profitSharingAddReceiver(receives,config,entity.getMchid())){
+            return new CommonResult().failed("微信添加分账接收方失败");
         }
         //2.统一下单到微信
         String out_trade_no =WxPayKit.generateStr();
@@ -267,7 +273,7 @@ public class SysAppletSetController {
                 .out_trade_no(out_trade_no)
                 .total_fee("100")
                 .spbill_create_ip(ip)
-                .notify_url(entity.getNotifyurl()+"//ums/SysAppletSet/payNotify")
+                .notify_url(entity.getNotifyurl()+"/ums/SysAppletSet/payNotify")
                 .trade_type("NATIVE")
                 .build()
                 .createSign(config.getSecret(),SignType.HMACSHA256);
@@ -292,6 +298,46 @@ public class SysAppletSetController {
         }
         redisService.set(out_trade_no,JSONObject.toJSONString(entity));
         return new CommonResult().success(out_trade_no);
+    }
+
+    private String addReceiver(List<Receivers> receiversList){
+        String s = "receivers[";
+        for (Receivers receivers:receiversList){
+            if (receivers==null||receivers.getAccount()==null){
+                return null;
+            }
+            s = s+receivers.toString()+",";
+        }
+        if (StringUtils.isBlank(s)){
+            return null;
+        }
+        s = s.substring(0,s.length()-1);
+        return s;
+    }
+
+    private boolean profitSharingAddReceiver(String receives,MerchatFacilitatorConfig config,String mchid){
+        Map<String, String> param = ProfitSharingModel.builder()
+                .appid(config.getAppid())
+                .mch_id(config.getMchId())
+                .sub_mch_id(mchid)
+                .nonce_str(WxPayKit.generateStr())
+                .sign_type("HMAC-SHA256")
+                .receivers(receives)
+                .build()
+                .createSign(config.getSecret(),SignType.HMACSHA256, false);
+        String rout = WxPayApi.profitSharingAddReceiver(param);
+        Map<String, String> map = WxPayKit.xmlToMap(rout);
+        String returncode = map.get("return_code");
+        String resultCode = map.get("result_code");
+        if (WxPayKit.codeIsOk(returncode) && WxPayKit.codeIsOk(resultCode)) {
+            // 添加分账接收方成功
+            log.info("添加分账接收方成功！");
+            return true;
+        } else {
+            // 添加分账接收方失败
+            log.error("添加分账接收方失败：错误代码" +map.get("err_code")+ "错误代码描述"+map.get("err_code_des"));
+            return false;
+        }
     }
 
     /**
@@ -340,7 +386,7 @@ public class SysAppletSetController {
                         .receivers(set.getReceivers())
                         .build()
                         .createSign(config.getSecret(),SignType.HMACSHA256, false);
-                String rout = WxPayApi.profitSharing(param, config.getApiclientCertP12(),config.getMchId());
+                String rout = WxPayApi.profitSharing(param, config.getCertCatalog(),config.getMchId());
                 Map<String, String> map = WxPayKit.xmlToMap(rout);
                 String returncode = map.get("return_code");
                 String resultCode = map.get("result_code");

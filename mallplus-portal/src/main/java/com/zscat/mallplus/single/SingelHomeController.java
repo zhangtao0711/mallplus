@@ -9,6 +9,7 @@ import com.zscat.mallplus.config.MallplusProperties;
 import com.zscat.mallplus.exception.Server;
 import com.zscat.mallplus.oms.service.IOmsOrderService;
 import com.zscat.mallplus.oms.vo.HomeContentResult;
+import com.zscat.mallplus.pay.utils.StringUtils;
 import com.zscat.mallplus.pms.service.IPmsProductService;
 import com.zscat.mallplus.sms.entity.SmsCoupon;
 import com.zscat.mallplus.sms.entity.SmsCouponHistory;
@@ -18,6 +19,10 @@ import com.zscat.mallplus.sms.service.ISmsCouponService;
 import com.zscat.mallplus.sms.service.ISmsHomeAdvertiseService;
 import com.zscat.mallplus.sms.vo.HomeFlashPromotion;
 import com.zscat.mallplus.sys.entity.AdminSysNotice;
+import com.zscat.mallplus.sys.entity.SysUser;
+import com.zscat.mallplus.sys.entity.SysUserStaff;
+import com.zscat.mallplus.sys.mapper.SysUserMapper;
+import com.zscat.mallplus.sys.mapper.SysUserStaffMapper;
 import com.zscat.mallplus.ums.entity.UmsMember;
 import com.zscat.mallplus.ums.entity.UmsMemberLocation;
 import com.zscat.mallplus.ums.service.IAdminSysNoticeService;
@@ -321,6 +326,9 @@ public class SingelHomeController {
         if (openid == null || "".equals(openid)) {
             return new CommonResult().validateFailed("openid为空");
         }
+        if (memberService.getByOpenid(openid)==0L){
+            return new CommonResult().success("请绑定手机号");
+        }
         try {
 
             Map<String, Object> token = memberService.appLogin(openid, sex, headimgurl, unionid, nickname, city, source,uniacid);
@@ -334,6 +342,25 @@ public class SingelHomeController {
             return new CommonResult().validateFailed(e.getMessage());
         }
 
+    }
+
+    @ApiOperation(value = "appLogin登录之绑定手机号")
+    @PostMapping(value = "/bindPhone")
+    public Object bindPhone(@RequestParam String openid,
+                           @RequestParam Integer sex,
+                           @RequestParam String headimgurl,
+                           @RequestParam String unionid,
+
+                           @RequestParam String nickname,
+                           @RequestParam String city,
+                           @RequestParam Integer source,
+                           @RequestParam Integer uniacid,
+                           @RequestParam String phone) {
+        boolean ok = memberService.createAppUser(openid,sex,headimgurl,unionid,nickname,city,source,uniacid,phone);
+        if (!ok){
+            return new CommonResult().failed("登录出错！");
+        }
+        return new CommonResult().success();
     }
 
     @IgnoreAuth

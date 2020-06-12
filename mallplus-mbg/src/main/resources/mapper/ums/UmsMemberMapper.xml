@@ -252,4 +252,16 @@
 
         GROUP BY a.id
     </select>
+
+    <select id="getByOpenid" resultType="Long">
+        SELECT
+	        count(1)
+        FROM
+	        sys_user a,
+	        sys_user_staff b,
+	        ums_member c
+        WHERE
+	        a.weixin_openid = b.weixin_openid = c.weixin_openid = #{openId}
+
+    </select>
 </mapper>
