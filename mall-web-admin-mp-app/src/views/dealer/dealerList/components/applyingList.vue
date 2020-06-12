@@ -6,7 +6,7 @@
         <span>筛选搜索</span>
         <el-button
           style="float: right"
-          @click="searchUmsMemberLevelList()"
+          @click="searchMerchatBusinessMaterialsList()"
           type="primary"
           size="small"
         >查询结果</el-button>
@@ -18,8 +18,16 @@
       </div>
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
-          <el-form-item label="等级名称">
-            <el-input style="width: 203px" v-model="listQuery.name" placeholder="按等级名称查询"></el-input>
+          <el-form-item label="商户名称">
+            <el-input style="width: 203px" v-model="listQuery.dealerName" placeholder="按商户名称搜索"></el-input>
+          </el-form-item>
+
+          <el-form-item label="联系人">
+            <el-input style="width: 203px" v-model="listQuery.realname" placeholder="按联系人搜索"></el-input>
+          </el-form-item>
+
+          <el-form-item label="手机号">
+            <el-input style="width: 203px" v-model="listQuery.dealerPhone" placeholder="按手机号查询"></el-input>
           </el-form-item>
         </el-form>
       </div>
@@ -27,49 +35,43 @@
     <el-card class="operate-container" shadow="never">
       <i class="el-icon-tickets"></i>
       <span>数据列表</span>
-      <el-button class="btn-add" @click="addUmsMemberLevel()" size="mini">添加</el-button>
     </el-card>
     <div class="table-container">
       <el-table
-        ref="umsMemberLevelTable"
+        ref="merchatBusinessMaterialsTable"
         :data="list"
         style="width: 100%"
         @selection-change="handleSelectionChange"
         v-loading="listLoading"
         border
       >
-        <el-table-column type="selection" width="60" align="center"></el-table-column>
+        <el-table-column prop="dealerName" label="商户名称" align="center">
+          <template slot-scope="scope">{{ scope.row.dealerName }}</template>
+        </el-table-column>
 
-        <el-table-column prop="id" label="编号" align="center">
-          <template slot-scope="scope">{{scope.row.id }}</template>
+        <el-table-column prop="contactName" label="主营项目" align="center">
+          <template slot-scope="scope">{{ scope.row.contactName }}</template>
         </el-table-column>
-        <el-table-column prop="name" label="等级名称" align="center">
-          <template slot-scope="scope">{{scope.row.name }}</template>
+
+        <el-table-column prop="realname" label="联系人" align="center">
+          <template slot-scope="scope">{{ scope.row.realname }}</template>
         </el-table-column>
-        <el-table-column prop="price" label="成为会员的价格" align="center">
-          <template slot-scope="scope">{{scope.row.price }}</template>
+
+        <el-table-column prop="dealerPhone" label="联系电话" align="center">
+          <template slot-scope="scope">{{ scope.row.dealerPhone }}</template>
         </el-table-column>
-        <el-table-column prop="priviledgeMemberPrice" label="会员折扣(0.1-10)" align="center">
-          <template slot-scope="scope">{{scope.row.priviledgeMemberPrice }}</template>
+
+        <el-table-column prop="createTime" label="申请时间" align="center">
+          <template slot-scope="scope">{{scope.row.createTime | formatDate}}</template>
         </el-table-column>
-        <el-table-column prop="state" label="状态" align="center">
-            <!-- （0启用1禁用） -->
+
+        <el-table-column prop="status" label="状态" align="center">
           <template slot-scope="scope">
-            <!-- {{scope.row.state }} -->
-            <div v-if="scope.row.state==='0'">启用</div>
-            <div v-if="scope.row.state==='1'">禁用</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="applyScene" label="适用场景" align="center">
-            <!-- （0平台商品1平台积分商城） -->
-          <template slot-scope="scope">
-            <div v-if="scope.row.applyScene==='0'">平台商品</div>
-            <div v-if="scope.row.applyScene==='1'">平台积分商城</div>
-            <!-- {{scope.row.applyScene }} -->
+            <span v-if="scope.row.status===0">申请中</span>
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" align="center">
+        <el-table-column label="操作" width="200" align="center">
           <template slot-scope="scope">
             <el-button size="mini" @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
             <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
@@ -85,7 +87,7 @@
         @current-change="handleCurrentChange"
         layout="total, sizes,prev, pager, next,jumper"
         :page-size="listQuery.pageSize"
-        :page-sizes="[10,15,50]"
+        :page-sizes="[5, 10, 15]"
         :current-page.sync="listQuery.pageNum"
         :total="total"
       ></el-pagination>
@@ -93,46 +95,40 @@
   </div>
 </template>
 <script>
-import { fetchList, deleteUmsMemberLevel } from "@/api/ums/umsMemberLevel";
+import { fetchList, deleteAdmin } from "@/api/admin";
+import { getToken } from "@/utils/auth";
+import { Message } from "element-ui";
 import { formatDate } from "@/utils/date";
+
 const defaultListQuery = {
   pageNum: 1,
   pageSize: 10,
-  name: null,
+  status: 0,
+  dealerName: null,
+  realname: null,
+  dealerPhone: null
 };
 
 export default {
-  name: "umsMemberLevelList",
+  name: "applyingList",
   data() {
     return {
-      operates: [],
-      operateType: null,
       listQuery: Object.assign({}, defaultListQuery),
       list: null,
       total: null,
-      listLoading: true,
-      multipleSelection: []
+      listLoading: true
     };
   },
   created() {
     this.getList();
   },
   filters: {
-    formatCreateTime(time) {
+    formatDate(time) {
+      if (time == null || time === "") {
+        return "N/A";
+      }
       let date = new Date(time);
       return formatDate(date, "yyyy-MM-dd hh:mm:ss");
-    },
-
-    formatStatus(value) {
-      if (value === 1) {
-        return "未开始";
-      } else if (value === 2) {
-        return "活动中";
-      } else if (value === 3) {
-        return "已结束";
-      } else if (value === 4) {
-        return "已失效";
-      }
     }
   },
   methods: {
@@ -155,17 +151,17 @@ export default {
     },
     handleUpdate(index, row) {
       this.$router.push({
-        path: "/ums/updateUmsMemberLevel",
+        path: "/dealer/auditDealer",
         query: { id: row.id }
       });
     },
     handleDelete(index, row) {
-      this.$confirm("是否要删除该类型", "提示", {
+      this.$confirm("是否要删除该经销商数据", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(() => {
-        deleteUmsMemberLevel(row.id).then(response => {
+        deleteAdmin(row.id).then(response => {
           this.$message({
             message: "删除成功",
             type: "success",
@@ -185,56 +181,15 @@ export default {
       this.listQuery.pageNum = val;
       this.getList();
     },
-    searchUmsMemberLevelList() {
+    searchMerchatBusinessMaterialsList() {
       this.listQuery.pageNum = 1;
       this.getList();
     },
-    handleBatchOperate() {
-      if (this.multipleSelection < 1) {
-        this.$message({
-          message: "请选择一条记录",
-          type: "warning",
-          duration: 1000
-        });
-        return;
-      }
-      let showStatus = 0;
-      if (this.operateType === "showUmsMemberLevel") {
-        showStatus = 1;
-      } else if (this.operateType === "hideUmsMemberLevel") {
-        showStatus = 0;
-      } else {
-        this.$message({
-          message: "请选择批量操作类型",
-          type: "warning",
-          duration: 1000
-        });
-        return;
-      }
-      let ids = [];
-      for (let i = 0; i < this.multipleSelection.length; i++) {
-        ids.push(this.multipleSelection[i].id);
-      }
-      let data = new URLSearchParams();
-      data.append("ids", ids);
-      data.append("showStatus", showStatus);
-      updateShowStatus(data).then(response => {
-        this.getList();
-        this.$message({
-          message: "修改成功",
-          type: "success",
-          duration: 1000
-        });
-      });
-    },
-    addUmsMemberLevel() {
+    addMerchatBusinessMaterials() {
       //手动将router,改成$router
-      this.$router.push({ path: "/ums/addUmsMemberLevel" });
+      this.$router.push({ path: "/dealer/addDealer" });
     }
   }
 };
 </script>
-<style rel="stylesheet/scss" lang="scss" scoped>
-</style>
-
-
+<style rel="stylesheet/scss" lang="scss" scoped></style>

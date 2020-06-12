@@ -116,7 +116,7 @@ import {
   getWxappV
 } from "@/api/dealer/miniProgramOfficialAccount";
 import { get } from "@/utils/auth";
-import SingleUploadImg from "@/components/Upload/singleUploadImg";
+import SingleUploadImg from "@/components/Upload/singleUploadPublic";
 import guide01 from "@/assets/images/guide-01.png";
 import guide02 from "@/assets/images/guide-02.png";
 import guide03 from "@/assets/images/guide-03.png";
@@ -210,8 +210,13 @@ export default {
     };
   },
   created() {
-    this.getWxapp();
-    this.getWxappV();
+    if (this.$route.query.id) {
+      this.dealerId = this.$route.query.id;
+    }
+    if (this.dealerId) {
+      this.getWxapp();
+      this.getWxappV();
+    }
   },
   methods: {
     getWxapp() {

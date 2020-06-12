@@ -10,11 +10,25 @@
           type="primary"
           size="small"
         >查询结果</el-button>
+        <el-button
+          style="float:right;margin-right: 15px"
+          @click="handleResetSearch()"
+          size="small"
+        >重置</el-button>
       </div>
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
-          <el-form-item label="输入搜索：">
-            <el-input style="width: 203px" v-model="listQuery.keyword" placeholder="类型名称/关键字"></el-input>
+          <el-form-item label="代号">
+            <el-input style="width: 203px" v-model="listQuery.code" placeholder="按代号查询"></el-input>
+          </el-form-item>
+          <el-form-item label="起始卡号">
+            <el-input style="width: 203px" v-model="listQuery.startNo" placeholder="按起始卡号查询"></el-input>
+          </el-form-item>
+          <el-form-item label="终止卡号">
+            <el-input style="width: 203px" v-model="listQuery.endNo" placeholder="按终止卡号查询"></el-input>
+          </el-form-item>
+          <el-form-item label="识别码">
+            <el-input style="width: 203px" v-model="listQuery.distinguishNum" placeholder="按识别码查询"></el-input>
           </el-form-item>
         </el-form>
       </div>
@@ -125,6 +139,15 @@ import {
 } from "@/api/water/wtWaterCardCreate";
 import { formatDate } from "@/utils/date";
 
+const defaultListQuery = {
+  pageNum: 1,
+  pageSize: 10,
+  code: null,
+  startNo: null,
+  endNo: null,
+  distinguishNum: null,
+};
+
 export default {
   name: "wtWaterCardCreateList",
   data() {
@@ -138,11 +161,7 @@ export default {
       },
       operates: [],
       operateType: null,
-      listQuery: {
-        keyword: null,
-        pageNum: 1,
-        pageSize: 10
-      },
+      listQuery: Object.assign({}, defaultListQuery),
       list: null,
       total: null,
       listLoading: true,
@@ -171,6 +190,10 @@ export default {
     }
   },
   methods: {
+    handleResetSearch() {
+      this.listQuery = Object.assign({}, defaultListQuery);
+      this.getList();
+    },
     handleAllot(index, row) {
       this.blance.dialogVisible = true;
       this.blance.id = row.id;

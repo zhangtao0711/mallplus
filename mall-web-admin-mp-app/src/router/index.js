@@ -31,15 +31,75 @@ export const constantRouterMap = [
   {
     path: '/dealer',
     component: Layout,
-    redirect: '/dealer/addDealer',
+    redirect: '/dealer/dealerList',
     name: 'dealer',
-    meta: { title: '经销商管理管理', icon: 'home' },
+    meta: { title: '经销商管理', icon: 'home' },
     children: [
+      {
+        path: 'detailsList',
+        name: 'detailsList',
+        component: () => import('@/views/dealer/dealerList/components/detailsList'),
+        meta: { title: '经销商详细信息', icon: 'product-list' }
+      },
+      {
+        path: 'consumptionRecord',
+        name: 'consumptionRecord',
+        component: () => import('@/views/dealer/record/consumptionRecord'),
+        meta: { title: '消费记录', icon: 'product-list' }
+      },
+      {
+        path: 'chargeRecord',
+        name: 'chargeRecord',
+        component: () => import('@/views/dealer/record/chargeRecord'),
+        meta: { title: '充值记录', icon: 'product-list' }
+      },
+      {
+        path: 'equipmentRecord',
+        name: 'equipmentRecord',
+        component: () => import('@/views/dealer/record/equipmentRecord'),
+        meta: { title: '设备列表', icon: 'product-list' }
+      },
+      {
+        path: 'dealerList',
+        name: 'dealerList',
+        component: () => import('@/views/dealer/dealerList/index'),
+        meta: { title: '经销商列表', icon: 'product-list' }
+      },
+      {
+        path: 'waitingList',
+        name: 'waitingList',
+        component: () => import('@/views/dealer/dealerList/components/waitingList'),
+        meta: { title: '经销商列表', icon: 'product-list' }
+      },
+      {
+        path: 'applyingList',
+        name: 'applyingList',
+        component: () => import('@/views/dealer/dealerList/components/applyingList'),
+        meta: { title: '经销商列表', icon: 'product-list' }
+      },
+      {
+        path: 'settledInList',
+        name: 'settledInList',
+        component: () => import('@/views/dealer/dealerList/components/settledInList'),
+        meta: { title: '经销商列表', icon: 'product-list' }
+      },
       {
         path: 'addDealer',
         name: 'addDealer',
         component: () => import('@/views/dealer/addDealer/add'),
-        meta: { title: '经销商配置', icon: 'product-list' }
+        meta: { title: '添加经销商', icon: 'product-list' }
+      },
+      {
+        path: 'updateDealer',
+        name: 'updateDealer',
+        component: () => import('@/views/dealer/addDealer/update'),
+        meta: { title: '修改经销商', icon: 'product-list' }
+      },
+      {
+        path: 'auditDealer',
+        name: 'auditDealer',
+        component: () => import('@/views/dealer/updateDealer/update'),
+        meta: { title: '修改经销商', icon: 'product-list' }
       },
       {
         path: 'addDealerInfo',
@@ -1047,7 +1107,36 @@ export const constantRouterMap = [
         meta: { title: '批量充值' },
         hidden: true
       },
-      
+      {
+        path: 'batchCardBinding',
+        name: 'batchCardBinding',
+        component: () => import('@/views/ums/wtWaterBindCard/batchCardBinding'),
+        meta: { title: '批量绑卡' },
+        hidden: true
+      },
+
+      {
+        path: 'warterCardEmpowerList',
+        name: 'warterCardEmpowerList',
+        component: () => import('@/views/ums/wtWarterCardEmpower/index'),
+        meta: { title: '授权列表' },
+        hidden: true
+      },
+      {
+        path: 'addWtWarterCardEmpower',
+        name: 'addWtWarterCardEmpower',
+        component: () => import('@/views/ums/wtWarterCardEmpower/add'),
+        meta: { title: '新增授权' },
+        hidden: true
+      },
+      {
+        path: 'updateWtWarterCardEmpower',
+        name: 'updateWtWarterCardEmpower',
+        component: () => import('@/views/ums/wtWarterCardEmpower/update'),
+        meta: { title: '新增授权' },
+        hidden: true
+      },
+
 
 
       {
@@ -1433,13 +1522,19 @@ export const constantRouterMap = [
         name: 'appletSetting',
         component: () => import('@/views/ums/setting'),
         meta: { title: '登录支付设置', icon: 'order-setting' }
-      }, {
+      },
+      {
+        path: 'sysApaySet',
+        name: 'sysApaySet',
+        component: () => import('@/views/sysApaySet/sysApaySet'),
+        meta: { title: '付款设置', icon: 'order-setting' }
+      },
+      {
         path: 'fenxiaoConfig',
         name: 'fenxiaoConfig',
         component: () => import('@/views/fenxiao/fenxiaoConfig/index'),
         meta: { title: '分销配置列表', icon: 'product-list' }
       },
-
       {
         path: 'addFenxiaoConfig',
         name: 'addFenxiaoConfig',

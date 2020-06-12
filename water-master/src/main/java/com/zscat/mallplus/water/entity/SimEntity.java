@@ -41,4 +41,8 @@ public class SimEntity {
      * 剩余流量(单位KB)
      **/
     private String surplus;
+    /**
+     * 订单号
+     **/
+    private String order_id;
 }
