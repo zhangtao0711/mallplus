@@ -65,9 +65,9 @@
           <template slot-scope="scope">{{scope.row.createTime | formatDate}}</template>
         </el-table-column>
 
-        <el-table-column prop="status" label="状态" align="center">
+        <el-table-column prop="applyStatus" label="状态" align="center">
           <template slot-scope="scope">
-            <span v-if="scope.row.status===0">申请中</span>
+            <span v-if="scope.row.applyStatus===0">申请中</span>
           </template>
         </el-table-column>
 
@@ -103,7 +103,7 @@ import { formatDate } from "@/utils/date";
 const defaultListQuery = {
   pageNum: 1,
   pageSize: 10,
-  status: 0,
+  applyStatus: 0,
   dealerName: null,
   realname: null,
   dealerPhone: null

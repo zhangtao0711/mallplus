@@ -57,7 +57,7 @@
     <el-card class="operate-container" shadow="never">
       <i class="el-icon-tickets"></i>
       <span>数据列表</span>
-      <el-button class="btn-add" @click="addWtFilterElement()" size="mini">添加</el-button>
+      <!-- <el-button class="btn-add" @click="addWtFilterElement()" size="mini">添加</el-button> -->
     </el-card>
     <div class="table-container">
       <el-table
@@ -76,12 +76,12 @@
         <el-table-column prop="eqcode" label="设备号" align="center">
           <template slot-scope="scope">{{scope.row.eqcode }}</template>
         </el-table-column>
-         <el-table-column prop="name" label="滤芯名称" align="center">
+        <el-table-column prop="name" label="滤芯名称" align="center">
           <template slot-scope="scope">{{scope.row.name }}</template>
         </el-table-column>
         <!-- <el-table-column prop="filterElementTypeId" label="滤芯类型id" align="center">
           <template slot-scope="scope">{{scope.row.filterElementTypeId }}</template>
-        </el-table-column> -->
+        </el-table-column>-->
         <el-table-column prop="filterElementLevel" label="滤芯级别" align="center">
           <template slot-scope="scope">{{scope.row.filterElementLevel }}</template>
         </el-table-column>
@@ -113,8 +113,13 @@
 
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
-            <el-button size="mini" @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            <i
+              class="el-icon-view"
+              style="cursor: pointer"
+              @click="handleView(scope.$index, scope.row)"
+            ></i>
+            <!-- <el-button size="mini" @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
+            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>-->
           </template>
         </el-table-column>
       </el-table>
@@ -175,6 +180,12 @@ export default {
     }
   },
   methods: {
+    handleView(index, row) {
+      this.$router.push({
+        path: "/equipment/filterDetail",
+        query: { id: row.id }
+      });
+    },
     getList() {
       this.listLoading = true;
       fetchList(this.listQuery).then(response => {

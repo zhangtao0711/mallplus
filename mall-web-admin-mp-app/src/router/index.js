@@ -36,6 +36,24 @@ export const constantRouterMap = [
     meta: { title: '设备管理', icon: 'home' },
     children: [
       {
+        path: 'simList',
+        name: 'simList',
+        component: () => import('@/views/equipment/wtSimCard/index'),
+        meta: { title: 'SIM卡列表', icon: 'product-list' }
+      },
+      {
+        path: 'addWtSimCard',
+        name: 'addWtSimCard',
+        component: () => import('@/views/equipment/wtSimCard/add'),
+        meta: { title: '添加SIM卡', icon: 'product-list' }
+      },
+      {
+        path: 'updateWtSimCard',
+        name: 'updateWtSimCard',
+        component: () => import('@/views/equipment/wtSimCard/update'),
+        meta: { title: '修改SIM卡', icon: 'product-list' }
+      },
+      {
         path: 'filterList',
         name: 'filterList',
         component: () => import('@/views/equipment/filterManage/wtFilterElement/index'),
@@ -51,7 +69,7 @@ export const constantRouterMap = [
         path: 'updateWtFilterElement',
         name: 'updateWtFilterElement',
         component: () => import('@/views/equipment/filterManage/wtFilterElement/update'),
-        meta: { title: '添加滤芯', icon: 'product-list' }
+        meta: { title: '修改滤芯', icon: 'product-list' }
       },
       {
         path: 'filterTypeList',
@@ -75,6 +93,12 @@ export const constantRouterMap = [
         path: 'typeDetail',
         name: 'typeDetail',
         component: () => import('@/views/equipment/filterManage/wtFilterElementType/typeDetail'),
+        meta: { title: '滤芯类型', icon: 'product-list' }
+      },
+      {
+        path: 'filterDetail',
+        name: 'filterDetail',
+        component: () => import('@/views/equipment/filterManage/wtFilterElement/filterDetail'),
         meta: { title: '滤芯类型', icon: 'product-list' }
       },
     ]

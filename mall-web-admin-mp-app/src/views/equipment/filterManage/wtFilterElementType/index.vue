@@ -222,6 +222,7 @@ export default {
     handleView(index, row) {
       this.$router.push({
         path: "/equipment/typeDetail",
+        // path: "/equipment/filterDetail",
         query: { id: row.id }
       });
     }
