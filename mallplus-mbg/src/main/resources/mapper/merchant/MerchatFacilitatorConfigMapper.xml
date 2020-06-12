@@ -12,7 +12,9 @@
         <result column="apiclient_cert" property="apiclientCert"/>
         <result column="private_key_path" property="privateKeyPath"/>
         <result column="apiclient_cert_p12" property="apiclientCertP12"/>
+        <result column="cert_catalog" property="certCatalog" />
         <result column="public_key_path" property="publicKeyPath"/>
+        <result column="wx_cert_catalog" property="wxCertCatalog" />
         <result column="create_by" property="createBy"/>
         <result column="create_time" property="createTime"/>
         <result column="update_by" property="updateBy"/>

@@ -9,6 +9,7 @@ import com.zscat.mallplus.elias.config.CertPathConfig;
 import com.zscat.mallplus.encrypt.EncryptSensitive;
 import com.zscat.mallplus.merchant.entity.MerchatFacilitatorConfig;
 import com.zscat.mallplus.merchant.service.IMerchatFacilitatorConfigService;
+import com.zscat.mallplus.merchat.utils.MerchantUtil;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
@@ -190,6 +191,15 @@ public class MerchatFacilitatorConfigController {
         return new CommonResult().success(map);
     }
 
+    @SysLog(MODULE = "merchat", REMARK = "上传文件到本地-专用")
+    @PostMapping("/uploadLocal")
+    public Object uploadLocal(@RequestParam MultipartFile file){
+        String path = MerchantUtil.uploadLocal(file,"cert");
+        if (path.isEmpty()){
+            return new CommonResult().failed("文件上传失败！");
+        }
+        return new CommonResult().success(path);
+    }
 }
 
 

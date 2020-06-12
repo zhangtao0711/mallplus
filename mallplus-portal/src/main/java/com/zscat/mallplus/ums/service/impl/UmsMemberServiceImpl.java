@@ -16,8 +16,10 @@ import com.zscat.mallplus.set.mapper.SetSalesBuyMapper;
 import com.zscat.mallplus.sms.entity.SmsLabelMember;
 import com.zscat.mallplus.sms.mapper.SmsLabelMemberMapper;
 import com.zscat.mallplus.sys.entity.SysUser;
+import com.zscat.mallplus.sys.entity.SysUserStaff;
 import com.zscat.mallplus.sys.mapper.SysAreaMapper;
 import com.zscat.mallplus.sys.mapper.SysUserMapper;
+import com.zscat.mallplus.sys.mapper.SysUserStaffMapper;
 import com.zscat.mallplus.ums.entity.*;
 import com.zscat.mallplus.ums.mapper.SysAppletSetMapper;
 import com.zscat.mallplus.ums.mapper.UmsIntegrationConsumeSettingMapper;
@@ -100,7 +102,7 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     @Resource
     UmsIntegrationConsumeSettingMapper integrationConsumeSettingMapper;
     @Resource
-    private SysAppletSetMapper appletSetMapper;
+    private ISysAppletSetService appletSetService;
     @Resource
     private IUmsMemberBlanceLogService memberBlanceLogService;
     @Resource
@@ -137,6 +139,8 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     private OmsOrderMapper omsOrderMapper;
     @Resource
     private SysUserMapper adminMapper;
+    @Resource
+    private SysUserStaffMapper staffMapper;
     @Resource
     private IUmsMemberBlanceLogService blanceLogService;
     @Resource
@@ -205,7 +209,7 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
             if (errcode == null || errcode == 0) {
                 String openid = jsonObject.getString("openid");
                 Map<String, Object> resultObj = new HashMap<String, Object>();
-                UmsMember userVo = this.queryByOpenId(openid);
+                UmsMember userVo = this.queryByOpenId(openid,Integer.parseInt(jsonObject.getString("uniacid")));
                 String token = null;
                 if (null == userVo) {
                     UmsMember umsMember = new UmsMember();
@@ -225,7 +229,7 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
                     addIntegration(umsMember.getId(), regJifen, 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername(),null);
 
                 } else {
-                    addIntegration(userVo.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), userVo.getUsername(),null);
+//                    addIntegration(userVo.getId(), logginJifen, 1, "登录添加积分", AllEnum.ChangeSource.login.code(), userVo.getUsername(),null);
 
                     token = jwtTokenUtil.generateToken(userVo.getUsername());
                     resultObj.put("userId", userVo.getId());
@@ -428,12 +432,17 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
             //确定一下是赠送积分还是水费,水费的话
             if (waterFee.compareTo(new BigDecimal("0"))>0){
                 //设计还没确定水费谁出----鑫鑫 5-28 11:41:17 我问了甄姐了，甄姐说不用扣,这个就是白送
-                //todo 在这里把水费加上，找到卡，一个经销商一个用户一张虚拟卡
+                //在这里把水费加上，找到卡，一个经销商一个用户一张虚拟卡
                 WtWaterCard waterCard=new WtWaterCard();
                 //加上卡的type
+                waterCard.setCardType(StringConstantUtil.card_type_1);
                 waterCard.setDealerId(wxapp.getCreateBy());
                 waterCard.setUmsMemberId(id);
                 WtWaterCard card = waterCardMapper.selectOne(new QueryWrapper<>(waterCard));
+                if (card==null){
+                    //TODO 送虚拟卡
+                    appletSetService.donateVirtualCard(member,wxapp.getCreateBy());
+                }
                 if (card.getCardMoney()==null){
                     card.setCardMoney(new BigDecimal("0"));
                 }
@@ -739,8 +748,9 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     }
 
     @Override
-    public UmsMember queryByOpenId(String openId) {
+    public UmsMember queryByOpenId(String openId,Integer uniacid) {
         UmsMember queryO = new UmsMember();
+        queryO.setUniacid(uniacid);
         queryO.setWeixinOpenid(openId);
         return memberMapper.selectOne(new QueryWrapper<>(queryO));
     }
@@ -748,9 +758,14 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     @Override
     public Map<String, Object> appLogin(String openid, Integer sex, String headimgurl, String unionid, String nickname, String city, Integer source,Integer uniacid) {
         Map<String, Object> resultObj = new HashMap<String, Object>();
-        UmsMember userVo = this.queryByOpenId(openid);
+        UmsMember userVo = this.queryByOpenId(openid,uniacid);
         String token = null;
         if (null == userVo) {
+           /* SysUser sysUser = new SysUser();
+            sysUser.setWeixinOpenid(openid);
+            sysUser.setUniacid(uniacid);
+            SysUser user = adminMapper.selectOne(new QueryWrapper<>(sysUser));
+            */
             UmsMember umsMember = new UmsMember();
             umsMember.setUniacid(uniacid);
             umsMember.setUsername("wxapplet" + CharUtil.getRandomString(12));
@@ -801,7 +816,9 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     @Override
     public Object getAppletOpenId(AppletLoginParam req) {
         JSONObject j = new JSONObject();
-        SysAppletSet appletSet = getSysAppletSet(req.getAppIdsource());
+        Long dealerId = accountWxappMapper.getDealerIdByUniacid(req.getUniacid());
+        dealerId = 1L;
+        SysAppletSet appletSet = appletSetService.getById(dealerId);
         if (null == appletSet) {
             throw new ApiMallPlusException("没有设置支付配置");
         }
@@ -819,7 +836,8 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
 
 
         JSONObject sessionData = CommonUtil.httpsRequest(requestUrl, "GET", null);
-        String userInfos = req.getUserInfo();
+//        String userInfos = req.getUserInfo();
+        System.out.println(sessionData.toString());
 
 
         if (null == sessionData || StringUtils.isEmpty(sessionData.getString("openid"))) {
@@ -833,31 +851,37 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
         }*/
         //判断数据库里面有没有返回的这个openid，有的话直接登录的首页，没有的话直接就是小程序页面
         j.put("openid",sessionData.getString("openid"));
-        UmsMember umsMember = new UmsMember();
-        //这里应该还得加上小程序或者公众号的那个id去筛选
-        //首先判断是经销商小程序还是用户小程序
-        AccountWxapp wxapp = accountWxappMapper.selectById(req.getUniacid());
-        if (wxapp.getStoreId()==1){
-            //检索经销商数据
-            SysUser user = new SysUser();
-            user.setWeixinOpenid(sessionData.getString("openid"));
-            user.setUniacid(req.getUniacid());
-            SysUser member = adminMapper.selectOne(new QueryWrapper<>(user));
-            if (member==null){
-                j.put("url","seller/login");
-            }else {
-                j.put("url","pages/index/index");
-            }
-            return new CommonResult().success(j);
-        }
-        umsMember.setUniacid(req.getUniacid());
-        umsMember.setWeixinOpenid(sessionData.getString("openid"));
-        UmsMember member = memberMapper.selectOne(new QueryWrapper<>(umsMember));
-        if (member==null){
-            j.put("url","seller/login");
+        Long num = memberMapper.getByOpenid(sessionData.getString("openid"));
+        if (num>0){
+            j.put("url","pages/login/binPhone");
         }else {
             j.put("url","pages/index/index");
         }
+//        UmsMember umsMember = new UmsMember();
+//        //这里应该还得加上小程序或者公众号的那个id去筛选
+//        //首先判断是经销商小程序还是用户小程序
+//        AccountWxapp wxapp = accountWxappMapper.selectById(req.getUniacid());
+//        if (wxapp.getStoreId()==1){
+//            //检索经销商数据
+//            SysUser user = new SysUser();
+//            user.setWeixinOpenid(sessionData.getString("openid"));
+//            user.setUniacid(req.getUniacid());
+//            SysUser member = adminMapper.selectOne(new QueryWrapper<>(user));
+//            if (member==null){
+//                j.put("url","seller/login");
+//            }else {
+//                j.put("url","pages/index/index");
+//            }
+//            return new CommonResult().success(j);
+//        }
+//        umsMember.setUniacid(req.getUniacid());
+//        umsMember.setWeixinOpenid(sessionData.getString("openid"));
+//        UmsMember member = memberMapper.selectOne(new QueryWrapper<>(umsMember));
+//        if (member==null){
+//            j.put("url","seller/login");
+//        }else {
+//            j.put("url","pages/index/index");
+//        }
         return new CommonResult().success(j);
     }
 
@@ -1022,7 +1046,7 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
             //  if (!signature.equals(sha1)) {
             //    throw new ApiMallPlusException("登录失败,验证用户信息完整性 签名验证失败" + sha1 + "，" + signature);
             //  }
-            UmsMember userVo = this.queryByOpenId(sessionData.getString("openid"));
+            UmsMember userVo = this.queryByOpenId(sessionData.getString("openid"),Integer.parseInt(sessionData.getString("uniacid")));
             String token = null;
             if (null == userVo) {
                 UmsMember umsMember = new UmsMember();
@@ -1128,7 +1152,7 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
            /* if (!signature.equals(sha1)) {
                 throw new ApiMallPlusException("登录失败,验证用户信息完整性 签名验证失败" + sha1 + "，" + signature);
             }*/
-            UmsMember userVo = this.queryByOpenId(sessionData.getString("openid"));
+            UmsMember userVo = this.queryByOpenId(sessionData.getString("openid"),Integer.parseInt(sessionData.getString("uniacid")));
             String token = null;
             if (null == userVo) {
                 UmsMember umsMember = new UmsMember();
@@ -1224,7 +1248,7 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
             String signature = req.getSignature();
             Map<String, Object> resultObj = new HashMap<String, Object>();
 
-            UmsMember userVo = this.queryByOpenId(req.getOpenid());
+            UmsMember userVo = this.queryByOpenId(req.getOpenid(),req.getUniacid());
             String token = null;
             if (null == userVo) {
                 UmsMember umsMember = new UmsMember();
@@ -1329,7 +1353,7 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
                 appletSet.setAppsecret("");
             }
         } else {
-            appletSet = appletSetMapper.selectOne(new QueryWrapper<>());
+            appletSet = appletSetService.getOne(new QueryWrapper<>());
             if (null == appletSet) {
                 throw new ApiMallPlusException("没有设置支付配置");
             }
@@ -1456,6 +1480,85 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     @Override
     public UmsMember selectByUsernameStaff(String username) {
         return memberMapper.selectByUsernameStaff(username);
+    }
+
+    @Override
+    public Long getByOpenid(String openId) {
+        return memberMapper.getByOpenid(openId);
+    }
+
+    @Override
+    public boolean createAppUser(String openid, Integer sex, String headimgurl, String unionid, String nickname, String city, Integer source, Integer uniacid,String phone) {
+        if (uniacid==StringConstantUtil.applet_platform){
+            SysUser sysUser = new SysUser();
+            sysUser.setPhone(phone);
+            sysUser.setUsername(phone);
+            SysUser user = adminMapper.selectOne(new QueryWrapper<>(sysUser));
+            if (user == null){
+                SysUserStaff userStaff = new SysUserStaff();
+                userStaff.setPhone(phone);
+                userStaff.setUsername(phone);
+                SysUserStaff staff = staffMapper.selectOne(new QueryWrapper<>(userStaff));
+                if (staff!=null){
+                    //手机号也没有的话，在那张表里填用户信息呢，经销商里面，员工必须先后台添加
+                    staff.setUniacid(uniacid);
+                    staff.setWeixinOpenid(openid);
+                    staff.setAvatar(headimgurl);
+                    staff.setNickname(nickname);
+                    staffMapper.updateById(staff);
+                    return true;
+                }else {
+                    return false;
+                }
+            }else {
+                user.setUniacid(uniacid);
+                user.setWeixinOpenid(openid);
+                user.setAvatar(headimgurl);
+                user.setNickName(nickname);
+                adminMapper.updateById(user);
+                return true;
+            }
+        }
+        UmsMember userVo1 = new UmsMember();
+        userVo1.setPhone(phone);
+        UmsMember userVo = memberMapper.selectOne(new QueryWrapper<>(userVo1));
+        if (null == userVo) {
+            UmsMember umsMember = new UmsMember();
+            umsMember.setUniacid(uniacid);
+            umsMember.setUsername("wxapplet" + CharUtil.getRandomString(12));
+            umsMember.setSourceType(source);
+            umsMember.setPassword(passwordEncoder.encode("123456"));
+            umsMember.setCreateTime(new Date());
+            umsMember.setStatus(1);
+            umsMember.setBlance(new BigDecimal(0));
+            umsMember.setIntegration(0);
+            umsMember.setMemberLevelId(4L);
+            umsMember.setCity(city);
+            umsMember.setAvatar(headimgurl);
+            umsMember.setGender(sex);
+            umsMember.setHistoryIntegration(0);
+            umsMember.setWeixinOpenid(openid);
+            if (StringUtils.isEmpty(headimgurl)) {
+                //会员头像(默认头像)
+                umsMember.setIcon("/upload/img/avatar/01.jpg");
+            } else {
+                umsMember.setIcon(headimgurl);
+            }
+
+            umsMember.setNickname(nickname);
+            umsMember.setPersonalizedSignature(unionid);
+            memberMapper.insert(umsMember);
+            addIntegration(umsMember.getId(), regJifen, 1, "注册添加积分", AllEnum.ChangeSource.register.code(), umsMember.getUsername(), null);
+            return true;
+        }else {
+            userVo.setUniacid(uniacid);
+            userVo.setCity(city);
+            userVo.setAvatar(headimgurl);
+            userVo.setGender(sex);
+            userVo.setWeixinOpenid(openid);
+            memberMapper.updateById(userVo);
+            return true;
+        }
     }
 
 

@@ -39,4 +39,6 @@ public interface UmsMemberMapper extends BaseMapper<UmsMember> {
     boolean removeLabel(@Param("id")Long id, @Param("umsMemberId")Long umsMemberId);
     //高级查询
     List<Map<String,Object>> selectSenior(Page<Map<String,Object>> page, @Param("entity")UmsMemberSelect entity);
+
+    Long getByOpenid(@Param("openId") String openId);
 }

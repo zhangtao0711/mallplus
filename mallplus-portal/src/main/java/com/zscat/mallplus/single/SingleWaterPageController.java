@@ -119,21 +119,6 @@ public class SingleWaterPageController extends ApiBaseAction {
     public Object buyWaterPage(@RequestParam String openid,@RequestParam String deviceId){
         //通过deviceNo找到数据
         SmsClassConfig config = smsClassConfigMapper.selectById(deviceId);
-        //通过openid找到用户， 有卡则把水卡信息返给前台
-        UmsMember umsMember = new UmsMember();
-        umsMember.setWeixinOpenid(openid);
-        UmsMember member = memberService.getOne(new QueryWrapper<>(umsMember));
-        if (member!=null){
-            //虚拟卡，实卡，水卡信息
-            WtWaterCard wtWaterCard = new WtWaterCard();
-            wtWaterCard.setDealerId(config.getDealerId());
-            wtWaterCard.setUmsMemberId(member.getId());
-            List<WtWaterCard> waterCard = waterCardMapper.selectList(new QueryWrapper<>(wtWaterCard));
-            if (waterCard!=null&&waterCard.size()!=0 ) {
-                return new CommonResult().success(waterCard);
-            }
-
-        }
         JSONObject j = new JSONObject();
         List<String> waters = Arrays.asList(config.getWaterIds());
         List<SmsWaterPage> waterPages = new ArrayList<>();
@@ -149,6 +134,29 @@ public class SingleWaterPageController extends ApiBaseAction {
         List<SmsRechargePackage> rechargePackages = smsRechargePackageMapper.selectList(new QueryWrapper<>(rechargePackage));
         j.put("rechargePackages",rechargePackages);
         return new CommonResult().success(j);
+    }
+
+    @SysLog(MODULE = "single", REMARK = "扫码之后的购水页面-绑定实体卡")
+    @ApiOperation(value = "扫码之后的购水页面-绑定实体卡")
+    @PostMapping("bindEntityCard")
+    public Object bindEntityCard(@RequestParam String openid,@RequestParam Integer uniacid){
+        //通过openid找到用户， 有卡则把水卡信息返给前台
+        UmsMember umsMember = new UmsMember();
+        umsMember.setWeixinOpenid(openid);
+        UmsMember member = memberService.getOne(new QueryWrapper<>(umsMember));
+        Long dealerId = wxappMapper.getDealerIdByUniacid(uniacid);
+        if (member!=null){
+            //实卡，水卡信息
+            WtWaterCard wtWaterCard = new WtWaterCard();
+            wtWaterCard.setCardType(StringConstantUtil.card_type_0);
+            wtWaterCard.setDealerId(dealerId);
+            wtWaterCard.setUmsMemberId(member.getId());
+            List<WtWaterCard> waterCard = waterCardMapper.selectList(new QueryWrapper<>(wtWaterCard));
+            if (waterCard!=null&&waterCard.size()!=0 ) {
+                return new CommonResult().success(waterCard);
+            }
+        }
+        return new CommonResult().failed();
     }
 
     /**
@@ -258,6 +266,8 @@ public class SingleWaterPageController extends ApiBaseAction {
                     umsMember.setUniacid(record.getUniacid());
                     umsMember.setWeixinOpenid(record.getOpenId());
                     UmsMember member = memberService.getOne(new QueryWrapper<>(umsMember));
+                    //TODO 添加积分之前，先判定一下有没有卡，没卡送卡
+                    appletSetService.donateVirtualCard(member,record.getDealerId());
                     memberService.addIntegration(member.getId(),member.getUniacid(),0,"扫码买水赠积分", AllEnum.ChangeSource.order.code(),member.getUsername(),record.getActualAccount());
                     //用户买水分账或者企业付款到零钱
                     String ip = IpKit.getRealIp(request);

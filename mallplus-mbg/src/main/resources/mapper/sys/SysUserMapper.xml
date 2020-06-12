@@ -58,6 +58,9 @@
     <select id="listDealer" resultType="Map">
        SELECT
           a.id as "id",
+          a.gid as "gid",
+          a.pid as "pid",
+          a.weixin_openid as "weixin_openid",
           a.nick_name as "nickName",
           a.username as "username",
           ifnull(a.dealer_name,'') as "dealerName",

@@ -1,5 +1,6 @@
 package com.zscat.mallplus.merchat.utils;
 
+import ch.qos.logback.core.util.TimeUtil;
 import com.zscat.mallplus.sdk.util.PemUtil;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
@@ -18,6 +19,7 @@ import java.security.Signature;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static com.zscat.mallplus.elias.config.CertPathConfig.uploadpath;
 
@@ -76,12 +78,18 @@ public class MerchantUtil {
         try {
             String ctxPath = uploadpath;
             String fileName = null;
+            String orgName = mf.getOriginalFilename();// 获取文件名
+            if (!StringUtils.isEmpty(bizPath)){
+                bizPath= bizPath+ "_" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+                fileName = orgName.substring(0, orgName.lastIndexOf(".")) + orgName.substring(orgName.indexOf("."));
+            }else {
+                fileName = orgName.substring(0, orgName.lastIndexOf(".")) +"_" + System.currentTimeMillis()+ orgName.substring(orgName.indexOf("."));
+
+            }
             File file = new File(ctxPath + File.separator + bizPath + File.separator);
             if (!file.exists()) {
                 file.mkdirs();// 创建文件根目录
             }
-            String orgName = mf.getOriginalFilename();// 获取文件名
-            fileName = orgName.substring(0, orgName.lastIndexOf(".")) + "_" + System.currentTimeMillis() + orgName.substring(orgName.indexOf("."));
             String savePath = file.getPath() + File.separator + fileName;
             File savefile = new File(savePath);
             FileCopyUtils.copy(mf.getBytes(), savefile);

@@ -8,6 +8,7 @@ import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.vo.AppletLoginParam;
 import com.zscat.mallplus.vo.AppletLoginnewParam;
 import com.zscat.mallplus.vo.SmsCode;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -82,7 +83,7 @@ public interface IUmsMemberService extends IService<UmsMember> {
 
     SysAppletSet getSysAppletSet(Integer soruce);
 
-    UmsMember queryByOpenId(String openId);
+    UmsMember queryByOpenId(String openId,Integer uniacid);
 
 
     Map<String, Object> login(String username, String password,String uniacid);
@@ -155,5 +156,9 @@ public interface IUmsMemberService extends IService<UmsMember> {
     public  UmsMember selectByUsernameLeader(String username);
 
     public UmsMember selectByUsernameStaff(String username);
+
+    Long getByOpenid(@Param("openId") String openId);
+
+    boolean createAppUser(String openid, Integer sex, String headimgurl, String unionid, String nickname, String city, Integer source,Integer uniacid,String phone);
 }
 

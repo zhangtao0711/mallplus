@@ -1,7 +1,11 @@
 package com.zscat.mallplus.wxminiapp.service;
 
 import com.zscat.mallplus.config.JedisConfig;
+import com.zscat.mallplus.ums.service.RedisService;
 import lombok.extern.slf4j.Slf4j;
+import me.chanjar.weixin.common.redis.JedisWxRedisOps;
+import me.chanjar.weixin.common.redis.WxRedisOps;
+import me.chanjar.weixin.open.api.WxOpenConfigStorage;
 import me.chanjar.weixin.open.api.impl.WxOpenInRedisConfigStorage;
 import me.chanjar.weixin.open.api.impl.WxOpenMessageRouter;
 import me.chanjar.weixin.open.api.impl.WxOpenServiceImpl;
@@ -33,6 +37,7 @@ public class WxOpenServiceDemo extends WxOpenServiceImpl {
         inRedisConfigStorage.setComponentAppSecret(dsn.get("component_app_secret").toString());
         inRedisConfigStorage.setComponentToken(dsn.get("component_token").toString());
         inRedisConfigStorage.setComponentAesKey(dsn.get("component_aes_key").toString());
+//        inRedisConfigStorage.setComponentVerifyTicket(dsn.get("component_verify_ticket").toString());
         setWxOpenConfigStorage(inRedisConfigStorage);
         wxOpenMessageRouter = new WxOpenMessageRouter(this);
         wxOpenMessageRouter.rule().handler((wxMpXmlMessage, map, wxMpService, wxSessionManager) -> {

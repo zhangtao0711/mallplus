@@ -1,16 +1,23 @@
-package com.zscat.mallplus.controller;
+package com.zscat.mallplus.single;
 
 import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.pay.utils.StringUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.wxminiapp.service.WxOpenServiceDemo;
 import com.zscat.mallplus.vo.wxminiapp.FastRegisterWeappVo;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
+import me.chanjar.weixin.open.bean.message.WxOpenXmlMessage;
 import me.chanjar.weixin.open.bean.result.WxOpenResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 
 /**
  * <pre>
@@ -20,12 +27,15 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author <a href="https://github.com/binarywang">Binary Wang</a>
  */
+@Slf4j
 @RestController
-@RequestMapping("/api/create/wxapp")
+@RequestMapping("/api/home/create")
 public class WxMaCreateController {
 
     @Autowired
     private WxOpenServiceDemo wxOpenServiceDemo;
+    @Resource
+    private JdbcTemplate jdbcTemplate;
     /**
      * 快速创建小程序
      *
@@ -33,7 +43,12 @@ public class WxMaCreateController {
     @SysLog(MODULE = "wxapp", REMARK = "快速创建小程序")
     @ApiOperation("快速创建小程序")
     @PostMapping("/fastRegisterWeapp")
-    public Object fastRegisterWeapp(FastRegisterWeappVo entity) {
+    public Object fastRegisterWeapp(@RequestBody FastRegisterWeappVo entity) {
+        if (entity==null|| StringUtils.isBlank(entity.getName())||StringUtils.isBlank(entity.getCode())
+                ||StringUtils.isBlank(entity.getCodeType())||StringUtils.isBlank(entity.getComponentPhone())
+        ||StringUtils.isBlank(entity.getLegalPersonaName())||StringUtils.isBlank(entity.getLegalPersonaWechat())){
+            return new CommonResult().failed("参数不能为空！");
+        }
         try {
             WxOpenResult result =  wxOpenServiceDemo.getWxOpenComponentService().fastRegisterWeapp(entity.getName(),
                     entity.getCode(),
@@ -75,5 +90,22 @@ public class WxMaCreateController {
             return new CommonResult().failed("创建失败，请重试！");
         }
 
+    }
+
+    /**
+     * 接收component_verify_ticket 或 authorized事件
+     */
+    @ApiOperation(value = "接收component_verify_ticket 或 authorized事件", notes = "接收component_verify_ticket 或 authorized事件", response = String.class)
+    @RequestMapping(value = "/getComponentVerifyTicket")
+    public String getComponentVerifyTicket(@RequestParam("timestamp")String timestamp, @RequestParam("nonce")String nonce,
+                                           @RequestParam("msg_signature")String msgSignature, @RequestBody String postData ){
+        log.info("接收component_verify_ticket 或 authorized事件");
+        log.info("nonce: " + nonce);
+        log.info("timestamp: " + timestamp);
+        log.info("msgSignature: " + msgSignature);
+        WxOpenXmlMessage wxOpenXmlMessage = WxOpenXmlMessage.fromEncryptedXml(postData,wxOpenServiceDemo.getWxOpenConfigStorage(),timestamp,nonce,msgSignature);
+        jdbcTemplate.update("update admin_dsn_domin set component_verify_ticket = "+wxOpenXmlMessage.getComponentVerifyTicket()+"where id = 1");
+        wxOpenServiceDemo.getWxOpenConfigStorage().setComponentVerifyTicket(wxOpenXmlMessage.getComponentVerifyTicket());
+        return "success";
     }
 }

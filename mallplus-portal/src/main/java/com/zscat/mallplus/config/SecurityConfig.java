@@ -74,6 +74,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 //.permitAll()
                 .antMatchers("/**")//测试时全部运行访问
                 .permitAll()
+                .antMatchers("/api/home/create/fastRegisterWeapp")
+                .permitAll()
+                .antMatchers("/api/home/create/getComponentVerifyTicket")
+                .permitAll()
                 .anyRequest()// 除上面外的所有请求全部需要鉴权认证
                 .authenticated();
         // 禁用缓存

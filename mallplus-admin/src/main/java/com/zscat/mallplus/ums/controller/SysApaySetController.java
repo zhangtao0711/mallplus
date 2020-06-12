@@ -4,6 +4,7 @@ package com.zscat.mallplus.ums.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.merchat.utils.MerchantUtil;
 import com.zscat.mallplus.ums.entity.SysApaySet;
 import com.zscat.mallplus.ums.service.ISysApaySetService;
 import com.zscat.mallplus.util.EasyPoiUtils;
@@ -150,6 +151,16 @@ public class SysApaySetController {
     public void importUsers(@RequestParam MultipartFile file) {
         List<SysApaySet> personList = EasyPoiUtils.importExcel(file, SysApaySet.class);
         ISysApaySetService.saveBatch(personList);
+    }
+
+    @SysLog(MODULE = "ums", REMARK = "上传文件到本地-专用")
+    @PostMapping("/uploadLocal")
+    public Object uploadLocal(@RequestParam MultipartFile file){
+        String path = MerchantUtil.uploadLocal(file,"apay");
+        if (path.isEmpty()){
+            return new CommonResult().failed("文件上传失败！");
+        }
+        return new CommonResult().success(path);
     }
 }
 
