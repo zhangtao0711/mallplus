@@ -59,27 +59,27 @@
           <template slot-scope="scope">{{ scope.row.balance }}</template>
         </el-table-column>
 
-        <el-table-column prop="realname" width="250" label="联系人" align="center">
+        <el-table-column prop="realname" width="200" label="联系人" align="center">
           <template slot-scope="scope">{{ scope.row.realname }}</template>
         </el-table-column>
 
-        <el-table-column prop="dealerPhone" label="联系电话" align="center">
+        <el-table-column prop="dealerPhone" width="250" label="联系电话" align="center">
           <template slot-scope="scope">{{ scope.row.dealerPhone }}</template>
         </el-table-column>
 
-        <el-table-column prop="createTime" label="入驻时间" align="center">
+        <el-table-column prop="createTime" width="250" label="入驻时间" align="center">
           <template slot-scope="scope">{{scope.row.createTime | formatDate}}</template>
         </el-table-column>
 
-        <el-table-column prop="status" width="120" label="状态" align="center">
+        <el-table-column prop="applyStatus" width="200" label="状态" align="center">
           <template slot-scope="scope">
-            <span v-if="scope.row.status===2">允许入驻</span>
+            <span v-if="scope.row.applyStatus===2">允许入驻</span>
           </template>
         </el-table-column>
 
-        <el-table-column prop="contactName" label="审核人" align="center">
+        <!-- <el-table-column prop="contactName" label="审核人" align="center">
           <template slot-scope="scope">{{ scope.row.contactName }}</template>
-        </el-table-column>
+        </el-table-column> -->
 
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
@@ -138,7 +138,7 @@ import { createRecharge } from "@/api/dealer/dealer";
 const defaultListQuery = {
   pageNum: 1,
   pageSize: 10,
-  status: 2,
+  applyStatus: 2,
   dealerName: null,
   realname: null,
   dealerPhone: null

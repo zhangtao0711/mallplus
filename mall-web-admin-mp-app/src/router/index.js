@@ -29,6 +29,82 @@ export const constantRouterMap = [
   { path: '/404', component: () => import('@/views/404'), hidden: true },
 
   {
+    path: '/equipment',
+    component: Layout,
+    redirect: '/equipment/filterList',
+    name: 'equipment',
+    meta: { title: '设备管理', icon: 'home' },
+    children: [
+      {
+        path: 'simList',
+        name: 'simList',
+        component: () => import('@/views/equipment/wtSimCard/index'),
+        meta: { title: 'SIM卡列表', icon: 'product-list' }
+      },
+      {
+        path: 'addWtSimCard',
+        name: 'addWtSimCard',
+        component: () => import('@/views/equipment/wtSimCard/add'),
+        meta: { title: '添加SIM卡', icon: 'product-list' }
+      },
+      {
+        path: 'updateWtSimCard',
+        name: 'updateWtSimCard',
+        component: () => import('@/views/equipment/wtSimCard/update'),
+        meta: { title: '修改SIM卡', icon: 'product-list' }
+      },
+      {
+        path: 'filterList',
+        name: 'filterList',
+        component: () => import('@/views/equipment/filterManage/wtFilterElement/index'),
+        meta: { title: '全部滤芯', icon: 'product-list' }
+      },
+      {
+        path: 'addWtFilterElement',
+        name: 'addWtFilterElement',
+        component: () => import('@/views/equipment/filterManage/wtFilterElement/add'),
+        meta: { title: '添加滤芯', icon: 'product-list' }
+      },
+      {
+        path: 'updateWtFilterElement',
+        name: 'updateWtFilterElement',
+        component: () => import('@/views/equipment/filterManage/wtFilterElement/update'),
+        meta: { title: '修改滤芯', icon: 'product-list' }
+      },
+      {
+        path: 'filterTypeList',
+        name: 'filterTypeList',
+        component: () => import('@/views/equipment/filterManage/wtFilterElementType/index'),
+        meta: { title: '滤芯类型', icon: 'product-list' }
+      },
+      {
+        path: 'addWtFilterElementType',
+        name: 'addWtFilterElementType',
+        component: () => import('@/views/equipment/filterManage/wtFilterElementType/add'),
+        meta: { title: '添加滤芯类型', icon: 'product-list' }
+      },
+      {
+        path: 'updateWtFilterElementType',
+        name: 'updateWtFilterElementType',
+        component: () => import('@/views/equipment/filterManage/wtFilterElementType/update'),
+        meta: { title: '修改滤芯类型', icon: 'product-list' }
+      },
+      {
+        path: 'typeDetail',
+        name: 'typeDetail',
+        component: () => import('@/views/equipment/filterManage/wtFilterElementType/typeDetail'),
+        meta: { title: '滤芯类型', icon: 'product-list' }
+      },
+      {
+        path: 'filterDetail',
+        name: 'filterDetail',
+        component: () => import('@/views/equipment/filterManage/wtFilterElement/filterDetail'),
+        meta: { title: '滤芯类型', icon: 'product-list' }
+      },
+    ]
+  },
+
+  {
     path: '/dealer',
     component: Layout,
     redirect: '/dealer/dealerList',

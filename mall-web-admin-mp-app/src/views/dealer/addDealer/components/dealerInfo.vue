@@ -613,10 +613,12 @@ export default {
         ],
         type: [{ required: true, message: "请选择商户类型", trigger: "blur" }],
         realname: [
-          { required: true, message: "请输入联系人姓名", trigger: "blur" }
+          { required: true, message: "请输入联系人姓名", trigger: "blur" },
+          { pattern: /^[\u4e00-\u9fa5]+$/, message: "联系人姓名只能是汉字", trigger: "blur" }
         ],
         dealerPhone: [
-          { required: true, message: "请输入联系人电话", trigger: "blur" }
+          { required: true, message: "请输入联系人电话", trigger: "blur" },
+          { pattern: /^1[3456789]\d{9}$/, message: "请输入正确的手机号", trigger: "blur" }
         ],
         levelId: [{ required: true, message: "请选择经销商等级" }],
         selfType: [{ required: true, message: "请选择收款方式" }],
@@ -644,7 +646,7 @@ export default {
         this.value.city = Number(this.value.city);
         this.value.county = Number(this.value.county);
         this.value.levelId = String(this.value.level);
-        this.value.applyStatus = String(this.value.status);
+        this.value.applyStatus = String(this.value.applyStatus);
         this.value.selfType = String(this.value.selfType);
 
         if (this.value.selfType == "1") {

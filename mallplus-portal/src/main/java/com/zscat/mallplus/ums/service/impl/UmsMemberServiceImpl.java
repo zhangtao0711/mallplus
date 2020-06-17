@@ -33,6 +33,8 @@ import com.zscat.mallplus.utils.ValidatorUtils;
 import com.zscat.mallplus.vo.*;
 import com.zscat.mallplus.water.entity.WtWaterCard;
 import com.zscat.mallplus.water.mapper.WtWaterCardMapper;
+import com.zscat.mallplus.weixinmp.entity.AccountWechats;
+import com.zscat.mallplus.weixinmp.mapper.AccountWechatsMapper;
 import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
 import com.zscat.mallplus.wxminiapp.mapper.AccountWxappMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -149,6 +151,8 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     private JifenDealerIntegrationChangeHistoryMapper jifenDealerIntegrationChangeHistoryMapper;
     @Resource
     private AccountWxappMapper accountWxappMapper;
+    @Resource
+    private AccountWechatsMapper accountWechatsMapper;
     @Resource
     private WtWaterCardMapper waterCardMapper;
     @Resource
@@ -817,10 +821,26 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     public Object getAppletOpenId(AppletLoginParam req) {
         JSONObject j = new JSONObject();
         Long dealerId = accountWxappMapper.getDealerIdByUniacid(req.getUniacid());
-        dealerId = 1L;
-        SysAppletSet appletSet = appletSetService.getById(dealerId);
-        if (null == appletSet) {
-            throw new ApiMallPlusException("没有设置支付配置");
+        String appid = null;
+        String secret = null;
+        AccountWxapp accountWxapp = new AccountWxapp();
+        accountWxapp.setUniacid(req.getUniacid());
+        accountWxapp.setCreateBy(dealerId);
+        AccountWxapp wxapp = accountWxappMapper.selectOne(new QueryWrapper<>(accountWxapp));
+        if (wxapp==null){
+            AccountWechats accountWechats = new AccountWechats();
+            accountWechats.setUniacid(req.getUniacid());
+            accountWechats.setCreateBy(dealerId);
+            AccountWechats wechats = accountWechatsMapper.selectOne(new QueryWrapper<>(accountWechats));
+            if (wechats==null){
+                throw new ApiMallPlusException("信息错误");
+            }else {
+                appid = wechats.getKey();
+                secret = wechats.getSecret();
+            }
+        }else {
+            appid = wxapp.getKey();
+            secret = wxapp.getSecret();
         }
         String webAccessTokenhttps = "https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code";
         String code = req.getCode();
@@ -830,8 +850,8 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
         }
         //获取openid
         String requestUrl = String.format(webAccessTokenhttps,
-                appletSet.getAppid(),
-                appletSet.getAppsecret(),
+                appid,
+                secret,
                 code);
 
 
