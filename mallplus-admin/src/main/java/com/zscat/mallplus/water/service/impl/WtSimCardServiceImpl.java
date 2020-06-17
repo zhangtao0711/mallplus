@@ -3,6 +3,8 @@ package com.zscat.mallplus.water.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
 import com.zscat.mallplus.sms.entity.SmsLabelSet;
 import com.zscat.mallplus.ums.entity.UmsMember;
@@ -43,7 +45,7 @@ public class WtSimCardServiceImpl extends ServiceImpl
      * @param cardno
      * @return
      */
-    public SimEntity getChaxun(String cardno) {
+    public JSONObject getChaxun(String cardno) {
         try {
             if (ValidatorUtils.empty(cardno)) {
                 return null;
@@ -53,7 +55,8 @@ public class WtSimCardServiceImpl extends ServiceImpl
             coupon = wtSimUrlInfoMapper.selectOne(new QueryWrapper<>(coupon));
             JSONObject data= SimCodeUtil.getChaxun(coupon,cardno);
 
-            return gson.fromJson(data.toJSONString(), SimEntity.class);
+//            return gson.fromJson(data.toJSONString(), SimEntity.class);
+            return data;
         } catch (Exception e) {
             log.error("物联网卡余量查询：%s", e.getMessage(), e);
             return null;
@@ -117,5 +120,10 @@ public class WtSimCardServiceImpl extends ServiceImpl
     //根据卡号查询本数据库SIM卡信息
     public WtSimCard getByCardno(String cardno){
         return wtSimCardMapper.getByCardno(cardno);
+    }
+
+    //根据条件查询所有SIM卡信息
+    public IPage<Map<String, Object>> selectData(Page<Map<String,Object>> page, WtSimCard entity){
+        return page.setRecords(wtSimCardMapper.selectData(page,entity));
     }
 }

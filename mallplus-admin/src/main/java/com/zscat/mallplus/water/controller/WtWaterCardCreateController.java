@@ -94,9 +94,9 @@ public class WtWaterCardCreateController {
                 return new CommonResult().failed("此区段内有已经生成过的卡号存在，请重新设定起始卡号-终止卡号范围！");
             }
 //            AccountWxapp accountWxapp=iAccountWxappService.getById(entity.getAcid());
-            if(IWtWaterCardCreateService.getAcidKey(entity.getAcid())==null || IWtWaterCardCreateService.getAcidKey(entity.getAcid()).isEmpty()){
-                return new CommonResult().failed("此公众号没有key，请选择其他信息完整的公众号！");
-            }
+//            if(IWtWaterCardCreateService.getAcidKey(entity.getAcid())==null || IWtWaterCardCreateService.getAcidKey(entity.getAcid()).isEmpty()){
+//                return new CommonResult().failed("此公众号没有key，请选择其他信息完整的公众号！");
+//            }
 
             //将代号转为大写
             entity.setCode(entity.getCode().toUpperCase());
