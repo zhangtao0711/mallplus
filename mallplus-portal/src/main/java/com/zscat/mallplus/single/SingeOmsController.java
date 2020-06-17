@@ -1,5 +1,6 @@
 package com.zscat.mallplus.single;
 
+import com.alipay.api.domain.OrderItem;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -21,7 +22,9 @@ import com.zscat.mallplus.oms.service.IOmsOrderService;
 import com.zscat.mallplus.oms.vo.ExpressInfo;
 import com.zscat.mallplus.oms.vo.ExpressParam;
 import com.zscat.mallplus.oms.vo.OrderParam;
+import com.zscat.mallplus.pms.entity.PmsProduct;
 import com.zscat.mallplus.pms.service.IPmsProductConsultService;
+import com.zscat.mallplus.pms.service.IPmsProductService;
 import com.zscat.mallplus.sms.service.ISmsGroupService;
 import com.zscat.mallplus.ums.entity.UmsMember;
 import com.zscat.mallplus.ums.mapper.UmsMemberMapper;
@@ -75,6 +78,8 @@ public class SingeOmsController extends ApiBaseAction {
     @Autowired
     private IPmsProductConsultService pmsProductConsultService;
     @Autowired
+    private IPmsProductService productService;
+    @Autowired
     private IUmsMemberService memberService;
     @Resource
     private com.zscat.mallplus.oms.service.IOmsOrderReturnReasonService IOmsOrderReturnReasonService;
@@ -93,11 +98,17 @@ public class SingeOmsController extends ApiBaseAction {
                             @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum) {
 
         IPage<OmsOrder> page = null;
-        if (order.getStatus() != null && order.getStatus() == 0) {
-            page = orderService.page(new Page<OmsOrder>(pageNum, pageSize), new QueryWrapper<OmsOrder>().eq("member_id", memberService.getNewCurrentMember().getId()).isNull("pid").orderByDesc("create_time").select(ConstansValue.sampleOrderList));
+        UmsMember umsMember = memberService.getNewCurrentMember();
+        List<String> ids = memberMapper.queryIdList(umsMember.getPhone());
+        QueryWrapper<OmsOrder> queryWrapper = new QueryWrapper<OmsOrder>().eq("member_id", umsMember.getId()).isNull("pid");
+        ids.forEach(item->{
+            queryWrapper.or().eq("member_id",item);
+        });
+        if (order.getStatus() != null && order.getStatus() == 0) {//全部订单
+            page = orderService.page(new Page<OmsOrder>(pageNum, pageSize), queryWrapper.orderByDesc("create_time").select(ConstansValue.sampleOrderList));
         } else {
-            order.setMemberId(memberService.getNewCurrentMember().getId());
-            page = orderService.page(new Page<OmsOrder>(pageNum, pageSize), new QueryWrapper<>(order).isNull("pid").orderByDesc("create_time").select(ConstansValue.sampleOrderList));
+//            order.setMemberId(umsMember.getId());
+            page = orderService.page(new Page<OmsOrder>(pageNum, pageSize), queryWrapper.orderByDesc("create_time").select(ConstansValue.sampleOrderList));
         }
         for (OmsOrder omsOrder : page.getRecords()) {
             List<OmsOrderItem> itemList = orderItemService.list(new QueryWrapper<OmsOrderItem>().eq("order_id", omsOrder.getId()).eq("type", AllEnum.OrderItemType.GOODS.code()));
@@ -115,8 +126,13 @@ public class SingeOmsController extends ApiBaseAction {
                                   @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum) {
 
         IPage<OmsOrder> page = null;
-        order.setMemberId(memberService.getNewCurrentMember().getId());
-        page = orderService.page(new Page<OmsOrder>(pageNum, pageSize), new QueryWrapper<>(order).isNull("pid").orderByDesc("create_time").select(ConstansValue.sampleOrderList));
+        UmsMember umsMember = memberService.getNewCurrentMember();
+        List<String> ids = memberMapper.queryIdList(umsMember.getPhone());
+        QueryWrapper<OmsOrder> queryWrapper = new QueryWrapper<OmsOrder>().eq("member_id", umsMember.getId()).isNull("pid");
+        ids.forEach(item->{
+            queryWrapper.or().eq("member_id",item);
+        });
+        page = orderService.page(new Page<OmsOrder>(pageNum, pageSize), queryWrapper.orderByDesc("create_time").select(ConstansValue.sampleOrderList));
 
         return new CommonResult().success(page);
     }
@@ -314,6 +330,40 @@ public class SingeOmsController extends ApiBaseAction {
     public Object generateOrder(OrderParam orderParam) {
         try {
             return orderService.generateOrder(orderParam);
+        } catch (ApiMallPlusException e) {
+            return new CommonResult().failed(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 提交订单之后马上请求的接口，判定是手动发货还是自动发货，
+     * 若是手动发货则不改状态
+     * 若是自动发货则改成已发 货即待收货
+     * @param orderId
+     * @return
+     */
+    @ApiOperation("提交订单之后马上请求的接口，判定是手动发货还是自动发货")
+    @RequestMapping(value = "/generateOrderAfter")
+    @ResponseBody
+    public Object generateOrderAfter(String orderId) {
+        try {
+            //获取订单信息
+            OmsOrder order = orderService.getById(orderId);
+            List<OmsOrderItem> list = orderItemService.list(new QueryWrapper<OmsOrderItem>().eq("order_id",orderId));
+            Integer status = OrderStatus.DELIVERED.getValue();
+            for (OmsOrderItem item:list){
+                PmsProduct product = productService.getById(item.getProductId());
+                if (product.getAutoDelivery()==0){
+                    status = OrderStatus.TO_DELIVER.getValue();
+                    break;
+                }
+            }
+            order.setStatus(status);
+            orderService.updateById(order);
+            return new CommonResult().success();
         } catch (ApiMallPlusException e) {
             return new CommonResult().failed(e.getMessage());
         } catch (Exception e) {

@@ -36,5 +36,6 @@ public class ProfitSharingModel extends BaseModel {
     private String transaction_id;
     private String out_order_no;
     private String receivers;
+    private String receiver;
     private String description;
 }

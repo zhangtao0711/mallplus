@@ -3,7 +3,6 @@ package com.zscat.mallplus.ums.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
-import com.zscat.mallplus.common.CommonConstant;
 import com.zscat.mallplus.config.MallplusProperties;
 import com.zscat.mallplus.enums.AllEnum;
 import com.zscat.mallplus.exception.ApiMallPlusException;
@@ -13,15 +12,12 @@ import com.zscat.mallplus.oms.mapper.OmsOrderMapper;
 import com.zscat.mallplus.oms.vo.OrderStstic;
 import com.zscat.mallplus.set.entity.SetSalesBuy;
 import com.zscat.mallplus.set.mapper.SetSalesBuyMapper;
-import com.zscat.mallplus.sms.entity.SmsLabelMember;
-import com.zscat.mallplus.sms.mapper.SmsLabelMemberMapper;
 import com.zscat.mallplus.sys.entity.SysUser;
 import com.zscat.mallplus.sys.entity.SysUserStaff;
 import com.zscat.mallplus.sys.mapper.SysAreaMapper;
 import com.zscat.mallplus.sys.mapper.SysUserMapper;
 import com.zscat.mallplus.sys.mapper.SysUserStaffMapper;
 import com.zscat.mallplus.ums.entity.*;
-import com.zscat.mallplus.ums.mapper.SysAppletSetMapper;
 import com.zscat.mallplus.ums.mapper.UmsIntegrationConsumeSettingMapper;
 import com.zscat.mallplus.ums.mapper.UmsMemberMapper;
 import com.zscat.mallplus.ums.mapper.UmsMemberMemberTagRelationMapper;
@@ -444,7 +440,7 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
                 waterCard.setUmsMemberId(id);
                 WtWaterCard card = waterCardMapper.selectOne(new QueryWrapper<>(waterCard));
                 if (card==null){
-                    //TODO 送虚拟卡
+                    // 送虚拟卡
                     appletSetService.donateVirtualCard(member,wxapp.getCreateBy());
                 }
                 if (card.getCardMoney()==null){
@@ -818,11 +814,12 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     }
 
     @Override
-    public Object getAppletOpenId(AppletLoginParam req) {
+    public Object getAppletOpenId(AppletLoginParam req) throws Exception {
         JSONObject j = new JSONObject();
         Long dealerId = accountWxappMapper.getDealerIdByUniacid(req.getUniacid());
         String appid = null;
         String secret = null;
+        String openid = null;
         AccountWxapp accountWxapp = new AccountWxapp();
         accountWxapp.setUniacid(req.getUniacid());
         accountWxapp.setCreateBy(dealerId);
@@ -837,32 +834,48 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
             }else {
                 appid = wechats.getKey();
                 secret = wechats.getSecret();
+                //公众号获取openid
+                //未查询到用户信息，通过微信获取用户tokey信息
+                String requestUrl1 = GetPageAccessTokenUrl.replace("APPID", appid).replace("APPSECRET", secret);
+                String openidResponse = httpClientSend(requestUrl1);
+                JSONObject OpenidJSONO = JSONObject.fromObject(openidResponse);
+                String accessToken = String.valueOf(OpenidJSONO.get("access_token"));
+                //获取用户数据信息
+                String requestUserInfoUrl = GetPageUserInfoUrl.replace("ACCESS_TOKEN", accessToken).replace("OPENID", appid);
+                String userresponse = httpClientSend(requestUserInfoUrl);
+                JSONObject userJSON = JSONObject.fromObject(userresponse);
+                if (userJSON==null||StringUtils.isEmpty(userJSON.getString("openid"))){
+                    throw new ApiMallPlusException("登录失败openid is empty");
+                }
+                openid = userJSON.getString("openid");
             }
         }else {
             appid = wxapp.getKey();
             secret = wxapp.getSecret();
-        }
-        String webAccessTokenhttps = "https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code";
-        String code = req.getCode();
-        if (StringUtils.isEmpty(code)) {
-            log.error("code ie empty");
-            throw new ApiMallPlusException("code ie empty");
-        }
-        //获取openid
-        String requestUrl = String.format(webAccessTokenhttps,
-                appid,
-                secret,
-                code);
+            String webAccessTokenhttps = "https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code";
+            String code = req.getCode();
+            if (StringUtils.isEmpty(code)) {
+                log.error("code ie empty");
+                throw new ApiMallPlusException("code ie empty");
+            }
+            //获取openid
+            String requestUrl = String.format(webAccessTokenhttps,
+                    appid,
+                    secret,
+                    code);
 
 
-        JSONObject sessionData = CommonUtil.httpsRequest(requestUrl, "GET", null);
+            JSONObject sessionData = CommonUtil.httpsRequest(requestUrl, "GET", null);
 //        String userInfos = req.getUserInfo();
-        System.out.println(sessionData.toString());
+            System.out.println(sessionData.toString());
 
 
-        if (null == sessionData || StringUtils.isEmpty(sessionData.getString("openid"))) {
-            throw new ApiMallPlusException("登录失败openid is empty");
+            if (null == sessionData || StringUtils.isEmpty(sessionData.getString("openid"))) {
+                throw new ApiMallPlusException("登录失败openid is empty");
+            }
+            openid = sessionData.getString("openid");
         }
+
         //验证用户信息完整性
         /*String signature = req.getSignature();
         String sha1 = CommonUtil.getSha1(userInfos + sessionData.getString("session_key"));
@@ -870,8 +883,8 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
             throw new ApiMallPlusException("登录失败,验证用户信息完整性 签名验证失败" + sha1 + "，" + signature);
         }*/
         //判断数据库里面有没有返回的这个openid，有的话直接登录的首页，没有的话直接就是小程序页面
-        j.put("openid",sessionData.getString("openid"));
-        Long num = memberMapper.getByOpenid(sessionData.getString("openid"));
+        j.put("openid",openid);
+        Long num = memberMapper.getByOpenid(openid);
         if (num>0){
             j.put("url","pages/login/binPhone");
         }else {
@@ -1509,7 +1522,7 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
 
     @Override
     public boolean createAppUser(String openid, Integer sex, String headimgurl, String unionid, String nickname, String city, Integer source, Integer uniacid,String phone) {
-        if (uniacid==StringConstantUtil.applet_platform){
+        if (uniacid.equals(StringConstantUtil.applet_platform)){
             SysUser sysUser = new SysUser();
             sysUser.setPhone(phone);
             sysUser.setUsername(phone);

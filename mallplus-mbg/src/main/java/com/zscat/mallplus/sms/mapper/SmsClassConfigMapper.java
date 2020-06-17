@@ -10,5 +10,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 */
 public interface SmsClassConfigMapper extends BaseMapper<SmsClassConfig> {
 
-    SmsClassConfig selectByDeviceNo(String deviceNo);
+    SmsClassConfig selectByDeviceId(String deviceId);
 }

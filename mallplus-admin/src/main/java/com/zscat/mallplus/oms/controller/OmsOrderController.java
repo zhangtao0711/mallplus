@@ -60,6 +60,9 @@ public class OmsOrderController {
                                     @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         try {
+            if (entity.getStatus()==null){
+                return new CommonResult().validateFailed("状态参数不能为空！");
+            }
             if (entity.getStatus()==0){
                 return new CommonResult().success(IOmsOrderService.page(new Page<OmsOrder>(pageNum, pageSize), new QueryWrapper<OmsOrder>().orderByDesc("create_time").select(ConstansValue.sampleOrderList)));
             }
