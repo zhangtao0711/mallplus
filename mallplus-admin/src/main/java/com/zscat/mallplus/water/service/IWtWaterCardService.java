@@ -25,4 +25,6 @@ public interface IWtWaterCardService extends IService<WtWaterCard> {
     boolean updateStateByCard(String cardNo, String state, Long updateBy);
     //检索数据
     IPage<Map<String, Object>> selectData(Page<Map<String,Object>> page, WtWaterCard entity);
+    //查询问题卡
+    IPage<Map<String, Object>> selectProblemData(Page<Map<String,Object>> mapPage, WtWaterCard entity,String state);
 }

@@ -23,7 +23,7 @@ import java.io.Serializable;
  * SIM卡充值记录
  */
 @Data
-@TableName("wt_sim_send_order")
+@TableName("wt_sim_send_order_wx")
 public class WtSimSendOrderWx extends BaseEntity implements Serializable {
 
 

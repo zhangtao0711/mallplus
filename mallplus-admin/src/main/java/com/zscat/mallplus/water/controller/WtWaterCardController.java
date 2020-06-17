@@ -64,6 +64,23 @@ public class WtWaterCardController {
         return new CommonResult().failed();
     }
 
+    @SysLog(MODULE = "water", REMARK = "根据条件查询所有问题卡列表")
+    @ApiOperation("根据条件查询所有问题卡列表")
+    @GetMapping(value = "/listProblem")
+    @PreAuthorize("hasAuthority('water:wtWaterCard:read')")
+    public Object listProblem(WtWaterCard entity,
+                                       @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                       @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
+    ) {
+        try {
+//            return new CommonResult().success(IWtWaterCardService.page(new Page<WtWaterCard>(pageNum, pageSize), new QueryWrapper<>(entity)));
+            return new CommonResult().success(IWtWaterCardService.selectProblemData(new Page<Map<String, Object>>(pageNum, pageSize),
+                    entity,ConstantUtil.water_code_state_0));
+        } catch (Exception e) {
+            log.error("根据条件查询所有水卡列表：%s", e.getMessage(), e);
+        }
+        return new CommonResult().failed();
+    }
     @SysLog(MODULE = "water", REMARK = "保存水卡")
     @ApiOperation("保存水卡")
     @PostMapping(value = "/create")
