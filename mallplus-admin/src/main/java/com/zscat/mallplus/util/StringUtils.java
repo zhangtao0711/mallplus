@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 /**
  * 字符串工具类, 继承org.apache.commons.lang3.StringUtils类
@@ -219,5 +220,35 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
             b = false;
         }
         return b;
+    }
+    /**
+     * Ip地址判断<br>
+     * 符号 '\d'等价的正则表达式'[0-9]',匹配数字0-9<br>
+     * {1,3}表示匹配三位以内的数字（包括三位数）
+     *
+     * @param str
+     * @return
+     */
+    public static boolean isIP(String str) {
+
+        // 匹配 1
+        // String regex = "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}";
+        // 匹配 2
+        String regex = "[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}";
+
+        // 匹配1 和匹配2均可实现Ip判断的效果
+        Pattern pattern = Pattern.compile(regex);
+
+        return pattern.matcher(str).matches();
+
+    }
+
+    /**
+     * 端口号校验
+     * @param s
+     * @return
+     */
+    public static boolean checkPort(String s) {
+        return s.matches("^[1-9]$|(^[1-9][0-9]$)|(^[1-9][0-9][0-9]$)|(^[1-9][0-9][0-9][0-9]$)|(^[1-6][0-5][0-5][0-3][0-5]$)");
     }
 }
