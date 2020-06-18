@@ -94,9 +94,10 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     //根据条件查询所有会员表列表
     public IPage<Map<String, Object>> selectMember(Page<Map<String,Object>> page, UmsMember entity){
         List<Map<String,Object>> umsMembers =memberMapper.selectMember(page,entity);
-        for(Map<String,Object> data : umsMembers){
+        for(int i=0;i<umsMembers.size();i++){
             Map<String,List<SmsLabelSet>> labelList= new HashMap<>();
-            labelList.put("labelList",smsLabelMemberMapper.getLableList(data.get("id")));
+            UmsMember data= (UmsMember) umsMembers.get(i);
+            labelList.put("labelList",smsLabelMemberMapper.getLableList(data.getId()));
         }
         return page.setRecords(umsMembers);
     }
@@ -149,9 +150,10 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
     //高级查询
     public IPage<Map<String, Object>> selectSenior(Page<Map<String,Object>> page, UmsMemberSelect entity){
         List<Map<String,Object>> umsMembers =memberMapper.selectSenior(page,entity);
-        for(Map<String,Object> data : umsMembers){
+        for(int i=0;i<umsMembers.size();i++){
             Map<String,List<SmsLabelSet>> labelList= new HashMap<>();
-            labelList.put("labelList",smsLabelMemberMapper.getLableList(data.get("id")));
+            UmsMember data= (UmsMember) umsMembers.get(i);
+            labelList.put("labelList",smsLabelMemberMapper.getLableList(data.getId()));
         }
         return page.setRecords(umsMembers);
     }
