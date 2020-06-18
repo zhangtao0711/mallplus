@@ -32,7 +32,7 @@ public interface IUmsMemberService extends IService<UmsMember> {
      * @param req
      * @return
      */
-    Object getAppletOpenId(AppletLoginParam req);
+    Object getAppletOpenId(AppletLoginParam req) throws Exception;
 
 
     /**

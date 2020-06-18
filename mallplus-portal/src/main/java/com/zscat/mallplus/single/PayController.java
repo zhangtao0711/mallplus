@@ -612,7 +612,7 @@ public class PayController extends ApiBaseAction {
         if (WxPayKit.verifyNotify(params, this.getApiConfig(wxapp.getUniacid()).getPartnerKey(), SignType.HMACSHA256)) {
             if (WxPayKit.codeIsOk(returnCode)) {
                 // 5.更新订单信息
-                if (record.getStatus()==StringConstantUtil.rechargeStatus_2){
+                if (record.getStatus().equals(StringConstantUtil.rechargeStatus_2)){
                     record.setStatus(StringConstantUtil.rechargeStatus_3);
                     recordMapper.updateById(record);
                     //这里把实际到账钱数放进用户的会员卡信息里面

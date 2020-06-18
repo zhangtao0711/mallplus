@@ -264,4 +264,8 @@
 	        a.weixin_openid = b.weixin_openid = c.weixin_openid = #{openId}
 
     </select>
+
+    <select id="queryIdList" resultType="String">
+        SELECT id FROM ums_member WHERE phone  = #{phone}
+    </select>
 </mapper>

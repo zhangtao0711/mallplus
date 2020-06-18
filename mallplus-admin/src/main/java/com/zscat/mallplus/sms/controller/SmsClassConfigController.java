@@ -12,6 +12,8 @@ import com.zscat.mallplus.sms.service.ISmsWaterPageService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
+import com.zscat.mallplus.water.entity.WtEquipment;
+import com.zscat.mallplus.water.service.IWtEquipmentService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Date;
+import java.util.*;
 
 /**
  * @author wang
@@ -40,6 +39,8 @@ public class SmsClassConfigController {
     private ISmsClassConfigService ISmsClassConfigService;
     @Resource
     private ISmsWaterPageService smsWaterPageService;
+    @Resource
+    private IWtEquipmentService equipmentService;
 
     @SysLog(MODULE = "sms", REMARK = "根据条件查询所有购水设置列表")
     @ApiOperation("根据条件查询所有购水设置列表")
@@ -128,7 +129,9 @@ public class SmsClassConfigController {
                 waterPages.add(waterPage);
             }
             j.put("waterPages",waterPages);
-            //todo 亚楠设备还没做
+            //亚楠设备还没做，设备做了现在
+            Collection<WtEquipment> equipments = equipmentService.listByIds(Arrays.asList(coupon.getDevices().split(",")));
+            j.put("equipments",equipments);
             return new CommonResult().success(j);
         } catch (Exception e) {
             log.error("查询购水设置明细：%s", e.getMessage(), e);

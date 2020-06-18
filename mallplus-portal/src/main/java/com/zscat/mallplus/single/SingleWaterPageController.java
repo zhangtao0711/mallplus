@@ -40,6 +40,7 @@ import com.zscat.mallplus.wxpay.model.UnifiedOrderModel;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import me.chanjar.weixin.common.error.WxErrorException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -78,7 +79,7 @@ public class SingleWaterPageController extends ApiBaseAction {
     @Resource
     private ISmsLabelMemberService labelMemberService;
 
-    private String notifyUrl = "http://java.chengguo.link:8081/api";
+    private String notifyUrl = "http://siliang.zlkjhb.cn/api";
     private String refundNotifyUrl;
 
     public WxPayApiConfig getApiConfig(Integer uid) {
@@ -118,7 +119,7 @@ public class SingleWaterPageController extends ApiBaseAction {
     @PostMapping("buyWaterPage")
     public Object buyWaterPage(@RequestParam String openid,@RequestParam String deviceId){
         //通过deviceNo找到数据
-        SmsClassConfig config = smsClassConfigMapper.selectById(deviceId);
+        SmsClassConfig config = smsClassConfigMapper.selectByDeviceId(deviceId);
         JSONObject j = new JSONObject();
         List<String> waters = Arrays.asList(config.getWaterIds());
         List<SmsWaterPage> waterPages = new ArrayList<>();
@@ -170,10 +171,12 @@ public class SingleWaterPageController extends ApiBaseAction {
         String outTradeNo = WxPayKit.generateStr();
         //小程序支付统一下单-服务商支付
         //1.获取支付的金额
-        if (entity.getPayFee()==null){
+        if (entity.getPayFee()==null||entity.getActualFee()==null){
             return new CommonResult().failed("订单金额不能为空！");
         }
-        BigDecimal price = entity.getPayFee().multiply(new BigDecimal("100")).setScale(BigDecimal.ROUND_DOWN,0);
+        BigDecimal price = entity.getActualFee().multiply(new BigDecimal("100")).setScale(BigDecimal.ROUND_DOWN,0);
+        BigDecimal actual = entity.getActualFee().multiply(new BigDecimal("994")).setScale(BigDecimal.ROUND_DOWN,2);
+        entity.setActualAccount(actual);
         //2.获取IP
         String ip = IpKit.getRealIp(request);
         if (StrKit.isBlank(ip)) {
@@ -258,7 +261,7 @@ public class SingleWaterPageController extends ApiBaseAction {
         if (WxPayKit.verifyNotify(params, this.getApiConfig(wxapp.getUniacid()).getPartnerKey(), SignType.HMACSHA256)) {
             if (WxPayKit.codeIsOk(returnCode)) {
                 // 5.更新订单信息
-                if (record.getStatus()==StringConstantUtil.rechargeStatus_2){
+                if (record.getStatus().equals(StringConstantUtil.rechargeStatus_2)){
                     record.setStatus(StringConstantUtil.rechargeStatus_3);
                     recordMapper.updateById(record);
                     //获取用户，添加积分
@@ -266,7 +269,7 @@ public class SingleWaterPageController extends ApiBaseAction {
                     umsMember.setUniacid(record.getUniacid());
                     umsMember.setWeixinOpenid(record.getOpenId());
                     UmsMember member = memberService.getOne(new QueryWrapper<>(umsMember));
-                    //TODO 添加积分之前，先判定一下有没有卡，没卡送卡
+                    //添加积分之前，先判定一下有没有卡，没卡送卡
                     appletSetService.donateVirtualCard(member,record.getDealerId());
                     memberService.addIntegration(member.getId(),member.getUniacid(),0,"扫码买水赠积分", AllEnum.ChangeSource.order.code(),member.getUsername(),record.getActualAccount());
                     //用户买水分账或者企业付款到零钱
@@ -367,10 +370,10 @@ public class SingleWaterPageController extends ApiBaseAction {
     @ApiOperation("关闭订单")
     @RequestMapping(value = "/orderCancel", method = RequestMethod.POST)
     public Object closeOrder(@RequestBody SmsWaterBuyRecord order) {
-        if (order.getStatus()==StringConstantUtil.rechargeStatus_6){
+        if (order.getStatus().equals(StringConstantUtil.rechargeStatus_6)){
             return new CommonResult().failed(400,"订单已关闭，请勿重复操作！");
         }
-        if (order.getStatus()==StringConstantUtil.rechargeStatus_3){
+        if (order.getStatus().equals(StringConstantUtil.rechargeStatus_3)){
             return new CommonResult().failed(400,"订单已支付，不允许关闭！");
         }
         //设置账号信息
@@ -417,7 +420,7 @@ public class SingleWaterPageController extends ApiBaseAction {
     @SysLog(MODULE = "single", REMARK = "会员卡购水")
     @ApiOperation(value = "会员卡购水")
     @PostMapping("buyWaterByCard")
-    public Object buyWaterByCard(WtWaterCardVituralConsume consume){
+    public Object buyWaterByCard(WtWaterCardVituralConsume consume) throws WxErrorException {
        // 水卡的消费明细表，确定水卡的消费明细在谁那里 确定是实体卡还是虚拟卡 虚拟卡在我这里
         if (consume.getType()==null){
             return new CommonResult().failed("水卡类型参数不为空!");
@@ -428,8 +431,9 @@ public class SingleWaterPageController extends ApiBaseAction {
             consume.setCardMoney(waterCard.getCardMoney());
             consumeMapper.insert(consume);
             waterCardMapper.updateById(waterCard);
-            //todo 标签
-//            labelMemberService.addCardLabel(consume.getUniacid(),consume.getStoreId(),waterCard.getCardMoney());
+            //标签
+            UmsMember member = memberService.getById(consume.getMemberId());
+            labelMemberService.addCardLabel(consume.getUniacid(),consume.getStoreId(),waterCard.getCardMoney(),consume.getMemberId(),member.getWeixinOpenid());
         }else if (consume.getType()==2){
             //TODO 实体卡
         }

@@ -26,6 +26,7 @@ import com.zscat.mallplus.sys.mapper.SysStoreMapper;
 import com.zscat.mallplus.sys.mapper.SysUserMapper;
 import com.zscat.mallplus.ums.entity.*;
 import com.zscat.mallplus.ums.mapper.UmsEmployInfoMapper;
+import com.zscat.mallplus.ums.mapper.UmsMemberMapper;
 import com.zscat.mallplus.ums.mapper.UmsRewardLogMapper;
 import com.zscat.mallplus.ums.service.*;
 import com.zscat.mallplus.ums.service.impl.RedisUtil;
@@ -70,6 +71,8 @@ public class SingeUmsController extends ApiBaseAction {
     private ISysSchoolService schoolService;
     @Resource
     private IUmsMemberService memberService;
+    @Resource
+    private UmsMemberMapper memberMapper;
     @Resource
     private ISysAreaService areaService;
     @Resource
@@ -125,10 +128,12 @@ public class SingeUmsController extends ApiBaseAction {
             @RequestParam(value = "nickname", required = false) String nickname,
             @RequestParam(value = "icon", required = false) String icon,
             @RequestParam(value = "invitecode", required = false) String invitecode,
-            @RequestParam(value = "gender", required = false) Integer gender
+            @RequestParam(value = "gender", required = false) Integer gender,
+            @RequestParam(value = "phone",required = false)String phone
     ) {
         UmsMember m = new UmsMember();
-        m.setId(memberService.getNewCurrentMember().getId());
+        UmsMember member = memberService.getNewCurrentMember();
+        m.setId(member.getId());
         if (ValidatorUtils.notEmpty(nickname)) {
             m.setNickname(nickname);
         }
@@ -144,6 +149,14 @@ public class SingeUmsController extends ApiBaseAction {
             } else {
                 return new CommonResult().failed();
             }
+        }
+        if (ValidatorUtils.notEmpty(phone)){
+            List<String> list = memberMapper.queryIdList(member.getPhone());
+            list.forEach(item->{
+                m.setPhone(phone);
+                memberService.updateById(m);
+            });
+            return new CommonResult().success();
         }
         return memberService.updateById(m);
     }

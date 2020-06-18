@@ -208,18 +208,22 @@ public class OmsOrderServiceImpl extends ServiceImpl<OmsOrderMapper, OmsOrder> i
         if (orderMapper.updateById(tbOrder) != 1) {
             throw new ApiMallPlusException("更新订单失败");
         }
-        //恢复所有下单商品的锁定库存，扣减真实库存
-        OmsOrderItem queryO = new OmsOrderItem();
-        queryO.setOrderId(tbThanks.getOrderId());
-        List<OmsOrderItem> list = orderItemService.list(new QueryWrapper<>(queryO));
+        //要根据商品的信息判定这里需不需要恢复所有下单商品的锁定库存，扣减真实库存
+        PmsProduct product = productService.getById(tbOrder.getGoodsId());
+        if (product.getCutStock()==1) {
+            OmsOrderItem queryO = new OmsOrderItem();
+            queryO.setOrderId(tbThanks.getOrderId());
+            List<OmsOrderItem> list = orderItemService.list(new QueryWrapper<>(queryO));
 
-        int count = orderMapper.updateSkuStock(list);
-        //发送通知确认邮件
-        String tokenName = UUID.randomUUID().toString();
-        String token = UUID.randomUUID().toString();
+            int count = orderMapper.updateSkuStock(list);
+            //发送通知确认邮件
+            String tokenName = UUID.randomUUID().toString();
+            String token = UUID.randomUUID().toString();
 
-        // emailUtil.sendEmailDealThank(EMAIL_SENDER,"【mallcloud商城】支付待审核处理",tokenName,token,tbThanks);
-        return count;
+            // emailUtil.sendEmailDealThank(EMAIL_SENDER,"【mallcloud商城】支付待审核处理",tokenName,token,tbThanks);
+            return count;
+        }
+        return -1;
     }
 
     @Override
@@ -630,7 +634,7 @@ public class OmsOrderServiceImpl extends ServiceImpl<OmsOrderMapper, OmsOrder> i
             if ("3".equals(type)) { // 1 商品详情 2 勾选购物车 3全部购物车的商品
                 cartPromotionItemList = cartItemService.listPromotion(currentMember.getId(), null);
             }
-            if ("1".equals(type)) {
+            if ("1".equals(type)) {//将商品详情页面的数据改成购物车数据，去生成订单
                 if (ValidatorUtils.empty(orderParam.getTotal())) {
                     orderParam.setTotal(1);
                 }
@@ -680,6 +684,7 @@ public class OmsOrderServiceImpl extends ServiceImpl<OmsOrderMapper, OmsOrder> i
         if (cartPromotionItemList == null || cartPromotionItemList.size() < 1) {
             return new CommonResult().failed("没有下单的商品");
         }
+        //获取订单中所包含的商品，数据的一个转换
         List<OmsOrderItem> orderItemList = new ArrayList<>();
         //获取购物车及优惠信息
         String name = "";
@@ -709,6 +714,13 @@ public class OmsOrderServiceImpl extends ServiceImpl<OmsOrderMapper, OmsOrder> i
                         if (goods.getIsVip() != null && goods.getIsVip() == 1) {
                             singVipPrice = skuStock.getPrice().multiply(new BigDecimal((10 - memberRate)).divide(new BigDecimal(10))).setScale(2);
                             vipPrice = vipPrice.add(skuStock.getPrice().multiply(new BigDecimal((10 - memberRate)).divide(new BigDecimal(10)))).setScale(2);
+                        }
+                        //TODO 在这里判定减库存
+                        if (goods.getCutStock()==2) {
+                            skuStock.setStock(skuStock.getStock()-cartPromotionItem.getQuantity());
+                            if (skuStockMapper.updateById(skuStock)<0){
+                                return new CommonResult().failed("扣减库存失败！");
+                            }
                         }
                     }
                 }
@@ -1797,13 +1809,17 @@ public class OmsOrderServiceImpl extends ServiceImpl<OmsOrderMapper, OmsOrder> i
         order.setModifyTime(new Date());
         orderService.updateById(order);
         //恢复所有下单商品的锁定库存，扣减真实库存
-        OmsOrderItem queryO = new OmsOrderItem();
-        queryO.setOrderId(orderId);
-        String key = Rediskey.orderDetail + "orderid" + orderId;
-        redisService.remove(key);
-        List<OmsOrderItem> list = orderItemService.list(new QueryWrapper<>(queryO));
-        order.setModifyTime(new Date());
-        int count = orderMapper.updateSkuStock(list);
+        PmsProduct product = productService.getById(order.getGoodsId());
+        int count = -1;
+        if (product.getCutStock()==2) {
+            OmsOrderItem queryO = new OmsOrderItem();
+            queryO.setOrderId(orderId);
+            String key = Rediskey.orderDetail + "orderid" + orderId;
+            redisService.remove(key);
+            List<OmsOrderItem> list = orderItemService.list(new QueryWrapper<>(queryO));
+            order.setModifyTime(new Date());
+            count = orderMapper.updateSkuStock(list);
+        }
         return new CommonResult().success("支付成功", count);
     }
 

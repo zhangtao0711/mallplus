@@ -353,7 +353,8 @@ public class SysUserController extends ApiController {
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     @ResponseBody
     public Object logout() {
-
+        sysUserService.removePermissRedis(UserUtils.getCurrentMember().getId());
+        redisService.remove(String.format(Rediskey.user, UserUtils.getCurrentMember().getUsername()));
         return new CommonResult().success(null);
     }
 
