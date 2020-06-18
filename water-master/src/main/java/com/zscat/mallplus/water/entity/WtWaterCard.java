@@ -1,14 +1,11 @@
 package com.zscat.mallplus.water.entity;
 
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zscat.mallplus.util.BaseEntity;
 import lombok.Data;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -16,6 +13,7 @@ import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
@@ -144,6 +142,7 @@ public class WtWaterCard extends BaseEntity implements Serializable {
      * 删除状态(1-正常,0-已删除)
      **/
     @TableField("del_flag")
+    @TableLogic
     private String delFlag;
 
     /**
@@ -186,37 +185,52 @@ public class WtWaterCard extends BaseEntity implements Serializable {
      **/
     @TableField("acid")
     private Integer acid;
+    /**
+     * 单次消费限额
+     **/
+    @TableField("xfxe_limit")
+    @DecimalMin(value="0.01")
+    @DecimalMax(value="99.99")
+    @Digits(integer=8, fraction=2,message="单次消费限额不能设定大于99.99,小数位数只支持2位。")
+    private BigDecimal xfxeLimit;
+
+    /**
+     * 消费次数限制（天）
+     **/
+    @TableField("xf_num_limit")
+    @Range(min=1,max = 99,message = "单次消费限额（分）只能输入1-99的正整数！")
+    private Integer xfNumLimit;
 
     /**
      * 绑定用户名称
      **/
-    private String umsMemberName;
+    private transient String umsMemberName;
     /**
      * 登录名称
      */
-    private String weixinOpenid;
+    private transient String weixinOpenid;
     /**
      * 公众号名称
      */
-    private String uniacName;
+    private transient String uniacName;
     /**
      * 会员等级
      */
-    private String memberLevelName;
+    private transient String memberLevelName;
     /**
      * 设备id
      */
-    private String eqcode;
+    private transient String eqcode;
     /**
      * 设备地址
      */
-    private String eqAddress;
+    private transient String eqAddress;
     /**
      * 售卡人名
      **/
-    private Long saleByName;
+    private transient Long saleByName;
     /**
      * 推荐人名
      **/
-    private String umsMemberReferrerName;
+    private transient String umsMemberReferrerName;
 }

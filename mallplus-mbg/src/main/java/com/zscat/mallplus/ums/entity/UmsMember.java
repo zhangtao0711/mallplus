@@ -197,6 +197,10 @@ public class UmsMember implements Serializable {
      */
     private transient String cardNo;
     /**
+     * 虚拟卡号
+     */
+    private transient String cardNoInvented;
+    /**
      * 余额
      */
     private transient BigDecimal cardMoney;
@@ -216,6 +220,10 @@ public class UmsMember implements Serializable {
      * 推荐用户数
      */
     private transient String recommendNum;
+    /**
+     * 用户标签
+     */
+    private String labelName;
 //    /**
 //     * 用户标签ids
 //     */
