@@ -1,6 +1,7 @@
 package com.zscat.mallplus.sys.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
@@ -74,25 +75,27 @@ public class SysDealerUseController {
         try {
             entity.setCreateTime(new Date());
             if (ISysDealerUseService.save(entity)) {
-                //1.看设置的那些东西有没有试用时间，有的话将试用时间查出来并弄到到期时间里面去
-                String permissionIds = entity.getPermissionIds().substring(0,entity.getPermissionIds().length()-1);
-                List<Map<String,Object>> list = jdbcTemplate.queryForList("select * from set_sales where permission_id in (" + permissionIds+")");
-                //2. 把权限添到购买权限表里面，设置到期时间什么的
-                for (Map<String,Object> map:list){
-                    SetSalesBuy setSalesBuy = new SetSalesBuy();
-                    setSalesBuy.setId((long) 0);
-                    setSalesBuy.setDealerId(entity.getDealerId());
-                    setSalesBuy.setPerssionId(Long.parseLong(map.get("permission_id").toString()));
-                    setSalesBuy.setPerssionName(map.get("permission_name").toString());
-                    Date date = new Date();
-                    setSalesBuy.setBuyTime(date);
-                    Date endTime = TimeUtil.addDateMinut(date,Integer.parseInt(map.get("trial_time").toString()));
-                    setSalesBuy.setEndTime(endTime);
-                    setSalesBuy.setLastEndTime(endTime);
-                    setSalesBuy.setCreateTime(date);
-                    setSalesBuy.setStoreId(entity.getStoreId());
-                    setSalesBuy.setStoreName(entity.getStoreName());
-                    setSalesBuyService.save(setSalesBuy);
+                if (entity.getPermissionIds()!=null) {
+                    //1.看设置的那些东西有没有试用时间，有的话将试用时间查出来并弄到到期时间里面去
+                    String permissionIds = entity.getPermissionIds().substring(0, entity.getPermissionIds().length() - 1);
+                    List<Map<String, Object>> list = jdbcTemplate.queryForList("select * from set_sales where permission_id in (" + permissionIds + ")");
+                    //2. 把权限添到购买权限表里面，设置到期时间什么的
+                    for (Map<String, Object> map : list) {
+                        SetSalesBuy setSalesBuy = new SetSalesBuy();
+                        setSalesBuy.setId((long) 0);
+                        setSalesBuy.setDealerId(entity.getDealerId());
+                        setSalesBuy.setPerssionId(Long.parseLong(map.get("permission_id").toString()));
+                        setSalesBuy.setPerssionName(map.get("permission_name").toString());
+                        Date date = new Date();
+                        setSalesBuy.setBuyTime(date);
+                        Date endTime = TimeUtil.addDateMinut(date, Integer.parseInt(map.get("trial_time").toString()));
+                        setSalesBuy.setEndTime(endTime);
+                        setSalesBuy.setLastEndTime(endTime);
+                        setSalesBuy.setCreateTime(date);
+                        setSalesBuy.setStoreId(entity.getStoreId());
+                        setSalesBuy.setStoreName(entity.getStoreName());
+                        setSalesBuyService.save(setSalesBuy);
+                    }
                 }
                 return new CommonResult().success();
             }
@@ -114,6 +117,14 @@ public class SysDealerUseController {
             SetSalesBuy buy = new SetSalesBuy();
             buy.setDealerId(entity.getDealerId());
             List<SetSalesBuy> list = setSalesBuyService.list(new QueryWrapper<>(buy));
+            if (entity.getPermissionIds()==null) {
+                //正常更新就行
+                if (ISysDealerUseService.updateById(entity)) {
+                    return new CommonResult().success();
+                }else {
+                    return new CommonResult().failed();
+                }
+            }
             //2.循环，判断哪些是人家已经购买的不能修改,求两次更改的交集
             List<String> in = new ArrayList<>();
             for (SetSalesBuy salesBuy:list){
@@ -195,6 +206,13 @@ public class SysDealerUseController {
             if (coupon==null){
                 List<Map<String,Object>> permissionList = jdbcTemplate.queryForList("select * from set_sales");
                 return new CommonResult().success(permissionList);
+            }
+            if (coupon.getPermissionIds()==null){
+                JSONObject j = new JSONObject();
+                List<Map<String,Object>> permissionList = jdbcTemplate.queryForList("select * from set_sales");
+                j.put("permisions",permissionList);
+                j.put("coupon",coupon);
+                return new CommonResult().success(j);
             }
             return new CommonResult().success(coupon);
         } catch (Exception e) {

@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Date;
 
@@ -58,7 +59,7 @@ public class SysMerchantAuditController {
     @ApiOperation("保存经销商交叉授权")
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('sys:sysMerchantAudit:create')")
-    public Object saveSysMerchantAudit(@RequestBody SysMerchantAudit entity) {
+    public Object saveSysMerchantAudit(@RequestBody @Valid SysMerchantAudit entity) {
         SysUser user = new SysUser();
         user.setUsername(entity.getUsername());
         SysUser sysUser = sysUserService.getOne(new QueryWrapper<>(user));

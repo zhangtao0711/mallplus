@@ -5,11 +5,15 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.zscat.mallplus.annotation.Phone;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -45,6 +49,8 @@ public class SysUser implements Serializable {
     @TableField("level")
     private Integer level;
 
+    @NotEmpty(message = "用户名不能为空！")
+    @Phone
     private String username;
 
     private String password;
@@ -107,15 +113,22 @@ public class SysUser implements Serializable {
     private String code;
 
     @TableField("store_id")
+    @NotNull(message = "门店不能为空！")
     private Integer storeId;
 
     @TableField("dealer_name")
+    @NotEmpty(message = "商户名称不能为空！")
+    @Length(min = 2,max = 50,message = "商户名称必须在2-50之间")
     private String dealerName;
     @TableField("dealer_phone")
+    @Phone
     private String dealerPhone;
     @TableField("realname")
+    @NotEmpty(message = "联系人不能为空！")
+    @Length(min = 2,max = 50,message = "联系人必须在2-50之间")
     private String realname;
     @TableField("phone")
+    @Phone
     private String phone;
     /**
      * 省
@@ -139,6 +152,8 @@ public class SysUser implements Serializable {
     @TableField("address")
     private String address;
     @TableField("type")
+    @NotNull(message = "类型不能为空！")
+    @Range(min = 0,max = 3,message = "类型选择错误！")
     private Integer type;
     @TableField("self_pick")
     private Integer selfPick;
@@ -150,6 +165,7 @@ public class SysUser implements Serializable {
      * 申请状态 0申请中 1待入驻 2已入驻 3驳回
      */
     @TableField("apply_status")
+    @NotNull(message = "申请状态不能为空！")
     private Integer applyStatus;
 
     @TableField("apply_time")

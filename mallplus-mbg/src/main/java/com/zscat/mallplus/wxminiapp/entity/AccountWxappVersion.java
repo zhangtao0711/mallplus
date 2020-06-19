@@ -14,6 +14,9 @@ import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
 /**
@@ -34,12 +37,14 @@ public class AccountWxappVersion extends BaseEntity implements Serializable {
      *微信小程序id
      **/
     @TableField("uniacid")
+    @NotNull(message = "微信小程序id不能为空！")
     private Integer uniacid;
 
     /**
      * 经销商id
      */
     @TableField("dealer_id")
+    @NotNull(message = "经销商不能为空！")
     private Long dealerId;
 
 
@@ -61,6 +66,8 @@ public class AccountWxappVersion extends BaseEntity implements Serializable {
      * 版本号
      **/
     @TableField("version")
+    @NotEmpty(message = "版本号不能为空！")
+    @Pattern(regexp = "d+(.\\d+){0,2}",message = "请输入正确的版本号格式！")
     private String version;
 
 
@@ -75,6 +82,7 @@ public class AccountWxappVersion extends BaseEntity implements Serializable {
      * 绑定经销商id
      **/
     @TableField("create_by")
+    @NotNull(message = "创建者不能为空！")
     private Long createBy;
 
 
@@ -103,6 +111,7 @@ public class AccountWxappVersion extends BaseEntity implements Serializable {
      * 所属店铺
      **/
     @TableField("store_id")
+    @NotNull(message = "门店不能为空！")
     private Integer storeId;
 
 
@@ -110,6 +119,7 @@ public class AccountWxappVersion extends BaseEntity implements Serializable {
      *
      **/
     @TableField("store_name")
+    @NotEmpty(message = "门店名称不能为空！")
     private String storeName;
 
 

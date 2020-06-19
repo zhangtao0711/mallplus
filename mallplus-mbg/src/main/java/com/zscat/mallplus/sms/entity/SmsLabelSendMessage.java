@@ -13,7 +13,12 @@ import java.util.Date;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -34,6 +39,7 @@ public class SmsLabelSendMessage extends BaseEntity implements Serializable {
      * 经销商id
      **/
     @TableField("dealer_id")
+    @NotNull(message = "经销商不能为空！")
     private Long dealerId;
 
 
@@ -41,6 +47,9 @@ public class SmsLabelSendMessage extends BaseEntity implements Serializable {
      * 1指定标签组2全部发送
      **/
     @TableField("send_type")
+    @NotNull(message = "发送类型不能为空！")
+    @Min(1)
+    @Max(2)
     private Integer sendType;
 
 
@@ -55,6 +64,9 @@ public class SmsLabelSendMessage extends BaseEntity implements Serializable {
      * 1自定义消息
      **/
     @TableField("push_mode")
+    @NotNull(message = "推送模式不能为空！")
+    @Min(1)
+    @Max(1)
     private Integer pushMode;
 
 
@@ -62,6 +74,8 @@ public class SmsLabelSendMessage extends BaseEntity implements Serializable {
      * 消息
      **/
     @TableField("message")
+    @NotEmpty(message = "消息内容不能为空！")
+    @Length(min = 1,max = 100,message = "消息内容在1-100字之间")
     private String message;
 
 
@@ -69,6 +83,7 @@ public class SmsLabelSendMessage extends BaseEntity implements Serializable {
      * 所属店铺
      **/
     @TableField("store_id")
+    @NotNull(message = "所属门店不能为空！")
     private Integer storeId;
 
     @TableField("create_time")
@@ -78,5 +93,6 @@ public class SmsLabelSendMessage extends BaseEntity implements Serializable {
     private String msgId;
 
     @TableField("status")
+    @NotNull(message = "发送状态不能为空！")
     private Integer status;
 }

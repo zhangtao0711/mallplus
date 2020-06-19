@@ -13,7 +13,12 @@ import java.util.Date;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.io.Serializable;
 
@@ -35,6 +40,8 @@ public class SmsLabelSet extends BaseEntity implements Serializable {
      * 标签名称
      **/
     @TableField("label_name")
+    @NotEmpty(message = "标签名称不能为空！")
+    @Length(min = 5,max = 50,message = "标签名称只能在5-50之间！")
     private String labelName;
 
 
@@ -63,6 +70,7 @@ public class SmsLabelSet extends BaseEntity implements Serializable {
      * 经销商id
      **/
     @TableField("dealer_id")
+    @NotNull(message = "经销商不能为空！")
     private Long dealerId;
 
 
@@ -70,6 +78,7 @@ public class SmsLabelSet extends BaseEntity implements Serializable {
      * 所属门店
      **/
     @TableField("store_id")
+    @NotNull(message = "所属门店不能为空！")
     private Integer storeId;
 
 
@@ -77,6 +86,9 @@ public class SmsLabelSet extends BaseEntity implements Serializable {
      * 0否1是
      **/
     @TableField("is_system")
+    @NotNull(message = "标签类型不能为空！")
+    @Min(0)
+    @Max(1)
     private Integer isSystem;
 
 

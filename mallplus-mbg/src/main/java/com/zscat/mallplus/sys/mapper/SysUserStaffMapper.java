@@ -18,5 +18,5 @@ public interface SysUserStaffMapper extends BaseMapper<SysUserStaff> {
 
     int updatePasswordById(String password, Long id);
 
-    List<Map<String,Object>> bindWeChant(String uniacid, Integer storeId,String value);
+    List<Map<String,Object>> bindWeChant(Integer uniacid, Integer storeId,String value);
 }

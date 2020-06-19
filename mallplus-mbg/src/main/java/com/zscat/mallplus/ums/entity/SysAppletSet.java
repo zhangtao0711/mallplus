@@ -8,6 +8,7 @@ import com.zscat.mallplus.ums.vo.Receivers;
 import com.zscat.mallplus.utils.BaseEntity;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
@@ -62,7 +63,9 @@ public class SysAppletSet extends BaseEntity implements Serializable {
     private Long userId;
 
     private Integer levelId;
+    @NotNull(message = "商户号类型不能为空！")
     private Integer selfType;
+    @NotNull(message = "上级经销商不能为空！")
     private Long parentUserId;
     private String receiptAccount;
     private BigDecimal firstSeparate;

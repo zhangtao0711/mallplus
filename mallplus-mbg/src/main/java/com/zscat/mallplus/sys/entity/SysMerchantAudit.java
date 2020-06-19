@@ -13,7 +13,10 @@ import java.util.Date;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -34,6 +37,7 @@ public class SysMerchantAudit extends BaseEntity implements Serializable {
      * 发起商家
      **/
     @TableField("initiate_id")
+    @NotNull(message = "发起商家不能为空！")
     private Long initiateId;
 
 
@@ -41,9 +45,11 @@ public class SysMerchantAudit extends BaseEntity implements Serializable {
      * 授权商家
      **/
     @TableField("dealer_id")
+    @NotNull(message = "授权商家不能为空！")
     private Long dealerId;
 
     @TableField("username")
+    @NotEmpty(message = "用户名不能为空！")
     private String username;
 
 
@@ -65,6 +71,8 @@ public class SysMerchantAudit extends BaseEntity implements Serializable {
      * 状态
      **/
     @TableField("status")
+    @NotEmpty(message = "状态不能为空！")
+    @Length(min = 1,max = 1,message = "状态值传输错误！")
     private String status;
 
 
@@ -79,6 +87,7 @@ public class SysMerchantAudit extends BaseEntity implements Serializable {
      * 所属店铺
      **/
     @TableField("store_id")
+    @NotNull(message = "所属店铺不能为空！")
     private Integer storeId;
 
 
@@ -86,6 +95,7 @@ public class SysMerchantAudit extends BaseEntity implements Serializable {
      *
      **/
     @TableField("store_name")
+    @NotEmpty(message = "店铺名称不能为空！")
     private String storeName;
 
 

@@ -13,7 +13,10 @@ import java.util.Date;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Range;
 
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.io.Serializable;
 
@@ -35,6 +38,7 @@ public class SysDealerRechargeRecord extends BaseEntity implements Serializable 
      * 经销商id
      **/
     @TableField("dealer_id")
+    @NotNull(message = "经销商不能为空！")
     private Long dealerId;
 
 
@@ -42,12 +46,16 @@ public class SysDealerRechargeRecord extends BaseEntity implements Serializable 
      * 余额
      **/
     @TableField("balance")
+    @NotNull(message = "余额不能为空！")
+    @Digits(integer = 10, fraction = 2,message = "充值数目过大！")
     private BigDecimal balance;
 
     /**
      * 新的余额
      **/
     @TableField("new_balance")
+    @NotNull(message = "新的余额不能为空！")
+    @Digits(integer = 10, fraction = 2,message = "充值数目过大！")
     private BigDecimal newBalance;
 
 
@@ -55,6 +63,8 @@ public class SysDealerRechargeRecord extends BaseEntity implements Serializable 
      * 充值数目
      **/
     @TableField("recharge")
+    @NotNull(message = "充值数目不能为空！")
+    @Digits(integer = 10, fraction = 2,message = "充值数目过大！")
     private BigDecimal recharge;
 
 
@@ -69,6 +79,7 @@ public class SysDealerRechargeRecord extends BaseEntity implements Serializable 
      *
      **/
     @TableField("create_by")
+    @NotNull(message = "创建人不能为空！")
     private Long createBy;
 
 
@@ -97,6 +108,7 @@ public class SysDealerRechargeRecord extends BaseEntity implements Serializable 
      * 所属店铺
      **/
     @TableField("store_id")
+    @NotNull(message = "门店不能为空！")
     private Integer storeId;
 
 
@@ -104,6 +116,7 @@ public class SysDealerRechargeRecord extends BaseEntity implements Serializable 
      *
      **/
     @TableField("store_name")
+    @NotNull(message = "门店不能为空！")
     private String storeName;
 
 

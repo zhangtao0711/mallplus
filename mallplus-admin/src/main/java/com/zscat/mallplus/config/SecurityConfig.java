@@ -123,9 +123,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     * TODO 应该是在这里做多张用户表的校验
+     * 应该是在这里做多张用户表的校验
      * @return
      */
+    @Override
     @Bean
     public UserDetailsService userDetailsService() {
         //获取登录用户信息

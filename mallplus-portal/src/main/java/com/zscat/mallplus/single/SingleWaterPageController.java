@@ -26,8 +26,12 @@ import com.zscat.mallplus.ums.service.IUmsMemberService;
 import com.zscat.mallplus.ums.service.RedisService;
 import com.zscat.mallplus.util.applet.StringConstantUtil;
 import com.zscat.mallplus.utils.CommonResult;
+import com.zscat.mallplus.water.entity.WtConsumeRecord;
+import com.zscat.mallplus.water.entity.WtEquipment;
 import com.zscat.mallplus.water.entity.WtWaterCard;
 import com.zscat.mallplus.water.entity.WtWaterCardVituralConsume;
+import com.zscat.mallplus.water.mapper.WtConsumeRecordMapper;
+import com.zscat.mallplus.water.mapper.WtEquipmentMapper;
 import com.zscat.mallplus.water.mapper.WtWaterCardMapper;
 import com.zscat.mallplus.water.mapper.WtWaterCardVituralConsumeMapper;
 import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
@@ -76,6 +80,8 @@ public class SingleWaterPageController extends ApiBaseAction {
     private WtWaterCardMapper waterCardMapper;
     @Resource
     private WtWaterCardVituralConsumeMapper consumeMapper;
+    @Resource
+    private WtConsumeRecordMapper consumeRecordMapper;
     @Resource
     private ISmsLabelMemberService labelMemberService;
 
@@ -417,27 +423,40 @@ public class SingleWaterPageController extends ApiBaseAction {
         return new CommonResult().success("交易已关闭");
     }
 
-    @SysLog(MODULE = "single", REMARK = "会员卡购水")
-    @ApiOperation(value = "会员卡购水")
-    @PostMapping("buyWaterByCard")
-    public Object buyWaterByCard(WtWaterCardVituralConsume consume) throws WxErrorException {
-       // 水卡的消费明细表，确定水卡的消费明细在谁那里 确定是实体卡还是虚拟卡 虚拟卡在我这里
-        if (consume.getType()==null){
-            return new CommonResult().failed("水卡类型参数不为空!");
-        }else if (consume.getType()==1){
-            //虚拟卡
-            WtWaterCard waterCard = waterCardMapper.selectById(consume.getVirtualId());
-            waterCard.setCardMoney(waterCard.getCardMoney().subtract(consume.getConsumeFee()).setScale(2,BigDecimal.ROUND_DOWN));
-            consume.setCardMoney(waterCard.getCardMoney());
-            consumeMapper.insert(consume);
-            waterCardMapper.updateById(waterCard);
-            //标签
-            UmsMember member = memberService.getById(consume.getMemberId());
-            labelMemberService.addCardLabel(consume.getUniacid(),consume.getStoreId(),waterCard.getCardMoney(),consume.getMemberId(),member.getWeixinOpenid());
-        }else if (consume.getType()==2){
-            //TODO 实体卡
-        }
+    @SysLog(MODULE = "single", REMARK = "会员卡购水-虚卡")
+    @ApiOperation(value = "会员卡购水-虚卡")
+    @PostMapping("buyWaterByVirtualCard")
+    public Object buyWaterByVirtualCard(WtWaterCardVituralConsume consume) throws WxErrorException {
+        //虚拟卡
+        WtWaterCard waterCard = waterCardMapper.selectById(consume.getVirtualId());
+        waterCard.setCardMoney(waterCard.getCardMoney().subtract(consume.getConsumeFee()).setScale(2,BigDecimal.ROUND_DOWN));
+        consume.setCardMoney(waterCard.getCardMoney());
+        consume.setCreateTime(new Date());
+        consumeMapper.insert(consume);
+        waterCardMapper.updateById(waterCard);
+        //标签
+        UmsMember member = memberService.getById(consume.getMemberId());
+        labelMemberService.addCardLabel(consume.getUniacid(),consume.getStoreId(),waterCard.getCardMoney(),consume.getMemberId(),member.getWeixinOpenid());
+        return new CommonResult().success();
+    }
 
+    @SysLog(MODULE = "single", REMARK = "会员卡购水-实体卡")
+    @ApiOperation(value = "会员卡购水-实体卡")
+    @PostMapping("buyWaterByCard")
+    public Object buyWaterByCard(WtConsumeRecord consume) throws WxErrorException {
+        consume.setId("");//订单编号
+        consume.setCreateTime(new Date());
+        //TODO 李亚楠 判定一下卡号是否有效
+
+        consumeRecordMapper.insert(consume);
+        WtWaterCard wtWaterCard = new WtWaterCard();
+        wtWaterCard.setCardNo(consume.getCardNo());
+        WtWaterCard waterCard = waterCardMapper.selectOne(new QueryWrapper<>(wtWaterCard));
+        waterCard.setCardMoney(waterCard.getCardMoney().subtract(new BigDecimal(consume.getConsumeMoney()*100)).setScale(2,BigDecimal.ROUND_DOWN));
+        waterCardMapper.updateById(waterCard);
+        //标签
+        UmsMember member = memberService.getById(waterCard.getUmsMemberId());
+        labelMemberService.addCardLabel(member.getUniacid(),consume.getStoreId(),waterCard.getCardMoney(),member.getId(),member.getWeixinOpenid());
         return new CommonResult().success();
     }
 }
