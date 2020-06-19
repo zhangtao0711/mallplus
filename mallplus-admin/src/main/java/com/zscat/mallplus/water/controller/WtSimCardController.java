@@ -109,6 +109,16 @@ public class WtSimCardController {
     @PreAuthorize("hasAuthority('water:wtSimCard:create')")
     public Object saveWtSimCard(@RequestBody WtSimCard entity) {
         try {
+            //未经查询的卡不能添加
+            if(entity.getState()==null || entity.getState().isEmpty()){
+                return new CommonResult().failed("请先查询卡号信息，再添加！");
+            }
+            //SIM卡是否重复
+            WtSimCard data=new WtSimCard();
+            data.setCardno(entity.getCardno());
+            if(IWtSimCardService.getOne(new QueryWrapper<>(data))!=null){
+                return new CommonResult().failed("卡号已存在，不能重复添加！");
+            }
             entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCreateTime(new Date());
             if (IWtSimCardService.save(entity)) {
