@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -71,7 +72,7 @@ public class AccountWxappVersionController {
     @ApiOperation("保存小程序版本")
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('wxminiapp:imsAccountWxappVersion:create')")
-    public Object saveImsAccountWxappVersion(@RequestBody AccountWxappVersion entity) {
+    public Object saveImsAccountWxappVersion(@RequestBody @Valid AccountWxappVersion entity) {
         try {
             entity.setCreateTime(new Date());
             if (IAccountWxappVersionService.save(entity)) {

@@ -1,5 +1,6 @@
 package com.zscat.mallplus.sys.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zscat.mallplus.sys.entity.SysUser;
 import com.zscat.mallplus.sys.entity.SysUserStaff;
 import com.zscat.mallplus.sys.entity.SysUserVo;
@@ -12,6 +13,8 @@ import com.zscat.mallplus.util.JsonUtil;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import com.zscat.mallplus.vo.Rediskey;
+import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
+import com.zscat.mallplus.wxminiapp.mapper.AccountWxappMapper;
 import io.swagger.models.auth.In;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,6 +36,8 @@ public class SysUserStaffServiceImpl extends ServiceImpl<SysUserStaffMapper, Sys
     private BCryptPasswordEncoder passwordEncoder;
     @Resource
     private RedisService redisService;
+    @Resource
+    private AccountWxappMapper accountWxappMapper;
 
     @Override
     public Object resetPwd(SysUserStaff staff) {
@@ -53,8 +58,11 @@ public class SysUserStaffServiceImpl extends ServiceImpl<SysUserStaffMapper, Sys
         }else {
             return null;
         }
-        //TODO 这里须得把公众号哪里关联上才可以使用
-        String uniacid = "";
+        //这里须得把公众号哪里关联上才可以使用
+        AccountWxapp accountWxapp  = new AccountWxapp();
+        accountWxapp.setCreateBy(admin.getId());
+        AccountWxapp wxapp = accountWxappMapper.selectOne(new QueryWrapper<>(accountWxapp));
+        Integer uniacid = wxapp.getUniacid();
         Integer storeId = admin.getStoreId();
         return sysUserStaffMapper.bindWeChant(uniacid,storeId,value);
     }

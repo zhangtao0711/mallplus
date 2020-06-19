@@ -43,11 +43,13 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.*;
 
@@ -144,12 +146,13 @@ public class SysUserController extends ApiController {
     @ApiOperation("添加经销商或者入驻的时候添加")
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('sys:user:createUser')")
-    public Object createUser(@RequestBody SysDealerVo entity) {
+    @Transactional
+    public Object createUser(@RequestBody @Valid  SysDealerVo entity) {
         SysUser user = entity.getUser();
         SysAppletSet appletSet = entity.getAppletSet();
         //校验基础数据
-        if (user==null){
-            return new CommonResult().failed("添加的经销商信息不能为空！");
+        if (user==null||user.getLevel()==null||user.getPid()==null||user.getGid()==null||user.getStatus()==null){
+            return new CommonResult().failed("添加的经销商信息错误！");
         }
         if (appletSet==null){
             return new CommonResult().failed("添加的经销商基本入驻信息不能为空！");
@@ -522,12 +525,15 @@ public class SysUserController extends ApiController {
     @IgnoreAuth
     @ApiOperation("获取验证码- 模板 - 区分忘记密码/修改手机号/")
     @PostMapping(value = "/sms/codes")
-    public Object sendSmsCode(@RequestParam String phone) {
+    public Object sendSmsCode(@RequestParam String phone,@RequestParam String type) {
         try {
             if (!PhoneUtil.checkPhone(phone)) {
                 throw new IllegalArgumentException("手机号格式不正确");
             }
-            SmsCode smsCode = sysUserService.generateCode(phone);
+            if (ValidatorUtils.empty(type)){
+                throw new IllegalArgumentException("验证码类型不能为空！");
+            }
+            SmsCode smsCode = sysUserService.generateCode(phone,type);
 
             return new CommonResult().success(smsCode);
         } catch (Exception e) {

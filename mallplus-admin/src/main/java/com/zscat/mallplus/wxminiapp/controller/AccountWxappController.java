@@ -19,9 +19,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author wang
@@ -58,7 +60,7 @@ public class AccountWxappController {
     @ApiOperation("保存小程序")
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('wxminiapp:imsAccountWxapp:create')")
-    public Object saveImsAccountWxapp(@RequestBody AccountWxapp entity) {
+    public Object saveImsAccountWxapp(@RequestBody @Valid AccountWxapp entity) {
         AccountWxapp accountWxapp = new AccountWxapp();
         accountWxapp.setCreateBy(entity.getCreateBy());
         AccountWxapp wxapp = IAccountWxappService.getOne(new QueryWrapper<>(accountWxapp));
@@ -85,7 +87,7 @@ public class AccountWxappController {
     @ApiOperation("更新小程序")
     @PostMapping(value = "/update/{id}")
     @PreAuthorize("hasAuthority('wxminiapp:imsAccountWxapp:update')")
-    public Object updateImsAccountWxapp(@RequestBody AccountWxapp entity) {
+    public Object updateImsAccountWxapp(@RequestBody @Valid AccountWxapp entity) {
         try {
             if (IAccountWxappService.updateById(entity)) {
                 return new CommonResult().success();

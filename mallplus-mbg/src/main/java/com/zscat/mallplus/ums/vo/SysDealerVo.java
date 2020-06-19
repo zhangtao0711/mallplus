@@ -4,6 +4,7 @@ import com.zscat.mallplus.sys.entity.SysUser;
 import com.zscat.mallplus.ums.entity.SysAppletSet;
 import lombok.Data;
 
+import javax.validation.Valid;
 import java.io.Serializable;
 
 /**
@@ -17,8 +18,10 @@ import java.io.Serializable;
 @Data
 public class SysDealerVo implements Serializable {
 
+   @Valid
    private SysUser user;
 
+   @Valid
    private SysAppletSet appletSet;
 
 }

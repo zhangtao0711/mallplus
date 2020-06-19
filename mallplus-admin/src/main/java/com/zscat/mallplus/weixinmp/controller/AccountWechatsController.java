@@ -20,9 +20,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author lyn
@@ -61,7 +63,7 @@ public class AccountWechatsController {
     @ApiOperation("保存微信公众号")
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('weixin:imsAccountWechats:create')")
-    public Object saveImsAccountWechats(@RequestBody AccountWechats entity) {
+    public Object saveImsAccountWechats(@RequestBody @Valid AccountWechats entity) {
         //经销商和公众号直接是一对一关系
         AccountWechats accountWechats = new AccountWechats();
         accountWechats.setCreateBy(entity.getCreateBy());
@@ -89,7 +91,7 @@ public class AccountWechatsController {
     @ApiOperation("更新微信公众号")
     @PostMapping(value = "/update/{id}")
     @PreAuthorize("hasAuthority('weixin:imsAccountWechats:update')")
-    public Object updateImsAccountWechats(@RequestBody AccountWechats entity) {
+    public Object updateImsAccountWechats(@RequestBody @Valid AccountWechats entity) {
         try {
             if (IAccountWechatsService.updateById(entity)) {
                 return new CommonResult().success();
@@ -170,6 +172,14 @@ public class AccountWechatsController {
     public void importUsers(@RequestParam MultipartFile file) {
         List<AccountWechats> personList = EasyPoiUtils.importExcel(file, AccountWechats.class);
         IAccountWechatsService.saveBatch(personList);
+    }
+
+    @ApiOperation(value = "生成3-32位的token")
+    @RequestMapping(value = "/getToken", method = RequestMethod.GET)
+    @SysLog(MODULE = "weixin", REMARK = "获取token-或者刷新token")
+    public Object getToken(){
+        String token = UUID.randomUUID().toString().trim().replaceAll("-", "").toUpperCase();
+        return new CommonResult().success(token);
     }
 }
 

@@ -484,6 +484,7 @@ public class PayController extends ApiBaseAction {
                 return new CommonResult().failed("支付金额不能超过员工单笔充值最大额度");
             }
         }
+        entity.setCreateTime(new Date());
         //添加记录信息
         String outTradeNo = WxPayKit.generateStr();
         SmsRechargeRecord record = new SmsRechargeRecord();

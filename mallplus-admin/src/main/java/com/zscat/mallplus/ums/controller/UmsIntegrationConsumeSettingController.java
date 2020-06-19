@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
 import com.zscat.mallplus.ums.entity.UmsIntegrationConsumeSetting;
 import com.zscat.mallplus.ums.service.IUmsIntegrationConsumeSettingService;
+import com.zscat.mallplus.utils.BeanUtil;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import io.swagger.annotations.Api;
@@ -15,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -53,9 +55,15 @@ public class UmsIntegrationConsumeSettingController {
     @ApiOperation("保存积分消费设置")
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('ums:UmsIntegrationConsumeSetting:create')")
-    public Object saveUmsIntegrationConsumeSetting(@RequestBody UmsIntegrationConsumeSetting entity) {
+    public Object saveUmsIntegrationConsumeSetting(@RequestBody @Valid UmsIntegrationConsumeSetting entity) {
         try {
-            if (IUmsIntegrationConsumeSettingService.save(entity)) {
+            UmsIntegrationConsumeSetting set = new UmsIntegrationConsumeSetting();
+            UmsIntegrationConsumeSetting setting = IUmsIntegrationConsumeSettingService.getById(1);
+            BeanUtil.copyProperties(setting,set);
+            set.setRegister(entity.getRegister());
+            set.setWaterFee(entity.getWaterFee());
+            set.setDealerId(entity.getDealerId());
+            if (IUmsIntegrationConsumeSettingService.save(set)) {
                 return new CommonResult().success();
             }
         } catch (Exception e) {

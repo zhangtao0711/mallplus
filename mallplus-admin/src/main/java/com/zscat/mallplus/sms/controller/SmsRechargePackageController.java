@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Date;
 
@@ -54,7 +55,7 @@ public class SmsRechargePackageController {
     @ApiOperation("保存充值套餐")
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('sms:smsRechargePackage:create')")
-    public Object saveSmsRechargePackage(@RequestBody SmsRechargePackage entity) {
+    public Object saveSmsRechargePackage(@RequestBody @Valid SmsRechargePackage entity) {
         try {
             entity.setCreateTime(new Date());
             if (ISmsRechargePackageService.save(entity)) {
