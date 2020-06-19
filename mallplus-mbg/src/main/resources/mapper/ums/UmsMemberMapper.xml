@@ -144,6 +144,8 @@
         ,GROUP_CONCAT(e.label_name) AS "labelName"
         ,f.recommendNum AS "recommendNum"
         ,h.username AS "recommendName"
+        ,i.cardNum AS "cardNum"
+        ,j.cardInventedNum AS "cardInventedNum"
         ,a.* FROM
         ums_member a
         LEFT JOIN wt_water_card b ON a.id=b.ums_member_id
@@ -162,6 +164,18 @@
         ON f.member_id=a.id
         LEFT JOIN ums_member_recommend g ON g.member_recommend_id=a.id
         LEFT JOIN ums_member h ON h.id=g.member_id
+
+        LEFT JOIN (select e.ums_member_id ,count(e.id) AS "cardNum"
+        from wt_water_card e
+        WHERE e.card_type='0'
+        GROUP BY e.ums_member_id) i
+        ON i.ums_member_id=a.id
+        LEFT JOIN (select e.ums_member_id ,count(e.id) AS "cardInventedNum"
+        from wt_water_card e
+        WHERE e.card_type='1'
+        GROUP BY e.ums_member_id) j
+        ON j.ums_member_id=a.id
+
         where 1=1
         <if test="entity.username != null and entity.username != ''">
             AND a.username=#{entity.username}

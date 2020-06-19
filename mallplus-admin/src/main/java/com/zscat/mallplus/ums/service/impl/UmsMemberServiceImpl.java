@@ -132,13 +132,16 @@ public class UmsMemberServiceImpl extends ServiceImpl<UmsMemberMapper, UmsMember
             //删除之前手动添加的标签
             smsLabelMemberMapper.removeByMemberId(umsMember.getId(),ConstantUtil.not);
             //保存会员标签信息
-            for (SmsLabelSet s : umsMember.getLabelList()) {
-                SmsLabelMember smsLabelMember = new SmsLabelMember();
-                smsLabelMember.setLabelId(s.getId());
-                smsLabelMember.setMemberId(umsMember.getId());
-                smsLabelMemberMapper.insert(smsLabelMember);
+            if(umsMember.getLabelList()!=null){
+                for (SmsLabelSet s : umsMember.getLabelList()) {
+                    SmsLabelMember smsLabelMember = new SmsLabelMember();
+                    smsLabelMember.setLabelId(s.getId());
+                    smsLabelMember.setMemberId(umsMember.getId());
+                    smsLabelMemberMapper.insert(smsLabelMember);
+                }
             }
         }
+
 
         return true;
     }

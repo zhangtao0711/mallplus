@@ -329,7 +329,7 @@ public class UmsMemberController {
             umsMemberLog.setMemberId(entity.getId());//会员id
             umsMemberLog.setFalg(ConstantUtil.member_log_falg_0);//日志
             //0->禁用；1->启用
-            if(coupon.getStatus().equals(ConstantUtil.not)){
+            if(coupon.getStatus()!=null && coupon.getStatus().toString().equals(ConstantUtil.not)){
                 coupon.setStatus(Integer.parseInt(ConstantUtil.is));//启用
                 umsMemberLog.setContent("加入黑名单会员:"+entity.getUsername());//内容
             }else{
