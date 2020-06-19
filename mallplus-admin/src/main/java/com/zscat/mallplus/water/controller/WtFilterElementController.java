@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
 import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.util.DateUtils;
+import com.zscat.mallplus.water.entity.WtEquipmentRemarks;
 import com.zscat.mallplus.water.entity.WtFilterElement;
 import com.zscat.mallplus.water.entity.WtFilterElementType;
 import com.zscat.mallplus.water.service.IWtFilterElementService;
@@ -18,6 +19,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,6 +65,7 @@ public class WtFilterElementController {
     @ApiOperation("保存滤芯")
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('water:wtFilterElement:create')")
+    @Transactional
     public Object saveWtFilterElement(@RequestBody WtFilterElement entity) {
         try {
             //滤芯更换时间必须小于当前时间
@@ -81,6 +84,59 @@ public class WtFilterElementController {
             entity.setState(ConstantUtil.billing_mode_time);//状态正常
             entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCreateTime(new Date());
+            //更新设备滤芯日志表
+            if (!ValidatorUtils.empty(entity.getEqcode())) {
+                WtEquipmentRemarks remarks= new WtEquipmentRemarks();
+                remarks.setEqcode(entity.getEqcode());//设备号
+                remarks.setRemarksType(ConstantUtil.remarks_type_1);//履历
+                remarks.setCreateBy(entity.getCreateBy());//创建人
+                remarks.setCreateTime(entity.getCreateTime());//创建时间
+                remarks.setRemarks("设备"+entity.getEqcode()+"新增了第"
+                        +entity.getFilterElementLevel()+"级别的"+entity.getName()+"滤芯");//履历内容
+            }
+            if (IWtFilterElementService.save(entity)) {
+                return new CommonResult().success();
+            }
+        } catch (Exception e) {
+            log.error("保存滤芯：%s", e.getMessage(), e);
+            return new CommonResult().failed(e.getMessage());
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "water", REMARK = "更换滤芯")
+    @ApiOperation("更换滤芯")
+    @PostMapping(value = "/change")
+    @PreAuthorize("hasAuthority('water:wtFilterElement:create')")
+    @Transactional
+    public Object changeWtFilterElement(@RequestBody WtFilterElement entity) {
+        try {
+            //滤芯更换时间必须小于当前时间
+            if(entity.getChangeTime().after(new Date())){
+                return new CommonResult().failed("滤芯更换时间必须小于当前时间");
+            }
+            WtFilterElementType coupon = IWtFilterElementTypeService.getById(entity.getFilterElementTypeId());
+            entity.setChangeCycle(coupon.getChangeCycle());//更换周期天数
+            entity.setPurifierTotal(coupon.getPurifierTotal());//水量标准
+
+            //选择计时时设定使用到期时间
+            if(entity.getBillingMode().equals(ConstantUtil.billing_mode_time)){
+                entity.setEndTime(DateUtils.addDay2(entity.getChangeTime(),coupon.getChangeCycle()));
+                entity.setRemindTime(DateUtils.addDay2(entity.getChangeTime(),coupon.getRemindDay()));
+            }
+            entity.setState(ConstantUtil.billing_mode_time);//状态正常
+            entity.setDelFlag(ConstantUtil.delFlag);
+            entity.setCreateTime(new Date());
+            //更新设备滤芯日志表
+            if (!ValidatorUtils.empty(entity.getEqcode())) {
+                WtEquipmentRemarks remarks= new WtEquipmentRemarks();
+                remarks.setEqcode(entity.getEqcode());//设备号
+                remarks.setRemarksType(ConstantUtil.remarks_type_1);//履历
+                remarks.setCreateBy(entity.getCreateBy());//创建人
+                remarks.setCreateTime(entity.getCreateTime());//创建时间
+                remarks.setRemarks("设备"+entity.getEqcode()+"跟换了第"
+                        +entity.getFilterElementLevel()+"级别的"+entity.getName()+"滤芯");//履历内容
+            }
             if (IWtFilterElementService.save(entity)) {
                 return new CommonResult().success();
             }
@@ -95,12 +151,10 @@ public class WtFilterElementController {
     @ApiOperation("更新滤芯")
     @PostMapping(value = "/update/{id}")
     @PreAuthorize("hasAuthority('water:wtFilterElement:update')")
+    @Transactional
     public Object updateWtFilterElement(@RequestBody WtFilterElement entity) {
         try {
-            //滤芯更换时间必须小于当前时间
-            if(entity.getChangeTime().after(new Date())){
-                return new CommonResult().failed("滤芯更换时间必须小于当前时间");
-            }
+           entity.setChangeTime(new Date());//跟换时间当前时间
             WtFilterElementType coupon = IWtFilterElementTypeService.getById(entity.getFilterElementTypeId());
             entity.setChangeCycle(coupon.getChangeCycle());//更换周期天数
             entity.setPurifierTotal(coupon.getPurifierTotal());//水量标准
@@ -111,6 +165,16 @@ public class WtFilterElementController {
                 entity.setRemindTime(DateUtils.addDay2(entity.getChangeTime(),coupon.getRemindDay()));
             }
             entity.setUpdateTime(new Date());
+            //更新设备滤芯日志表
+            if (!ValidatorUtils.empty(entity.getEqcode())) {
+                WtEquipmentRemarks remarks= new WtEquipmentRemarks();
+                remarks.setEqcode(entity.getEqcode());//设备号
+                remarks.setRemarksType(ConstantUtil.remarks_type_1);//履历
+                remarks.setCreateBy(entity.getCreateBy());//创建人
+                remarks.setCreateTime(entity.getCreateTime());//创建时间
+                remarks.setRemarks("设备"+entity.getEqcode()+"更换了第"
+                        +entity.getFilterElementLevel()+"级别的"+entity.getName()+"滤芯");//履历内容
+            }
             if (IWtFilterElementService.updateById(entity)) {
                 return new CommonResult().success();
             }
@@ -125,10 +189,22 @@ public class WtFilterElementController {
     @ApiOperation("删除滤芯")
     @GetMapping(value = "/delete/{id}")
     @PreAuthorize("hasAuthority('water:wtFilterElement:delete')")
+    @Transactional
     public Object deleteWtFilterElement(@ApiParam("滤芯id") @PathVariable Long id) {
         try {
             if (ValidatorUtils.empty(id)) {
                 return new CommonResult().paramFailed("滤芯id");
+            }
+            WtFilterElement entity = IWtFilterElementService.getById(id);
+            //更新设备滤芯日志表
+            if (!ValidatorUtils.empty(entity.getEqcode())) {
+                WtEquipmentRemarks remarks= new WtEquipmentRemarks();
+                remarks.setEqcode(entity.getEqcode());//设备号
+                remarks.setRemarksType(ConstantUtil.remarks_type_1);//履历
+                remarks.setCreateBy(entity.getCreateBy());//创建人
+                remarks.setCreateTime(entity.getCreateTime());//创建时间
+                remarks.setRemarks("设备"+entity.getEqcode()+"删除了第"
+                        +entity.getFilterElementLevel()+"级别的"+entity.getName()+"滤芯");//履历内容
             }
             if (IWtFilterElementService.removeById(id)) {
                 return new CommonResult().success();

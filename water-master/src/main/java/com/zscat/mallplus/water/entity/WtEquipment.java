@@ -61,7 +61,7 @@ public class WtEquipment extends BaseEntity implements Serializable {
     private transient String productName;
 
     /**
-     * 设备归属分组id
+     * 设备分组id
      **/
     @TableField("eq_group_id")
     private Long eqGroupId;
@@ -142,6 +142,12 @@ public class WtEquipment extends BaseEntity implements Serializable {
      **/
     @TableField("dealer_id")
     private Long dealerId;
+    /**
+     * 购水设置
+     **/
+    @TableField("shop_class_id")
+    private Long shopClassId;
+
     /**
      * 今日销售额
      */

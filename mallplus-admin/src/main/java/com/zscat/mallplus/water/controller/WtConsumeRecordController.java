@@ -4,6 +4,7 @@ package com.zscat.mallplus.water.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.water.entity.WtConsumeRecord;
 import com.zscat.mallplus.water.service.IWtConsumeRecordService;
 import com.zscat.mallplus.util.EasyPoiUtils;
@@ -48,6 +49,20 @@ public class WtConsumeRecordController {
             return new CommonResult().success(IWtConsumeRecordService.page(new Page<WtConsumeRecord>(pageNum, pageSize), new QueryWrapper<>(entity)));
         } catch (Exception e) {
             log.error("根据条件查询所有售水机消费记录列表：%s", e.getMessage(), e);
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "water", REMARK = "根据设备查询销售信息")
+    @ApiOperation("根据设备查询销售信息")
+    @GetMapping(value = "/listSum")
+    @PreAuthorize("hasAuthority('water:wtConsumeRecord:read')")
+    public Object listSum(WtConsumeRecord entity) {
+        try {
+            entity.setDelFlag(ConstantUtil.delFlag);
+            return new CommonResult().success(IWtConsumeRecordService.getListSum(entity));
+        } catch (Exception e) {
+            log.error("根据设备查询销售信息：%s", e.getMessage(), e);
         }
         return new CommonResult().failed();
     }

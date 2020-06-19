@@ -22,7 +22,6 @@
             ,e.sig AS "sig"
             ,e.zsysstate AS "zsysstate"
             ,e.update_time AS "setUpTime"
-            ,f.cardno AS "simCardNo"
             ,0 AS "userNum"
             ,a.*
         FROM wt_equipment a
@@ -34,7 +33,6 @@
         WHERE DATE_FORMAT(a.end_time, '%Y-%m')=DATE_FORMAT( now(), '%Y-%m' ) AND a.del_flag=#{entity.delFlag}
         GROUP BY a.eqcode) d ON a.eqcode =d.eqcode
         LEFT JOIN wt_equipment_detailes e ON a.eqcode = e.eqcode
-        LEFT JOIN wt_sim_card f ON f.eqcode = a.eqcode AND f.del_flag=#{entity.delFlag}
         WHERE a.del_flag=#{entity.delFlag}
         <if test="entity.eqcode != null and entity.eqcode != ''">
             AND a.eqcode=#{entity.eqcode}

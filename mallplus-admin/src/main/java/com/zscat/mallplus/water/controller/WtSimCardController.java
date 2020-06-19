@@ -619,6 +619,24 @@ public class WtSimCardController {
 
     }
 
+    @SysLog(MODULE = "water", REMARK = "根据SIM卡号查询信息")
+    @ApiOperation("根据SIM卡号查询信息")
+    @GetMapping(value = "/getWtSimCardByCardNo/{cardno}")
+    @PreAuthorize("hasAuthority('water:wtSimCard:read')")
+    public Object getWtSimCardByCardNo(@ApiParam("SIM卡号") @PathVariable String cardno) {
+        try {
+            if (ValidatorUtils.empty(cardno)) {
+                return new CommonResult().paramFailed("SIM卡号不能为空");
+            }
+            WtSimCard coupon = IWtSimCardService.getByCardno(cardno);
+            return new CommonResult().success(coupon);
+        } catch (Exception e) {
+            log.error("根据SIM卡号查询信息：%s", e.getMessage(), e);
+            return new CommonResult().failed();
+        }
+
+    }
+
     @ApiOperation(value = "批量删除SIM卡列表")
     @RequestMapping(value = "/delete/batch", method = RequestMethod.GET)
     @SysLog(MODULE = "water", REMARK = "批量删除SIM卡列表")

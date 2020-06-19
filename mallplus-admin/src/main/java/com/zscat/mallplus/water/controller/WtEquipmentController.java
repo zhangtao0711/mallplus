@@ -155,6 +155,44 @@ public class WtEquipmentController {
         }
     }
 
+    @SysLog(MODULE = "water", REMARK = "远程开机")
+    @ApiOperation("远程开机")
+    @PostMapping(value = "/equipmentOn/{eqcode}")
+    @PreAuthorize("hasAuthority('water:wtEquipment:update')")
+    public Object equipmentOn(@ApiParam("设备号") @PathVariable String eqcode) {
+        //远程开机
+        WtOpenApiInfo coupon = new WtOpenApiInfo();
+        coupon = wtOpenApiInfoMapper.selectOne(new QueryWrapper<>(coupon));
+//        Map<String, String> result = WtOpenApiInfoUtils.batchDeployOn(coupon,eqcodes);
+
+//        if(result!=null && result.toString().indexOf("\"status\":200")!=-1){
+//            return new CommonResult().success();
+//        }else{
+//            log.error("远程开机失败：%s",result.get("message"));
+//            return new CommonResult().failed("远程开机失败！");
+//        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "water", REMARK = "限制消费")
+    @ApiOperation("限制消费")
+    @PostMapping(value = "/equipmentLimitSet/{eqcode}")
+    @PreAuthorize("hasAuthority('water:wtEquipment:update')")
+    public Object equipmentLimitSet(@ApiParam("设备号") @PathVariable String eqcode) {
+        //限制消费
+        WtOpenApiInfo coupon = new WtOpenApiInfo();
+        coupon = wtOpenApiInfoMapper.selectOne(new QueryWrapper<>(coupon));
+//        Map<String, String> result = WtOpenApiInfoUtils.batchDeployOn(coupon,eqcodes);
+
+//        if(result!=null && result.toString().indexOf("\"status\":200")!=-1){
+//            return new CommonResult().success();
+//        }else{
+//            log.error("限制消费失败：%s",result.get("message"));
+//            return new CommonResult().failed("限制消费失败！");
+//        }
+        return new CommonResult().failed();
+    }
+
     @SysLog(MODULE = "water", REMARK = "更新设备信息")
     @ApiOperation("更新设备信息")
     @PostMapping(value = "/update/{id}")

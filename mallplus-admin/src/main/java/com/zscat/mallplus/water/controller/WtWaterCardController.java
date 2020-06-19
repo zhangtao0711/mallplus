@@ -145,7 +145,7 @@ public class WtWaterCardController {
     @SysLog(MODULE = "water", REMARK = "限额消费金额")
     @ApiOperation("限额消费金额")
     @PostMapping(value = "/updateLimit")
-//    @PreAuthorize("hasAuthority('water:wtWaterCard:update')")
+    @PreAuthorize("hasAuthority('water:wtWaterCard:update')")
     public Object updateLimit(@RequestBody WtWaterCard entity) {
         try {
 
