@@ -214,7 +214,7 @@
               { required: accountShow, message: '请输入收款账号' },
             ]"
           >
-            <el-input v-model="value.receiptAccount" style="width: 370px;" />
+            <el-input placeholder="请输入openId" v-model="value.receiptAccount" style="width: 370px;" />
             <el-button type="primary" @click="monitorWeChantPay">检测</el-button>
           </el-form-item>
         </div>
@@ -609,16 +609,25 @@ export default {
       thirdArea: [],
       rules: {
         dealerName: [
-          { required: true, message: "请输入商户名称", trigger: "blur" }
+          { required: true, message: "请输入商户名称", trigger: "blur" },
+          {min: 2, max: 140, message: '长度在 2 到 36 个字符', trigger: 'blur'}
         ],
         type: [{ required: true, message: "请选择商户类型", trigger: "blur" }],
         realname: [
           { required: true, message: "请输入联系人姓名", trigger: "blur" },
-          { pattern: /^[\u4e00-\u9fa5]+$/, message: "联系人姓名只能是汉字", trigger: "blur" }
+          {
+            pattern: /^[\u4e00-\u9fa5]+$/,
+            message: "联系人姓名只能是汉字",
+            trigger: "blur"
+          }
         ],
         dealerPhone: [
           { required: true, message: "请输入联系人电话", trigger: "blur" },
-          { pattern: /^1[3456789]\d{9}$/, message: "请输入正确的手机号", trigger: "blur" }
+          {
+            pattern: /^1[3456789]\d{9}$/,
+            message: "请输入正确的手机号",
+            trigger: "blur"
+          }
         ],
         levelId: [{ required: true, message: "请选择经销商等级" }],
         selfType: [{ required: true, message: "请选择收款方式" }],
@@ -626,68 +635,61 @@ export default {
       }
     };
   },
+  computed: {
+     productId() {
+      return this.value;
+    }
+  },
+  watch: {
+    productId: function(newValue) {
+      if (!this.isEdit) return;
+      this.value = newValue
+      this.getUserInfo();
+    },
+  },
   created() {
     this.getAreaList();
-    if (this.isEdit) {
-      this.getUserInfo();
-    }
-    
   },
   methods: {
     getUserInfo() {
-      getUserInfo(this.$route.query.id).then(response => {
-        this.value = JSON.parse(
-          (
-            JSON.stringify(response.data.appletSet) +
-            JSON.stringify(response.data.user)
-          ).replace(/}{/, ",")
-        );
-        this.value.type = String(this.value.type);
-        this.value.city = Number(this.value.city);
-        this.value.county = Number(this.value.county);
-        this.value.levelId = String(this.value.level);
-        this.value.applyStatus = String(this.value.applyStatus);
-        this.value.selfType = String(this.value.selfType);
+      if (this.value.selfType == "1") {
+        this.detection = true;
+        this.appShow = true;
+        this.accountShow = false;
+      } else if (this.value.selfType == "2") {
+        this.detection = false;
+        this.appShow = false;
+        this.accountShow = true;
+      }
+      this.level(this.value.level);
+      if (this.value.province) {
+        this.getSecondData(this.value.province);
+      }
+      if (this.value.city) {
+        this.getThirdData(this.value.city);
+      }
+      if (this.value.uniacid) {
+        this.isUniacid = true;
+        getOriginByUniacid(this.value.uniacid).then(response => {
+          this.name = response.data.name;
 
-        if (this.value.selfType == "1") {
-          this.detection = true;
-          this.appShow = true;
-          this.accountShow = false;
-        } else if (this.value.selfType == "2") {
-          this.detection = false;
-          this.appShow = false;
-          this.accountShow = true;
-        }
-        this.level(this.value.level);
-        if (this.value.province) {
-          this.getSecondData(this.value.province);
-        }
-        if (this.value.city) {
-          this.getThirdData(this.value.city);
-        }
-        if (response.data.user.uniacid) {
-          this.isUniacid = true;
-          getOriginByUniacid(response.data.user.uniacid).then(response => {
-            this.name = response.data.name
-
-            // 总经销商
-            if (response.data.gName) {
-              this.gName = response.data.gName
-              this.isgName = true;
-            }
-            // 经销商
-            if (response.data.pName) {
-              this.pName = response.data.pName
-              this.ispName = true;
-            }
-            // 分销商
-            if (response.data.sName) {
-              this.sName = response.data.sName
-              this.issName = true;
-            }
-          });
-        }
-      });
+          // 总经销商
+          if (response.data.gName) {
+            this.gName = response.data.gName;
+            this.isgName = true;
+          }
+          // 经销商
+          if (response.data.pName) {
+            this.pName = response.data.pName;
+            this.ispName = true;
+          }
+          // 分销商
+          if (response.data.sName) {
+            this.sName = response.data.sName;
+            this.issName = true;
+          }
+        });
+      }
     },
     // 监测上级账号是否开通企业付款功能
     monitorFirmPay() {
@@ -697,6 +699,8 @@ export default {
     monitorWeChantPay() {
       let param = {
         parentUserId: this.value.parentUserId,
+        // parentUserId: 1,
+        // receiptAccount: "oE0OB0de2iDA_x8BLdiGhx8uAyNU"
         receiptAccount: this.value.receiptAccount
       };
       monitorWeChantPay(param).then(response => {});
@@ -706,35 +710,70 @@ export default {
         appid: this.value.appid,
         appsecret: this.value.appsecret,
         mchid: this.value.mchid,
+        // appid: "wx58b23424ca51eaef",
+        // appsecret: "661e82bcf46dbe6c203c9f2f91d8937d",
+        // mchid: "1600115923",
         notifyurl: process.env.BASE_API
       };
-      // if (this.proportionShow) {
-      //   param.receivers = [
-      //     {
-      //       type: "MERCHANT_ID",
-      //       account: this.mchid,
-      //       amount: 100,
-      //       description: "分到商户"
-      //     },
-      //     {
-      //       type: "MERCHANT_ID",
-      //       account: this.mchid1,
-      //       amount: 100,
-      //       description: "分到商户"
-      //     }
-      //   ];
-      // }
 
-      // if (this.zproportionShow) {
-      //   param.receivers = [
-      //     {
-      //       type: "MERCHANT_ID",
-      //       account: this.mchid,
-      //       amount: 100,
-      //       description: "分到商户"
-      //     }
-      //   ];
-      // }
+      if (this.proportionShow) {
+        param.receiversList = [
+          {
+            relationType: "DISTRIBUTOR",
+            type: "PERSONAL_WECHATID",
+            account: this.value.receiptAccount
+            // account: "32121845a6784aa1aef69e31614ed2ea"
+          },
+          {
+            relationType: "DISTRIBUTOR",
+            type: "PERSONAL_WECHATID",
+            account: this.value.receiptAccount
+            // account: "32121845a6784aa1aef69e31614ed2ea"
+          }
+        ];
+        let receivers = {
+          receivers: [
+            {
+              description: "分到个人",
+              type: "PERSONAL_WECHATID",
+              account: this.value.receiptAccount,
+              // account: "32121845a6784aa1aef69e31614ed2ea",
+              amount: 100
+            },
+            {
+              description: "分到个人",
+              type: "PERSONAL_WECHATID",
+              account: this.value.receiptAccount,
+              // account: "32121845a6784aa1aef69e31614ed2ea",
+              amount: 100
+            }
+          ]
+        };
+        param.receivers = JSON.stringify(receivers);
+      }
+
+      if (this.zproportionShow) {
+        param.receiversList = [
+          {
+            type: "PERSONAL_SUB_OPENID",
+            account: this.value.receiptAccount,
+            // account: "32121845a6784aa1aef69e31614ed2ea",
+            relationType: "DISTRIBUTOR"
+          }
+        ];
+        let receivers = {
+          receivers: [
+            {
+              description: "分到个人",
+              type: "PERSONAL_SUB_OPENID",
+              account: this.value.receiptAccount,
+              // account: "32121845a6784aa1aef69e31614ed2ea",
+              relationType: "DISTRIBUTOR"
+            }
+          ]
+        };
+        param.receivers = JSON.stringify(receivers);
+      }
 
       monitorProfitShare(param).then(response => {});
     },
@@ -825,7 +864,7 @@ export default {
     },
     handleCurrentChange1(val) {
       this.listQuery1.pageNum = val;
-      this.getLis1t();
+      this.getList1();
     },
     getList1() {
       this.listLoading1 = true;
@@ -959,7 +998,8 @@ export default {
                   receiptAccount: this.value.receiptAccount,
                   secondSeparate: this.value.secondSeparate,
                   selfType: this.value.selfType,
-                  thirdSeparate: this.value.thirdSeparate
+                  thirdSeparate: this.value.thirdSeparate,
+                  storeId: this.value.storeId
                 },
                 user: {
                   address: this.value.address,
@@ -977,7 +1017,8 @@ export default {
                   username: this.value.dealerPhone,
                   nickName: this.value.dealerName,
                   level: this.value.levelId,
-                  id: this.$route.query.id
+                  id: this.$route.query.id,
+                  storeId: this.value.storeId
                 }
               };
 

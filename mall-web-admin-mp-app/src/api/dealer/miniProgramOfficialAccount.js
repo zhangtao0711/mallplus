@@ -25,6 +25,14 @@ export function updateAccount(id, data) {
     })
 }
 
+// 获取token
+export function authRefreshToken() {
+    return request({
+        url: '/weixin/accountWechats/getToken',
+        method: 'get'
+    })
+}
+
 // 查询公众号明细
 export function getAccount(id) {
     return request({

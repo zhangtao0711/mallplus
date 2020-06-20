@@ -1,6 +1,6 @@
 <template>
   <el-card class="form-container" shadow="never">
-    <el-form :model="dealerUse" :rules="rules" ref="WtWaterCardActivateFrom" label-width="150px">
+    <el-form :model="value" :rules="rules" ref="WtWaterCardActivateFrom" label-width="150px">
       <h3>是否可购买营销功能</h3>
       <span>选择可以开通的营销功能，用户可以购买</span>
       <el-form-item prop="permissionIds">
@@ -28,11 +28,11 @@
 
       <div v-show="isOpen">
         <el-form-item label="结算价格" prop="settleMoney">
-          <el-input v-model="dealerUse.settleMoney" style="width: 370px;" />
+          <el-input v-model="value.settleMoney" style="width: 370px;" />
         </el-form-item>
 
         <el-form-item label="共享方式" prop="shareWay">
-          <el-radio-group v-model="dealerUse.shareWay" @change="isShare">
+          <el-radio-group v-model="value.shareWay" @change="isShare">
             <el-radio label="1">
               单向共享
               <p>允许其他经销商的用户到我的售水机上打水</p>
@@ -45,18 +45,14 @@
         </el-form-item>
 
         <el-form-item label="选择共享商户" prop="share" v-show="shareUser">
-          <el-input
-            placeholder="请输入商户"
-            v-model="dealerUse.shareDealerNames"
-            class="input-with-select"
-          >
+          <el-input placeholder="请输入商户" v-model="value.shareDealerNames" class="input-with-select">
             <el-button slot="append" @click="chooseZ" icon="el-icon-search">选择</el-button>
           </el-input>
 
           <el-input
             v-show="false"
             placeholder="请输入商户"
-            v-model="dealerUse.shareDealerIds"
+            v-model="value.shareDealerIds"
             class="input-with-select"
           ></el-input>
         </el-form-item>
@@ -179,14 +175,30 @@ import {
 import { get } from "@/utils/auth";
 import { fetchList } from "@/api/admin";
 
-const defaultDealerInfo = {};
+const defaultPermissions = {};
 export default {
   name: "applicationPermissions",
   props: {
-    dealerId: String,
-    storeId: String,
-    storeName: String,
-    value: Object
+    value: Object,
+    isEdit: {
+      type: Boolean,
+      default: false
+    },
+    permissionList: Array
+  },
+  computed: {
+    productId() {
+      return this.value;
+    }
+  },
+  watch: {
+    productId: function(newValue) {
+      if (!this.isEdit) return;
+      if (!newValue) return;
+      // console.log(newValue)
+      this.value = newValue;
+      this.getDealerUse();
+    }
   },
   data() {
     return {
@@ -202,7 +214,6 @@ export default {
         id: null
       },
       disabled: false,
-      isEdit: false,
       permissionList: [],
       permissionIds: [],
       isShareCard: false,
@@ -210,7 +221,7 @@ export default {
       isRelation: false,
       isOpen: false,
       shareUser: false,
-      dealerUse: Object.assign({}, defaultDealerInfo),
+      dealerUse: Object.assign({}, defaultPermissions),
       rules: {
         name: [{ required: true, message: "请输入品牌名称", trigger: "blur" }],
         logo: [{ required: true, message: "请输入品牌logo", trigger: "blur" }],
@@ -219,26 +230,20 @@ export default {
     };
   },
   created() {
-    if (this.$route.query.id) {
-      this.dealerId = this.$route.query.id;
-    }
     if (this.isShareCard === true) {
-      this.dealerUse.isShareCard = "1";
+      this.value.isShareCard = "1";
     } else {
-      this.dealerUse.isShareCard = "0";
+      this.value.isShareCard = "0";
     }
     if (this.isDealerAudit === true) {
-      this.dealerUse.isDealerAudit = "1";
+      this.value.isDealerAudit = "1";
     } else {
-      this.dealerUse.isDealerAudit = "0";
+      this.value.isDealerAudit = "0";
     }
     if (this.isRelation === true) {
-      this.dealerUse.isRelation = "1";
+      this.value.isRelation = "1";
     } else {
-      this.dealerUse.isRelation = "0";
-    }
-    if (this.dealerId) {
-      this.getDealerUse();
+      this.value.isRelation = "0";
     }
   },
   methods: {
@@ -255,64 +260,37 @@ export default {
       this.getList();
     },
     getDealerUse() {
-      getDealerUse(this.dealerId).then(response => {
-        if (response.data.length) {
-          this.isEdit = false;
-          this.disabled = false;
-          this.dealerUse = Object.assign({}, defaultDealerInfo);
-          this.permissionList = response.data;
-        } else {
-          this.isEdit = true;
-          this.disabled = true;
-          this.dealerUse = response.data;
-          // 是否开通共享水卡
-          if (this.dealerUse.isShareCard == "1") {
-            this.isShareCard = true;
-            this.isOpen = true;
-          } else {
-            this.isShareCard = false;
-            this.isOpen = false;
-          }
+      // 是否开通共享水卡
+      if (this.value.isShareCard == "1") {
+        this.isShareCard = true;
+        this.isOpen = true;
+      } else {
+        this.isShareCard = false;
+        this.isOpen = false;
+      }
 
-          if (this.dealerUse.shareWay == "1") {
-            this.shareUser = false;
-          } else {
-            this.shareUser = true;
-          }
+      if (this.value.shareWay == "1") {
+        this.shareUser = false;
+      } else {
+        this.shareUser = true;
+      }
 
-          // 是否开通商户审核权限
-          if (this.dealerUse.isDealerAudit == "1") {
-            this.isDealerAudit = true;
-          } else {
-            this.isDealerAudit = false;
-          }
+      // 是否开通商户审核权限
+      if (this.value.isDealerAudit == "1") {
+        this.isDealerAudit = true;
+      } else {
+        this.isDealerAudit = false;
+      }
 
-          // 是否开通商户关联公众号/小程序
-          if (this.dealerUse.isRelation == "1") {
-            this.isRelation = true;
-          } else {
-            this.isRelation = false;
-          }
-          var reg = /,$/gi;
-          this.dealerUse.permissionIds = this.dealerUse.permissionIds.replace(
-            reg,
-            ""
-          );
-          this.permissionIds = this.dealerUse.permissionIds.split(",");
-
-          this.permissionNames = this.dealerUse.permissionNames.split(",");
-          let permissionList = [];
-          for (var i = 0; i < this.permissionIds.length; i++) {
-            permissionList.push({
-              permission_id: this.permissionIds[i]
-            });
-          }
-          for (var j = 0; j < this.permissionNames.length; j++) {
-            permissionList[j].permission_name = this.permissionNames[j];
-          }
-          this.permissionList = permissionList;
-        }
-      });
+      // 是否开通商户关联公众号/小程序
+      if (this.value.isRelation == "1") {
+        this.isRelation = true;
+      } else {
+        this.isRelation = false;
+      }
+      if (this.value.permissionIds || this.value.permissionNames) {
+        this.disabled = true;
+      }
     },
     chooseZ() {
       this.listQuery = {
@@ -343,8 +321,8 @@ export default {
         ids.push(val[i].id);
         names.push(val[i].dealerName);
       }
-      this.dealerUse.shareDealerNames = names.join(",");
-      this.dealerUse.shareDealerIds = ids.join(",");
+      this.value.shareDealerNames = names.join(",");
+      this.value.shareDealerIds = ids.join(",");
     },
     handleSizeChange(val) {
       this.listQuery.pageNum = 1;
@@ -356,7 +334,7 @@ export default {
       this.getList();
     },
     selectedPermissionIds(e) {
-      this.dealerUse.permissionIds = e.join(",") + ",";
+      this.value.permissionIds = e.join(",") + ",";
       let names = [];
       for (var i = 0; i < this.permissionList.length; i++) {
         for (var j = 0; j < e.length; j++) {
@@ -365,16 +343,16 @@ export default {
           }
         }
       }
-      this.dealerUse.permissionNames = names.join(",");
+      this.value.permissionNames = names.join(",");
     },
     isOpenShare(e) {
       this.isShareCard = e;
       if (this.isShareCard === true) {
         this.isOpen = true;
-        this.dealerUse.isShareCard = "1";
+        this.value.isShareCard = "1";
       } else {
         this.isOpen = false;
-        this.dealerUse.isShareCard = "0";
+        this.value.isShareCard = "0";
       }
     },
     isShare(e) {
@@ -387,20 +365,23 @@ export default {
     isOPenDealerAudit(e) {
       this.isDealerAudit = e;
       if (this.isDealerAudit === true) {
-        this.dealerUse.isDealerAudit = "1";
+        this.value.isDealerAudit = "1";
       } else {
-        this.dealerUse.isDealerAudit = "0";
+        this.value.isDealerAudit = "0";
       }
     },
     isOpenRelation(e) {
       this.isRelation = e;
       if (this.isRelation === true) {
-        this.dealerUse.isRelation = "1";
+        this.value.isRelation = "1";
       } else {
-        this.dealerUse.isRelation = "0";
+        this.value.isRelation = "0";
       }
     },
     onSubmit(formName) {
+      if (this.$route.query.id) {
+        this.dealerId = this.$route.query.id;
+      }
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.$confirm("是否提交数据", "提示", {
@@ -408,53 +389,7 @@ export default {
             cancelButtonText: "取消",
             type: "warning"
           }).then(() => {
-            if (this.isEdit) {
-              this.dealerUse.updateBy = get("userId");
-              updateDealerUse(this.dealerId, this.dealerUse).then(response => {
-                if (response.code == 200) {
-                  this.$refs[formName].resetFields();
-                  this.$message({
-                    message: "修改成功",
-                    type: "success",
-                    duration: 1000
-                  });
-                  location.reload();
-                  // this.$router.back();
-                  // this.getDealerUse();
-                } else {
-                  this.$message({
-                    message: response.msg,
-                    type: "error",
-                    duration: 1000
-                  });
-                }
-              });
-            } else {
-              this.dealerUse.dealerId = this.dealerId;
-              this.dealerUse.createBy = get("userId");
-              this.dealerUse.storeId = this.storeId;
-              this.dealerUse.storeName = this.storeName;
-              createDealerUse(this.dealerUse).then(response => {
-                if (response.code == 200) {
-                  this.$refs[formName].resetFields();
-                  this.dealerUse = Object.assign({}, defaultDealerInfo);
-                  this.$message({
-                    message: "提交成功",
-                    type: "success",
-                    duration: 1000
-                  });
-                  location.reload();
-                  // this.$router.back();
-                  // this.getDealerUse();
-                } else {
-                  this.$message({
-                    message: response.msg,
-                    type: "error",
-                    duration: 1000
-                  });
-                }
-              });
-            }
+            this.$emit("submitPermissions");
           });
         } else {
           this.$message({

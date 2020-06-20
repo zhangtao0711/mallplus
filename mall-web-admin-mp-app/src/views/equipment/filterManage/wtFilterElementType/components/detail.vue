@@ -119,8 +119,8 @@ export default {
               });
             } else {
               this.wtFilterElementType.delFlag = 1;
-              this.wtFilterElementType.createBy = get("userID");
-              this.wtFilterElementType.dealerId = get("userID");
+              this.wtFilterElementType.createBy = get("userId");
+              this.wtFilterElementType.dealerId = get("userId");
               createWtFilterElementType(this.wtFilterElementType).then(
                 response => {
                   if (response.code == 200) {

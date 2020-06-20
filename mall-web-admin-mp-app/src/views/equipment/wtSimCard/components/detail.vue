@@ -183,6 +183,9 @@ export default {
     if (this.isEdit) {
       getWtSimCard(this.$route.query.id).then(response => {
         this.wtSimCard = response.data;
+        if (this.wtSimCard.prechargeType === "1") {
+          this.isShow = true;
+        }
       });
     } else {
       this.wtSimCard = Object.assign({}, defaultWtSimCard);
@@ -218,6 +221,7 @@ export default {
         this.isShow = true;
       } else {
         this.isShow = false;
+        this.wtSimCard.prechargeOffsetsTime = null
       }
     },
     onSubmit(formName) {
@@ -251,9 +255,12 @@ export default {
             } else {
               this.wtSimCard.delFlag = 1;
               this.wtSimCard.createBy = get("userId");
-              
+
               let date = new Date(this.wtSimCard.expiredAt);
-              this.wtSimCard.expiredAt = formatDate(date, "yyyy-MM-dd hh:mm:ss");
+              this.wtSimCard.expiredAt = formatDate(
+                date,
+                "yyyy-MM-dd hh:mm:ss"
+              );
               createWtSimCard(this.wtSimCard).then(response => {
                 if (response.code == 200) {
                   this.$refs[formName].resetFields();

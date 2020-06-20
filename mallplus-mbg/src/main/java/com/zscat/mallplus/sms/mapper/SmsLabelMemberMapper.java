@@ -16,5 +16,5 @@ public interface SmsLabelMemberMapper extends BaseMapper<SmsLabelMember> {
     //根据用户id删除之前手动添加的标签
     void removeByMemberId(@Param("id") Long id,@Param("isSystem") String isSystem);
     //根据用户id获取标签信息
-    List<SmsLabelSet> getLableList(@Param("memberId")Object memberId);
+    List<SmsLabelSet> getLableList(@Param("memberId")Long memberId);
 }

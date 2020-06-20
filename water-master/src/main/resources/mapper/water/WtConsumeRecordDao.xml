@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.water.mapper.WtConsumeRecordMapper">
+
+    <!-- 根据条件查询所有会员表列表 -->
+    <select id="getListSum" resultType="Map">
+        SELECT sum(a.consume_money) AS "consumeMoney"
+        ,DATE_FORMAT(a.end_time, '%Y-%m-%d') AS "date"
+        FROM
+        wt_consume_record a
+        WHERE a.del_flag=#{entity.delFlag}
+        AND a.eqcode=#{entity.eqcode}
+        AND DATE_FORMAT(a.end_time, '%Y-%m')=DATE_FORMAT(now(), '%Y-%m')
+        GROUP BY DATE_FORMAT(a.end_time, '%Y-%m-%d')
+        UNION
+         SELECT SUM(a.consume_money) AS "consumeMoney"
+        ,DATE_FORMAT(a.end_time, '%Y-%m') AS "date"
+        FROM wt_consume_record a WHERE a.del_flag=#{entity.delFlag}
+        AND a.eqcode=#{entity.eqcode}
+        AND DATE_FORMAT(a.end_time, '%Y-%m')=DATE_FORMAT(now(), '%Y-%m')
+        UNION
+         SELECT SUM(a.consume_money) AS "consumeMoney"
+        ,DATE_FORMAT(a.end_time, '%Y-%m')  AS "date"
+        FROM wt_consume_record a WHERE a.del_flag=#{entity.delFlag}
+        AND a.eqcode=#{entity.eqcode}
+        AND DATE_FORMAT(a.end_time, '%Y-%m')=DATE_FORMAT( DATE_SUB(now(),INTERVAL +1 MONTH), '%Y-%m')
+        UNION
+        SELECT SUM(a.consume_money) AS "consumeMoney"
+        ,DATE_FORMAT(a.end_time, '%Y')  AS "date"
+        FROM wt_consume_record a WHERE a.del_flag=#{entity.delFlag}
+        AND a.eqcode=#{entity.eqcode}
+        AND DATE_FORMAT(a.end_time, '%Y')=DATE_FORMAT(now(), '%Y')
+    </select>
+
+</mapper>

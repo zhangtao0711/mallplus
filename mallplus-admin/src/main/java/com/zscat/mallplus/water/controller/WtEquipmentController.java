@@ -54,7 +54,10 @@ public class WtEquipmentController {
                                        @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         try {
-            return new CommonResult().success(IWtEquipmentService.page(new Page<WtEquipment>(pageNum, pageSize), new QueryWrapper<>(entity)));
+            entity.setDelFlag(ConstantUtil.delFlag);
+//            return new CommonResult().success(IWtEquipmentService.page(new Page<WtEquipment>(pageNum, pageSize), new QueryWrapper<>(entity)));
+            return new CommonResult().success(IWtEquipmentService.selectData(new Page<Map<String, Object>>(pageNum, pageSize),
+                    entity));
         } catch (Exception e) {
             log.error("根据条件查询所有设备信息列表：%s", e.getMessage(), e);
         }
@@ -67,18 +70,7 @@ public class WtEquipmentController {
 //    @PreAuthorize("hasAuthority('water:wtEquipment:create')")
     public Object saveWtEquipment(@RequestBody WtEquipment entity) {
         try {
-//            {
-//                "createBy": 11,
-//                    "dealerId": 12,
-//                    "delFlag": "1",
-//                    "eqAddress": "河北石家庄",
-//                    "eqAddressLatitude": "39.930051",
-//                    "eqAddressLongitude": "116.243599",
-//                    "eqSimcode": "eqSimcode",
-//                    "eqcode": "10544654",
-//                    "productId": "water-01",
-//                    "productName": "宏卡型号"
-//            }
+
             //经纬度校验
             if(entity.getEqAddressLatitude()!=null && entity.getEqAddressLongitude()!=null){
                 if(!WtUtils.checkItude(entity.getEqAddressLongitude(),entity.getEqAddressLatitude())){
@@ -161,6 +153,44 @@ public class WtEquipmentController {
             log.error("注销设备：%s", e.getMessage(), e);
             return new CommonResult().failed(e.getMessage());
         }
+    }
+
+    @SysLog(MODULE = "water", REMARK = "远程开机")
+    @ApiOperation("远程开机")
+    @PostMapping(value = "/equipmentOn/{eqcode}")
+    @PreAuthorize("hasAuthority('water:wtEquipment:update')")
+    public Object equipmentOn(@ApiParam("设备号") @PathVariable String eqcode) {
+        //远程开机
+        WtOpenApiInfo coupon = new WtOpenApiInfo();
+        coupon = wtOpenApiInfoMapper.selectOne(new QueryWrapper<>(coupon));
+//        Map<String, String> result = WtOpenApiInfoUtils.batchDeployOn(coupon,eqcodes);
+
+//        if(result!=null && result.toString().indexOf("\"status\":200")!=-1){
+//            return new CommonResult().success();
+//        }else{
+//            log.error("远程开机失败：%s",result.get("message"));
+//            return new CommonResult().failed("远程开机失败！");
+//        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "water", REMARK = "限制消费")
+    @ApiOperation("限制消费")
+    @PostMapping(value = "/equipmentLimitSet/{eqcode}")
+    @PreAuthorize("hasAuthority('water:wtEquipment:update')")
+    public Object equipmentLimitSet(@ApiParam("设备号") @PathVariable String eqcode) {
+        //限制消费
+        WtOpenApiInfo coupon = new WtOpenApiInfo();
+        coupon = wtOpenApiInfoMapper.selectOne(new QueryWrapper<>(coupon));
+//        Map<String, String> result = WtOpenApiInfoUtils.batchDeployOn(coupon,eqcodes);
+
+//        if(result!=null && result.toString().indexOf("\"status\":200")!=-1){
+//            return new CommonResult().success();
+//        }else{
+//            log.error("限制消费失败：%s",result.get("message"));
+//            return new CommonResult().failed("限制消费失败！");
+//        }
+        return new CommonResult().failed();
     }
 
     @SysLog(MODULE = "water", REMARK = "更新设备信息")

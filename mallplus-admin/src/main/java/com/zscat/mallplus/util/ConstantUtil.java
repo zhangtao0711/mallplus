@@ -117,4 +117,7 @@ public class ConstantUtil {
     public static final String phone_update_template_code = "SMS_193016478";
     public static final String sign_name = "四两科技";
 
+    //0备注1滤芯履历
+    public static final String remarks_type_0 = "0";
+    public static final String remarks_type_1 = "1";
 }

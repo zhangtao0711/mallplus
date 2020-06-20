@@ -6,6 +6,7 @@ export function fetchList(params) {
     params:params
   })
 }
+
 export function createMember(data) {
   return request({
     url:'/ums/UmsMember/create',
@@ -50,6 +51,49 @@ export function updateMember(data) {
     data:data
   })
 }
+
+// 积分管理
+export function updateIntegration(data) {
+  return request({
+    url:'/ums/UmsMember/updateIntegration',
+    method:'post',
+    data:data
+  })
+}
+// 黑名单
+export function updateStatus(data) {
+  return request({
+    url:'/ums/UmsMember/updateStatus',
+    method:'post',
+    data:data
+  })
+}
+// 添加标签
+export function addLabel(data) {
+  return request({
+    url:'/ums/UmsMember/addLabel',
+    method:'post',
+    data:data
+  })
+}
+
+export function removeLabel(data) {
+  return request({
+    url:'/ums/UmsMember/removeLabel',
+    method:'post',
+    data:data
+  })
+}
+
+export function updateLimit(id,data) {
+  return request({
+    url:'/water/wtWaterCard/updateLimit/'+id,
+    method:'post',
+    data:data
+  })
+}
+
+
 export function updateMemberOrderInfo() {
   return request({
     url:'/ums/UmsMember/updateMemberOrderInfo',

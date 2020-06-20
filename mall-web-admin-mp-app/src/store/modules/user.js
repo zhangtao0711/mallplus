@@ -80,6 +80,7 @@ const user = {
           }
           set('userId',data.userId)
           set('storeId',data.storeId)
+          set('storeName',data.storeName)
           set('username',data.username)
           set('phone',data.sysUser.phone)
           set('pwd',data.sysUser.password)

@@ -49,9 +49,9 @@
           <template slot-scope="scope">{{ scope.row.dealerName }}</template>
         </el-table-column>
 
-        <el-table-column prop="contactName" label="主营项目" align="center">
+        <!-- <el-table-column prop="contactName" label="主营项目" align="center">
           <template slot-scope="scope">{{ scope.row.contactName }}</template>
-        </el-table-column>
+        </el-table-column> -->
 
         <el-table-column prop="realname" label="联系人" align="center">
           <template slot-scope="scope">{{ scope.row.realname }}</template>

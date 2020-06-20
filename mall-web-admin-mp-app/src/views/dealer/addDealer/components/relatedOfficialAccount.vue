@@ -12,6 +12,8 @@
 
       <el-form-item label="描述" prop="signature">
         <el-input
+          type="textarea"
+          :rows="2"
           v-model="wtWaterCardActivate.signature"
           placeholder="用于说明此公众号的功能及用途"
           style="width: 370px;"
@@ -34,7 +36,7 @@
         />
       </el-form-item>
 
-      <el-form-item label="所属区域">
+      <el-form-item label="所属区域" prop="province">
         <el-select
           style="width: 370px;"
           v-model="wtWaterCardActivate.province"
@@ -51,7 +53,7 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item>
+      <el-form-item prop="city">
         <el-select
           style="width: 370px;"
           v-model="wtWaterCardActivate.city"
@@ -112,12 +114,12 @@
         />
       </el-form-item>
 
-      <el-form-item label="公众号状态">
+      <el-form-item label="公众号状态" prop="status">
         <el-radio-group v-model="wtWaterCardActivate.status">
-          <el-radio-button :label="0">关闭</el-radio-button>
-          <el-radio-button :label="1">开启</el-radio-button>
-          <el-radio-button :label="2">已连接</el-radio-button>
-          <el-radio-button :label="3">连接失败</el-radio-button>
+          <el-radio-button label="0">关闭</el-radio-button>
+          <el-radio-button label="1">开启</el-radio-button>
+          <!-- <el-radio-button :label="2">已连接</el-radio-button>
+          <el-radio-button :label="3">连接失败</el-radio-button>-->
         </el-radio-group>
       </el-form-item>
 
@@ -209,7 +211,8 @@ import { getAreaList } from "@/api/dealer/dealer";
 import {
   createAccount,
   updateAccount,
-  getAccount
+  getAccount,
+  authRefreshToken
 } from "@/api/dealer/miniProgramOfficialAccount";
 import { get } from "@/utils/auth";
 import SingleUploadImg from "@/components/Upload/singleUploadPublic";
@@ -217,17 +220,20 @@ import guide01 from "@/assets/images/guide-01.png";
 import guide02 from "@/assets/images/guide-02.png";
 import guide03 from "@/assets/images/guide-03.png";
 
-const defaultWtWaterCardActivate = {};
+const defaultWtWaterCardActivate = {
+  status: 1
+};
 export default {
   name: "relatedOfficialAccount",
   props: {
-    dealerId: String
+    dealerId: Number
   },
   components: {
     SingleUploadImg
   },
   data() {
     return {
+      authRefreshToken: "",
       parentArea: [],
       secondArea: [],
       isEdit: false,
@@ -272,6 +278,15 @@ export default {
         name: [
           { required: true, message: "请输入公众号名称", trigger: "blur" }
         ],
+        token: [
+          { required: true, message: "请输入token", trigger: "blur" }
+        ],
+        province: [
+          { required: true, message: "请选择省份", trigger: "blur" }
+        ],
+        city: [
+          { required: true, message: "请选择区县", trigger: "blur" }
+        ],
         account: [
           { required: true, message: "请输入公众号账号", trigger: "blur" }
         ],
@@ -280,21 +295,32 @@ export default {
         key: [{ required: true, message: "请填写微信公众平台后台的AppId" }],
         secret: [
           { required: true, message: "请填写微信公众平台后台的AppSecret" }
+        ],
+        status: [
+          { required: true, message: "请选择公众号状态", trigger: "blur" }
+        ],
+        qrCode: [
+          { required: true, message: "请上传公众号二维码", trigger: "blur" }
+        ],
+        logo:[
+          { required: true, message: "请上传公众号头像", trigger: "blur" }
         ]
       }
     };
   },
   created() {
-    if (this.$route.query.id) {
-      this.dealerId = this.$route.query.id;
-    }
     if (this.dealerId) {
       this.getAccount();
     }
-
     this.getAreaList();
   },
   methods: {
+    getRefreshToken() {
+      authRefreshToken().then(res => {
+        this.wtWaterCardActivate.token = res.data;
+        // console.log(res.data);
+      });
+    },
     getAreaList() {
       let param = {
         deep: 0
@@ -339,6 +365,7 @@ export default {
           );
         } else {
           this.isEdit = false;
+          this.getRefreshToken();
           this.wtWaterCardActivate = Object.assign(
             {},
             defaultWtWaterCardActivate
@@ -398,7 +425,7 @@ export default {
                     type: "success",
                     duration: 1000
                   });
-                  location.reload();
+                  this.getAccount();
                 } else {
                   this.$message({
                     message: response.msg,
@@ -412,7 +439,7 @@ export default {
               this.wtWaterCardActivate.styleid = 1;
               this.wtWaterCardActivate.subscribeurl = "测试";
               this.wtWaterCardActivate.country = "中国";
-              this.wtWaterCardActivate.authRefreshToken = this.wtWaterCardActivate.token;
+              // this.wtWaterCardActivate.authRefreshToken = this.wtWaterCardActivate.token;
               var now = new Date();
               let year = now.getFullYear();
               let month =
@@ -435,8 +462,7 @@ export default {
                     type: "success",
                     duration: 1000
                   });
-                  // this.$router.back();
-                  location.reload();
+                  this.getAccount();
                 } else {
                   this.$message({
                     message: response.msg,
