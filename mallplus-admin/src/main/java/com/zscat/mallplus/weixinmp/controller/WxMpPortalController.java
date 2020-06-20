@@ -31,8 +31,6 @@ public class WxMpPortalController {
     @Resource
     private JdbcTemplate jdbcTemplate;
     @Resource
-    private IAccountWechatsService wechatsService;
-    @Resource
     private WxMpConfiguration wxMpConfiguration;
 
     @GetMapping(produces = "text/plain;charset=utf-8")

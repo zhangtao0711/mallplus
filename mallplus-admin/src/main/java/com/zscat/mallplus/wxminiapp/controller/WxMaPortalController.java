@@ -27,8 +27,7 @@ public class WxMaPortalController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Resource
     private JdbcTemplate jdbcTemplate;
-    @Resource
-    private IAccountWxappService wxappService;
+
 
     @GetMapping(produces = "text/plain;charset=utf-8")
     public String authGet(@PathVariable Integer uniacid,
