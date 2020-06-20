@@ -14,6 +14,9 @@ import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.io.Serializable;
 
@@ -35,6 +38,7 @@ public class SmsRechargePackage extends BaseEntity implements Serializable {
      * 经销商id
      **/
     @TableField("dealer_id")
+    @NotNull(message = "经销商不能为空！")
     private Long dealerId;
 
 
@@ -42,6 +46,7 @@ public class SmsRechargePackage extends BaseEntity implements Serializable {
      * 所属店铺
      **/
     @TableField("store_id")
+    @NotNull(message = "所属店铺不能为空！")
     private Integer storeId;
 
 
@@ -49,6 +54,7 @@ public class SmsRechargePackage extends BaseEntity implements Serializable {
      *
      **/
     @TableField("store_name")
+    @NotEmpty(message = "所属店铺名称不能为空！")
     private String storeName;
 
 
@@ -56,6 +62,8 @@ public class SmsRechargePackage extends BaseEntity implements Serializable {
      * 充值条件
      **/
     @TableField("term_fee")
+    @NotNull(message = "充值条件不能为空！")
+    @Digits(integer = 10,fraction = 2,message = "充值金额不能很大！")
     private BigDecimal termFee;
 
 
@@ -63,6 +71,8 @@ public class SmsRechargePackage extends BaseEntity implements Serializable {
      * 赠送金额
      **/
     @TableField("donate_fee")
+    @NotNull(message = "赠送金额不能为空！")
+    @Digits(integer = 10,fraction = 2,message = "赠送金额不能很大！")
     private BigDecimal donateFee;
 
 
@@ -70,6 +80,8 @@ public class SmsRechargePackage extends BaseEntity implements Serializable {
      * 实际到账金额
      **/
     @TableField("actual_fee")
+    @NotNull(message = "实际到账金额不能为空！")
+    @Digits(integer = 10,fraction = 2,message = "实际到账金额不能很大！")
     private BigDecimal actualFee;
 
 

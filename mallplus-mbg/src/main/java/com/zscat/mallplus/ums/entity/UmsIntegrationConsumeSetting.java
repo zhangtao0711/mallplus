@@ -8,6 +8,9 @@ import com.zscat.mallplus.utils.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -63,6 +66,7 @@ public class UmsIntegrationConsumeSetting extends BaseEntity implements Serializ
      * 注册送积分
      */
     @TableField("register")
+    @NotNull(message = "注册送积分不能为空！")
     private Integer register;
     /**
      * 签到送积分
@@ -86,12 +90,15 @@ public class UmsIntegrationConsumeSetting extends BaseEntity implements Serializ
      * 注册赠送的水费
      */
     @TableField("water_fee")
+    @NotNull(message = "注册赠送的水费不能为空！")
+    @Digits(integer = 10,fraction = 2,message = "赠送的水费数据太大!")
     private BigDecimal waterFee;
 
     /**
      * 经销商id
      */
     @TableField("dealer_id")
+    @NotNull(message = "所属经销商不能为空！")
     private Long dealerId;
 
     /**

@@ -16,33 +16,17 @@ import java.util.Date;
  */
 @Data
 public class SimEntity {
+    /**
+     * 查询结果
+     **/
+    private String msg;
+    /**
+     * 查询code
+     **/
+    private String code;
 
     /**
-     * 物联网卡状态
-     **/
-    private String status;
-    /**
-     * 物联网卡状态描述
-     **/
-    private String message;
-    /**
-     * 	卡有效期
-     **/
-    private Date expired_at;
-    /**
-     * 卡号
-     **/
-    private String cardno;
-    /**
-     * 使用流量(-1表示未知，单位KB，时间当月)
-     **/
-    private String used;
-    /**
-     * 剩余流量(单位KB)
-     **/
-    private String surplus;
-    /**
-     * 订单号
-     **/
-    private String order_id;
+     * data
+     */
+    private SimDataEntity data;
 }

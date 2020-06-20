@@ -1,6 +1,7 @@
 package com.zscat.mallplus.water.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.zxing.BarcodeFormat;
@@ -92,7 +93,10 @@ public class WtSimCardController {
                                      @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         try {
-            return new CommonResult().success(IWtSimCardService.page(new Page<WtSimCard>(pageNum, pageSize), new QueryWrapper<>(entity)));
+//            return new CommonResult().success(IWtSimCardService.page(new Page<WtSimCard>(pageNum, pageSize), new QueryWrapper<>(entity)));
+            entity.setDelFlag(ConstantUtil.delFlag);
+            return new CommonResult().success(IWtSimCardService.selectData(new Page<Map<String, Object>>(pageNum, pageSize),
+                    entity));
         } catch (Exception e) {
             log.error("根据条件查询所有SIM卡列表列表：%s", e.getMessage(), e);
         }
@@ -105,6 +109,16 @@ public class WtSimCardController {
     @PreAuthorize("hasAuthority('water:wtSimCard:create')")
     public Object saveWtSimCard(@RequestBody WtSimCard entity) {
         try {
+            //未经查询的卡不能添加
+            if(entity.getState()==null || entity.getState().isEmpty()){
+                return new CommonResult().failed("请先查询卡号信息，再添加！");
+            }
+            //SIM卡是否重复
+            WtSimCard data=new WtSimCard();
+            data.setCardno(entity.getCardno());
+            if(IWtSimCardService.getOne(new QueryWrapper<>(data))!=null){
+                return new CommonResult().failed("卡号已存在，不能重复添加！");
+            }
             entity.setDelFlag(ConstantUtil.delFlag);
             entity.setCreateTime(new Date());
             if (IWtSimCardService.save(entity)) {
@@ -144,7 +158,7 @@ public class WtSimCardController {
     @PreAuthorize("hasAuthority('water:wtSimCard:read')")
     public Object getChaxun(@ApiParam("SIM卡号")@PathVariable String cardno) {
         try {
-            SimEntity coupon = IWtSimCardService.getChaxun(cardno);
+            JSONObject coupon = IWtSimCardService.getChaxun(cardno);
             return new CommonResult().success(coupon);
         } catch (Exception e) {
             log.error("物联网卡余量查询：%s", e.getMessage(), e);
@@ -193,7 +207,7 @@ public class WtSimCardController {
             entity.setPrice(coupon.getProductMoney());//套餐金额
             entity.setCreateTime(new Date());
             if (IWtSimSendOrderWxService.save(entity)) {
-                if (entity.getPaytype().equals(ConstantUtil.wx_pay)) {
+                if (entity.getPaytype()==Integer.parseInt(ConstantUtil.wx_pay)) {
                     //扫码支付统一下单-服务商支付
                     //1.获取支付的金额
                     if (entity.getPrice()==null){
@@ -361,14 +375,14 @@ public class WtSimCardController {
                     wtSimSendOrder.setCardno(order.getCardno());
                     wtSimSendOrder.setLogno(order.getLogno());
                     wtSimSendOrder.setPaytime(order.getPaytime());
-                    if(!coupon.getStatus().equals("0")){
+                    if(!coupon.getData().getStatus().equals("0")){
                         log.error("SIM卡"+order.getCardno()+"充值失败");
-                        order.setPaystatus(Integer.parseInt(coupon.getStatus()));
-                        order.setError("SIM卡"+order.getCardno()+"充值失败,原因："+coupon.getMessage());
+                        order.setPaystatus(Integer.parseInt(coupon.getData().getStatus()));
+                        order.setError("SIM卡"+order.getCardno()+"充值失败,原因："+coupon.getData().getMessage());
                         IWtSimSendOrderService.save(wtSimSendOrder);
                     }else{
                         log.error("SIM卡"+order.getCardno()+"充值成功");
-                        order.setPaystatus(Integer.parseInt(coupon.getStatus()));
+                        order.setPaystatus(Integer.parseInt(coupon.getData().getStatus()));
                         order.setError("SIM卡"+order.getCardno()+"充值成功");
                         IWtSimSendOrderService.save(wtSimSendOrder);
                     }
@@ -446,14 +460,14 @@ public class WtSimCardController {
                 wtSimSendOrder.setCardno(order.getCardno());
                 wtSimSendOrder.setLogno(order.getLogno());
                 wtSimSendOrder.setPaytime(order.getPaytime());
-                if(!coupon.getStatus().equals("0")){
+                if(!coupon.getData().getStatus().equals("0")){
                     log.error("SIM卡"+order.getCardno()+"充值失败");
-                    order.setPaystatus(Integer.parseInt(coupon.getStatus()));
-                    order.setError("SIM卡"+order.getCardno()+"充值失败,原因："+coupon.getMessage());
+                    order.setPaystatus(Integer.parseInt(coupon.getData().getStatus()));
+                    order.setError("SIM卡"+order.getCardno()+"充值失败,原因："+coupon.getData().getMessage());
                     IWtSimSendOrderService.save(wtSimSendOrder);
                 }else{
                     log.error("SIM卡"+order.getCardno()+"充值成功");
-                    order.setPaystatus(Integer.parseInt(coupon.getStatus()));
+                    order.setPaystatus(Integer.parseInt(coupon.getData().getStatus()));
                     order.setError("SIM卡"+order.getCardno()+"充值成功");
                     IWtSimSendOrderService.save(wtSimSendOrder);
                 }
@@ -600,6 +614,24 @@ public class WtSimCardController {
             return new CommonResult().success(coupon);
         } catch (Exception e) {
             log.error("查询SIM卡列表明细：%s", e.getMessage(), e);
+            return new CommonResult().failed();
+        }
+
+    }
+
+    @SysLog(MODULE = "water", REMARK = "根据SIM卡号查询信息")
+    @ApiOperation("根据SIM卡号查询信息")
+    @GetMapping(value = "/getWtSimCardByCardNo/{cardno}")
+    @PreAuthorize("hasAuthority('water:wtSimCard:read')")
+    public Object getWtSimCardByCardNo(@ApiParam("SIM卡号") @PathVariable String cardno) {
+        try {
+            if (ValidatorUtils.empty(cardno)) {
+                return new CommonResult().paramFailed("SIM卡号不能为空");
+            }
+            WtSimCard coupon = IWtSimCardService.getByCardno(cardno);
+            return new CommonResult().success(coupon);
+        } catch (Exception e) {
+            log.error("根据SIM卡号查询信息：%s", e.getMessage(), e);
             return new CommonResult().failed();
         }
 

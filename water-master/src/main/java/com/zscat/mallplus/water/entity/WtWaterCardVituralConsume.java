@@ -24,6 +24,9 @@ public class WtWaterCardVituralConsume extends BaseEntity implements Serializabl
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    @TableField("order_no")
+    private String orderNo;
+
 
     /**
      * 虚拟卡id
@@ -80,9 +83,14 @@ public class WtWaterCardVituralConsume extends BaseEntity implements Serializabl
     @TableField("water_yield")
     private BigDecimal waterYield;
 
-    @TableField(exist = false)
-    private Integer type;
-
+    @TableField("store_id")
     private Integer storeId;
+
+    @TableField("device_id")
+    private Integer deviceId;
+
+    @TableField("water_type")
+    private String waterType;
+
 
 }

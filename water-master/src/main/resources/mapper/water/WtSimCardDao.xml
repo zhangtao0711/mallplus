@@ -9,4 +9,25 @@
         WHERE a.cardno=#{cardno}
     </select>
 
+    <!-- 根据条件查询所有SIM卡信息 -->
+    <select id="selectData" resultType="com.zscat.mallplus.water.entity.WtSimCard">
+        SELECT
+        b.eq_address AS "eqAddress"
+        ,a.*
+        FROM wt_sim_card a
+        LEFT JOIN wt_equipment b ON a.eqcode=b.eqcode AND b.del_flag=#{entity.delFlag}
+        WHERE a.del_flag=#{entity.delFlag}
+        <if test="entity.cardno != null and entity.cardno != ''">
+            AND a.cardno=#{entity.cardno}
+        </if>
+        <if test="entity.eqcode != null and entity.eqcode != ''">
+            AND a.eqcode=#{entity.eqcode}
+        </if>
+        <if test="entity.state != null and entity.state != ''">
+            AND a.state=#{entity.state}
+        </if>
+        <if test="entity.dealerId != null and entity.dealerId != ''">
+            AND a.dealer_id=#{entity.dealerId}
+        </if>
+    </select>
 </mapper>

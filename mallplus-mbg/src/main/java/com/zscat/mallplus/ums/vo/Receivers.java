@@ -12,9 +12,9 @@ public class Receivers {
     @Override
     public String toString() {
         return "{" +
-                "type='" + type + '\'' +
-                ", account='" + account + '\'' +
-                ", relationType='" + relationType + '\'' +
+                "\"type\"=\"" + type + '\"' +
+                ", \"account\"=\"" + account + '\"' +
+                ", \"relationType\"=\"" + relationType + '\"' +
                 '}';
     }
 }

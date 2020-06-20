@@ -41,4 +41,6 @@ public interface UmsMemberMapper extends BaseMapper<UmsMember> {
     List<Map<String,Object>> selectSenior(Page<Map<String,Object>> page, @Param("entity")UmsMemberSelect entity);
 
     Long getByOpenid(@Param("openId") String openId);
+
+    List<String> queryIdList(String phone);
 }

@@ -94,9 +94,9 @@ public class WtWaterCardCreateController {
                 return new CommonResult().failed("此区段内有已经生成过的卡号存在，请重新设定起始卡号-终止卡号范围！");
             }
 //            AccountWxapp accountWxapp=iAccountWxappService.getById(entity.getAcid());
-            if(IWtWaterCardCreateService.getAcidKey(entity.getAcid())==null || IWtWaterCardCreateService.getAcidKey(entity.getAcid()).isEmpty()){
-                return new CommonResult().failed("此公众号没有key，请选择其他信息完整的公众号！");
-            }
+//            if(IWtWaterCardCreateService.getAcidKey(entity.getAcid())==null || IWtWaterCardCreateService.getAcidKey(entity.getAcid()).isEmpty()){
+//                return new CommonResult().failed("此公众号没有key，请选择其他信息完整的公众号！");
+//            }
 
             //将代号转为大写
             entity.setCode(entity.getCode().toUpperCase());
@@ -227,20 +227,20 @@ public class WtWaterCardCreateController {
             // 模拟从数据库获取需要导出的数据
             List<WtWaterCardExcel> personList = IWtWaterCardCreateService.getExport(ConstantUtil.delFlag,entity.getId());
 
-            for (WtWaterCardExcel wtWaterCardExcel: personList){
-                BitMatrix bitMatrix = new MultiFormatWriter().encode(wtWaterCardExcel.getQrCode(),
-                        BarcodeFormat.QR_CODE, width, height, hints);
-                // 生成二维码
-                MatrixToImageConfig config = new MatrixToImageConfig(0xFF000001, 0xFFFFFFFF);
-                BufferedImage bufImg = com.google.zxing.client.j2se.MatrixToImageWriter.toBufferedImage(bitMatrix, config);
-//                BufferedImage image = MatrixToImageWriter.toBufferedImage(bitMatrix, words);
-                // 创建图片
-                ImageEntity image = new ImageEntity();
-                image.setHeight(width);
-                image.setWidth(height);
-                image.setUrl("C:/Users/Administrator/Pictures/timg.jpg");
-                wtWaterCardExcel.setQrCodeFile(image);
-            }
+//            for (WtWaterCardExcel wtWaterCardExcel: personList){
+//                BitMatrix bitMatrix = new MultiFormatWriter().encode(wtWaterCardExcel.getQrCode(),
+//                        BarcodeFormat.QR_CODE, width, height, hints);
+//                // 生成二维码
+//                MatrixToImageConfig config = new MatrixToImageConfig(0xFF000001, 0xFFFFFFFF);
+//                BufferedImage bufImg = com.google.zxing.client.j2se.MatrixToImageWriter.toBufferedImage(bitMatrix, config);
+////                BufferedImage image = MatrixToImageWriter.toBufferedImage(bitMatrix, words);
+//                // 创建图片
+//                ImageEntity image = new ImageEntity();
+//                image.setHeight(width);
+//                image.setWidth(height);
+//                image.setUrl("C:/Users/Administrator/Pictures/timg.jpg");
+//                wtWaterCardExcel.setQrCodeFile(image);
+//            }
             // 导出操作
             EasyPoiUtils.exportExcel(personList, "导出制卡信息", "制卡信息", WtWaterCardExcel.class, "制卡信息.xls", response);
         }catch (Exception e){

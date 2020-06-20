@@ -10,5 +10,61 @@
         AND a.eqcode=#{eqcode}
         AND a.dealer_id=#{dealerId}
     </select>
+    <!-- 根据条件查询所有设备列表 -->
+    <select id="selectData" resultType="com.zscat.mallplus.water.entity.WtEquipment">
+        SELECT
+            b.username AS "dealerName"
+            ,convert(c.consume_money/100,decimal(10,2)) AS "salesVolumeOfday"
+            ,convert(d.consume_money/100,decimal(10,2)) AS "salesVolumeOfMon"
+            ,convert(e.wd/10,decimal(10,1)) AS "wd"
+            ,e.id AS "dtailesId"
+            ,e.equipmentvr AS "equipmentvr"
+            ,e.sig AS "sig"
+            ,e.zsysstate AS "zsysstate"
+            ,e.update_time AS "setUpTime"
+            ,0 AS "userNum"
+            ,a.*
+        FROM wt_equipment a
+        LEFT JOIN sys_user b ON a.dealer_id=b.id
+        LEFT JOIN (SELECT sum(consume_money) AS "consume_money",a.eqcode FROM wt_consume_record a
+        WHERE DATE_FORMAT(a.end_time, '%Y-%m-%d')=DATE_FORMAT( now(), '%Y-%m-%d' ) AND a.del_flag=#{entity.delFlag}
+        GROUP BY a.eqcode) c ON a.eqcode =c.eqcode
+        LEFT JOIN (SELECT sum(consume_money) AS "consume_money",a.eqcode FROM wt_consume_record a
+        WHERE DATE_FORMAT(a.end_time, '%Y-%m')=DATE_FORMAT( now(), '%Y-%m' ) AND a.del_flag=#{entity.delFlag}
+        GROUP BY a.eqcode) d ON a.eqcode =d.eqcode
+        LEFT JOIN wt_equipment_detailes e ON a.eqcode = e.eqcode
+        WHERE a.del_flag=#{entity.delFlag}
+        <if test="entity.eqcode != null and entity.eqcode != ''">
+            AND a.eqcode=#{entity.eqcode}
+        </if>
+        <if test="entity.dealerName != null and entity.dealerName != ''">
+            AND b.username like concat('%',#{entity.dealerName},'%')
+        </if>
+        <if test="entity.salesVolumeOfday != null and entity.salesVolumeOfday != ''">
+            AND convert(c.consume_money/100,decimal(10,2))=#{entity.salesVolumeOfday}
+        </if>
+        <if test="entity.salesVolumeOfMon != null and entity.salesVolumeOfMon != ''">
+            AND convert(d.consume_money/100,decimal(10,2))=#{entity.salesVolumeOfMon}
+        </if>
+        <if test="entity.eqAddress != null and entity.eqAddress != ''">
+            AND a.eq_address like concat('%',#{entity.eqAddress},'%')
+        </if>
 
+        <if test="entity.zsysState != null and entity.zsysState != ''">
+            AND e.zsysState=#{entity.zsysState}
+        </if>
+        <if test="entity.wd != null and entity.wd != ''">
+            AND convert(e.wd/10,decimal(10,1))=#{entity.wd}
+        </if>
+        <if test="entity.sig != null and entity.sig != ''">
+            AND e.sig=#{entity.sig}
+        </if>
+        <if test="entity.equipmentVr != null and entity.equipmentVr != ''">
+            AND e.sig=#{entity.equipmentVr}
+        </if>
+        <if test="entity.setUpTime != null and entity.setUpTime != ''">
+            AND e.update_time=#{entity.setUpTime}
+        </if>
+
+    </select>
 </mapper>

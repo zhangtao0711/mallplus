@@ -20,8 +20,8 @@
    </sql>
 
     <!-- 根据deviceNo获取购水设置 -->
-    <select id="selectByDeviceNo" resultMap="BaseResultMap">
-        select * from sms_class_config where FIND_IN_SET(#{deviceNo},devices)
+    <select id="selectByDeviceId" resultMap="BaseResultMap">
+        select * from sms_class_config where FIND_IN_SET(#{deviceId},devices)
     </select>
 
 </mapper>

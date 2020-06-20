@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Date;
@@ -60,7 +61,7 @@ public class SmsLabelSendMessageController {
     @ApiOperation("保存手动发送记录")
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('sms:smsLabelSendMessage:create')")
-    public Object saveSmsLabelSendMessage(@RequestBody SmsLabelSendMessage entity) {
+    public Object saveSmsLabelSendMessage(@RequestBody @Valid SmsLabelSendMessage entity) {
         try {
             entity.setCreateTime(new Date());
             //发送消息到公众号或者小程序

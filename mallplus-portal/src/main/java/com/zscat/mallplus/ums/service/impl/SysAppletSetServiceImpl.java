@@ -1,5 +1,6 @@
 package com.zscat.mallplus.ums.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jfinal.kit.StrKit;
@@ -23,12 +24,14 @@ import com.zscat.mallplus.ums.mapper.SysApaySetMapper;
 import com.zscat.mallplus.ums.mapper.SysAppletSetMapper;
 import com.zscat.mallplus.ums.service.ISysAppletSetService;
 import com.zscat.mallplus.util.applet.StringConstantUtil;
+import com.zscat.mallplus.util.card.RandomNumberGenerator;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.water.entity.WtWaterCard;
 import com.zscat.mallplus.water.mapper.WtWaterCardMapper;
 import com.zscat.mallplus.wxpay.WxPayApi;
 import com.zscat.mallplus.wxpay.model.ProfitSharingModel;
 import com.zscat.mallplus.wxpay.model.TransferModel;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -44,6 +47,7 @@ import java.util.*;
  * @since 2019-06-15
  */
 @Service
+@Slf4j
 public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, SysAppletSet> implements ISysAppletSetService {
 
     @Resource
@@ -88,15 +92,17 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
             SysUser last = adminMapper.selectById(user.getPid());
             SysUser lastLast = adminMapper.selectById(user.getGid());
             List<Map<String,String>> receivers = new ArrayList<>();
+            JSONObject j = new JSONObject();
             Map<String,String> receiver1 = new HashMap<>();
             if (user.getLevel()==1){
                 return false;
             }else if (user.getLevel()==2){
-                receiver1.put("type","PERSONAL_WECHATID");
+                receiver1.put("type","PERSONAL_SUB_OPENID");
                 receiver1.put("account",last.getWeixinOpenid());
                 BigDecimal amount = set.getFirstSeparate().multiply(actualFee).setScale(2,BigDecimal.ROUND_DOWN);
                 BigDecimal secondAmount = (new BigDecimal("1").subtract(set.getFirstSeparate()).multiply(actualFee).setScale(2,BigDecimal.ROUND_DOWN));
                 receiver1.put("amount",amount.multiply(new BigDecimal("100")).setScale(0,BigDecimal.ROUND_DOWN).toString());
+                receiver1.put("description","分成");
                 receivers.add(receiver1);
                 if (type==1) {
                     record.setFirstAmount(amount);
@@ -104,6 +110,12 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
                 }else if (type==2){
                     record1.setFirstAmount(amount);
                     record1.setSecondAmount(secondAmount);
+                }
+                j.put("account", last.getWeixinOpenid()); //个人微信号
+                j.put("type", "PERSONAL_SUB_OPENID");  //个人名字
+                j.put("relation_type", "DISTRIBUTOR");
+                if (!profitSharingAddReceiver(j.toJSONString(),config,set.getMchid(),set.getAppid())){
+                    return false;
                 }
             } else if (user.getLevel()==3){
                 receiver1.put("type","PERSONAL_WECHATID");
@@ -126,6 +138,19 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
                     record1.setFirstAmount(amount);
                     record1.setSecondAmount(secondAmount);
                     record1.setThirdAmount(thirdAmount);
+                }
+                j.put("account", last.getWeixinOpenid()); //个人微信号
+                j.put("type", "PERSONAL_SUB_OPENID");  //个人名字
+                j.put("relation_type", "DISTRIBUTOR");
+                if (!profitSharingAddReceiver(j.toJSONString(),config,set.getMchid(),set.getAppid())){
+                    return false;
+                }
+                JSONObject j1 = new JSONObject();
+                j1.put("account", lastLast.getWeixinOpenid()); //个人微信号
+                j1.put("type", "PERSONAL_SUB_OPENID");  //个人名字
+                j1.put("relation_type", "DISTRIBUTOR");
+                if (!profitSharingAddReceiver(j1.toJSONString(),config,set.getMchid(),set.getAppid())){
+                    return false;
                 }
             }
             String out_trade_no = WxPayKit.generateStr();
@@ -208,7 +233,7 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
                         .build()
                         .createSign(set.getPaySignKey(), SignType.HMACSHA256, false);
                 // 提现
-                String transfers = WxPayApi.transfers(params, apaySet.getCertCatalog(), apaySet.getMchId());
+                String transfers = WxPayApi.transfers(params, apaySet.getApiclientCert(), apaySet.getMchId());
                 System.out.println("提现结果:" + transfers);
                 Map<String, String> map = WxPayKit.xmlToMap(transfers);
                 String returnCode = map.get("return_code");
@@ -266,7 +291,7 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
                         .build()
                         .createSign(set.getPaySignKey(), SignType.HMACSHA256, false);
                 // 提现
-                String transfers = WxPayApi.transfers(params, apaySet.getCertCatalog(), apaySet.getMchId());
+                String transfers = WxPayApi.transfers(params, apaySet.getApiclientCert(), apaySet.getMchId());
                 System.out.println("提现结果:" + transfers);
                 Map<String, String> map = WxPayKit.xmlToMap(transfers);
                 String returnCode = map.get("return_code");
@@ -310,7 +335,7 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
                             .build()
                             .createSign(set.getPaySignKey(), SignType.HMACSHA256, false);
                     // 提现
-                    String transfer = WxPayApi.transfers(param, apaySet.getCertCatalog(), apaySet.getMchId());
+                    String transfer = WxPayApi.transfers(param, apaySet.getApiclientCert(), apaySet.getMchId());
                     System.out.println("提现结果:" + transfer);
                     Map<String, String> map1 = WxPayKit.xmlToMap(transfer);
                     String returnCode1 = map1.get("return_code");
@@ -368,7 +393,7 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
                         .build()
                         .createSign(set.getPaySignKey(), SignType.HMACSHA256, false);
                 // 提现
-                String transfer = WxPayApi.transfers(param, apaySet.getCertCatalog(), apaySet.getMchId());
+                String transfer = WxPayApi.transfers(param, apaySet.getApiclientCert(), apaySet.getMchId());
                 System.out.println("提现结果:" + transfer);
                 Map<String, String> map1 = WxPayKit.xmlToMap(transfer);
                 String returnCode1 = map1.get("return_code");
@@ -414,7 +439,7 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
                             .build()
                             .createSign(set.getPaySignKey(), SignType.HMACSHA256, false);
                     // 提现
-                    String transfer1 = WxPayApi.transfers(param1, apaySet.getCertCatalog(), apaySet.getMchId());
+                    String transfer1 = WxPayApi.transfers(param1, apaySet.getApiclientCert(), apaySet.getMchId());
                     System.out.println("提现结果:" + transfer1);
                     Map<String, String> map2 = WxPayKit.xmlToMap(transfer1);
                     String returnCode2 = map2.get("return_code");
@@ -458,7 +483,7 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
                             .build()
                             .createSign(set.getPaySignKey(), SignType.HMACSHA256, false);
                     // 提现
-                    String transfer2 = WxPayApi.transfers(param2, apaySet.getCertCatalog(), apaySet.getMchId());
+                    String transfer2 = WxPayApi.transfers(param2, apaySet.getApiclientCert(), apaySet.getMchId());
                     System.out.println("提现结果:" + transfer2);
                     Map<String, String> map3 = WxPayKit.xmlToMap(transfer2);
                     String returnCode3 = map3.get("return_code");
@@ -502,7 +527,7 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
         if (waterCards==null||waterCards.size()==0) {
             WtWaterCard waterCard = new WtWaterCard();
             waterCard.setCardType(StringConstantUtil.card_type_1);
-            waterCard.setCardNo("");//生成规则不清楚
+            waterCard.setCardNo("5"+ RandomNumberGenerator.generateNumber2());//生成规则不清楚
             waterCard.setAcid(member.getUniacid());
             waterCard.setUmsMemberId(member.getId());
             waterCard.setDealerId(dealerId);
@@ -513,6 +538,32 @@ public class SysAppletSetServiceImpl extends ServiceImpl<SysAppletSetMapper, Sys
             waterCard.setStoreId(member.getStoreId());
             waterCard.setDelFlag("0");
             cardMapper.insert(waterCard);
+        }
+    }
+
+    private boolean profitSharingAddReceiver(String receives,MerchatFacilitatorConfig config,String mchid,String appid){
+        Map<String, String> param = ProfitSharingModel.builder()
+                .appid(config.getAppid())
+                .mch_id(config.getMchId())
+                .sub_mch_id(mchid)
+                .sub_appid(appid)
+                .nonce_str(WxPayKit.generateStr())
+                .sign_type("HMAC-SHA256")
+                .receivers(receives)
+                .build()
+                .createSign(config.getSecret(),SignType.HMACSHA256, false);
+        String rout = WxPayApi.profitSharingAddReceiver(param);
+        Map<String, String> map = WxPayKit.xmlToMap(rout);
+        String returncode = map.get("return_code");
+        String resultCode = map.get("result_code");
+        if (WxPayKit.codeIsOk(returncode) && WxPayKit.codeIsOk(resultCode)) {
+            // 添加分账接收方成功
+            log.info("添加分账接收方成功！");
+            return true;
+        } else {
+            // 添加分账接收方失败
+            log.error("添加分账接收方失败：错误代码" +map.get("err_code")+ "错误代码描述"+map.get("err_code_des"));
+            return false;
         }
     }
 }

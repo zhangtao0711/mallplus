@@ -110,4 +110,14 @@ public class ConstantUtil {
     public static final String member_log_falg_0="0";
     public static final String member_log_falg_1="1";
 
+    //短信
+    public static final String forget_password_type  = "1";
+    public static final String forget_password_template_code = "SMS_193016479";
+    public static final String phone_update_type = "2";
+    public static final String phone_update_template_code = "SMS_193016478";
+    public static final String sign_name = "四两科技";
+
+    //0备注1滤芯履历
+    public static final String remarks_type_0 = "0";
+    public static final String remarks_type_1 = "1";
 }

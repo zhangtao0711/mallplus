@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Date;
 
@@ -67,9 +68,12 @@ public class SysDealerRechargeRecordController {
     @ApiOperation("保存经销商的余额充值记录")
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('sys:sysDealerRechargeRecord:create')")
-    public Object saveSysDealerRechargeRecord(@RequestBody SysDealerRechargeRecord entity) {
+    public Object saveSysDealerRechargeRecord(@RequestBody @Valid SysDealerRechargeRecord entity) {
         try {
             entity.setCreateTime(new Date());
+            if (entity.getNewBalance().compareTo(entity.getBalance().add(entity.getRecharge()))<=0){
+                return new CommonResult().failed("充值数值错误！");
+            }
             if (ISysDealerRechargeRecordService.save(entity)) {
                 //充值的钱更新
                 SysUser user = sysUserService.getById(entity.getDealerId());

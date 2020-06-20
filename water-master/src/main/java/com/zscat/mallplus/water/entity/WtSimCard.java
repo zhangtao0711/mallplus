@@ -38,20 +38,20 @@ public class WtSimCard extends BaseEntity implements Serializable {
     private String cardno;
 
 
-    /**
-     * 产品编码
-     **/
-    @TableField("product_id")
-    @Length(min=1, max=100, message="物联网卡号长度必须介于 1 和 100 之间!")
-    private String productId;
+//    /**
+//     * 产品编码
+//     **/
+//    @TableField("product_id")
+//    @Length(min=1, max=100, message="物联网卡号长度必须介于 1 和 100 之间!")
+//    private String productId;
 
 
     /**
      * 主版设备id
      **/
-    @TableField("device_id")
-    @Length(min=1, max=20, message="主版设备长度必须介于 1 和 20 之间!")
-    private Long deviceId;
+    @TableField("eqcode")
+//    @Length(min=1, max=20, message="主版设备长度必须介于 1 和 16 之间!")
+    private Long eqcode;
 
 
     /**
@@ -90,8 +90,7 @@ public class WtSimCard extends BaseEntity implements Serializable {
      * 预充值生效日期
      **/
     @TableField("precharge_offsets_time")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date prechargeOffsetsTime;
+    private String prechargeOffsetsTime;
 
 
     /**
@@ -130,6 +129,13 @@ public class WtSimCard extends BaseEntity implements Serializable {
     @TableField("del_flag")
     @TableLogic
     private String delFlag;
-
-
+    /**
+     * 经销商id
+     **/
+    @TableField("dealer_id")
+    private Long dealerId;
+    /**
+     * 地址
+     **/
+    private transient String eqAddress;
 }

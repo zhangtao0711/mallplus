@@ -6,10 +6,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
 import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.water.entity.WtEquipment;
+import com.zscat.mallplus.water.entity.WtOpenApiInfo;
+import com.zscat.mallplus.water.mapper.WtOpenApiInfoMapper;
 import com.zscat.mallplus.water.service.IWtEquipmentService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
+import com.zscat.mallplus.wtUtil.WtOpenApiInfoUtils;
+import com.zscat.mallplus.wtUtil.WtUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -22,6 +26,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author lyn
@@ -36,6 +41,9 @@ public class WtEquipmentController {
 
     @Resource
     private IWtEquipmentService IWtEquipmentService;
+    @Resource
+    private WtOpenApiInfoMapper wtOpenApiInfoMapper;
+
 
     @SysLog(MODULE = "water", REMARK = "根据条件查询所有设备信息列表")
     @ApiOperation("根据条件查询所有设备信息列表")
@@ -46,7 +54,10 @@ public class WtEquipmentController {
                                        @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         try {
-            return new CommonResult().success(IWtEquipmentService.page(new Page<WtEquipment>(pageNum, pageSize), new QueryWrapper<>(entity)));
+            entity.setDelFlag(ConstantUtil.delFlag);
+//            return new CommonResult().success(IWtEquipmentService.page(new Page<WtEquipment>(pageNum, pageSize), new QueryWrapper<>(entity)));
+            return new CommonResult().success(IWtEquipmentService.selectData(new Page<Map<String, Object>>(pageNum, pageSize),
+                    entity));
         } catch (Exception e) {
             log.error("根据条件查询所有设备信息列表：%s", e.getMessage(), e);
         }
@@ -56,18 +67,129 @@ public class WtEquipmentController {
     @SysLog(MODULE = "water", REMARK = "保存设备信息")
     @ApiOperation("保存设备信息")
     @PostMapping(value = "/create")
-    @PreAuthorize("hasAuthority('water:wtEquipment:create')")
+//    @PreAuthorize("hasAuthority('water:wtEquipment:create')")
     public Object saveWtEquipment(@RequestBody WtEquipment entity) {
         try {
-            entity.setDelFlag(ConstantUtil.delFlag);
-            entity.setCreateTime(new Date());
-            if (IWtEquipmentService.save(entity)) {
-                return new CommonResult().success();
+
+            //经纬度校验
+            if(entity.getEqAddressLatitude()!=null && entity.getEqAddressLongitude()!=null){
+                if(!WtUtils.checkItude(entity.getEqAddressLongitude(),entity.getEqAddressLatitude())){
+                    return new CommonResult().failed("经纬度信息不正确，找不到对应的地址！");
+                }
             }
+            //判断设备是否存在
+            if(IWtEquipmentService.getOne(new QueryWrapper<>(entity))!=null){
+                return new CommonResult().failed("设备号已经存在，请勿重新添加！");
+            }
+            //添加设备到硬件平台
+            WtOpenApiInfo coupon = new WtOpenApiInfo();
+            coupon = wtOpenApiInfoMapper.selectOne(new QueryWrapper<>(coupon));
+            Map<String, String> result = WtOpenApiInfoUtils.saveDevice(coupon,entity);
+//            int result1 = str1.indexOf("a");
+//            if(result1 != -1){
+//                System.out.println("字符串str中包含子串“a”"+result1);
+//            }else{
+//                System.out.println("字符串str中不包含子串“a”"+result1);
+//            }
+
+            if(result!=null && result.toString().indexOf("\"status\":200")!=-1){
+                entity.setDelFlag(ConstantUtil.delFlag);
+                entity.setCreateTime(new Date());
+                if (IWtEquipmentService.save(entity)) {
+                    return new CommonResult().success();
+                }
+            }else{
+                log.error("硬件平台数据添加失败：%s",result.get("message"));
+                return new CommonResult().failed("添加失败！");
+            }
+
         } catch (Exception e) {
             log.error("保存设备信息：%s", e.getMessage(), e);
             return new CommonResult().failed(e.getMessage());
         }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "water", REMARK = "激活设备")
+    @ApiOperation("激活设备")
+    @PostMapping(value = "/batchDeployOn")
+//    @PreAuthorize("hasAuthority('water:wtEquipment:create')")
+    public Object batchDeployOn(@RequestParam("eqcodes") List<String> eqcodes) {
+        try {
+            //激活设备硬件平台
+            WtOpenApiInfo coupon = new WtOpenApiInfo();
+            coupon = wtOpenApiInfoMapper.selectOne(new QueryWrapper<>(coupon));
+            Map<String, String> result = WtOpenApiInfoUtils.batchDeployOn(coupon,eqcodes);
+
+            if(result!=null && result.toString().indexOf("\"status\":200")!=-1){
+                 return new CommonResult().success();
+            }else{
+                log.error("激活设备失败：%s",result.get("message"));
+                return new CommonResult().failed("激活设备失败！");
+            }
+        } catch (Exception e) {
+            log.error("激活设备：%s", e.getMessage(), e);
+            return new CommonResult().failed(e.getMessage());
+        }
+    }
+    @SysLog(MODULE = "water", REMARK = "注销设备")
+    @ApiOperation("注销设备")
+    @PostMapping(value = "/batchDeployOff")
+//    @PreAuthorize("hasAuthority('water:wtEquipment:create')")
+    public Object batchDeployOff(@RequestParam("eqcodes") List<String> eqcodes) {
+        try {
+            //激活设备硬件平台
+            WtOpenApiInfo coupon = new WtOpenApiInfo();
+            coupon = wtOpenApiInfoMapper.selectOne(new QueryWrapper<>(coupon));
+            Map<String, String> result = WtOpenApiInfoUtils.batchDeployOff(coupon,eqcodes);
+
+            if(result!=null && result.toString().indexOf("\"status\":200")!=-1){
+                return new CommonResult().success();
+            }else{
+                log.error("注销设备失败：%s",result.get("message"));
+                return new CommonResult().failed("注销设备失败！");
+            }
+        } catch (Exception e) {
+            log.error("注销设备：%s", e.getMessage(), e);
+            return new CommonResult().failed(e.getMessage());
+        }
+    }
+
+    @SysLog(MODULE = "water", REMARK = "远程开机")
+    @ApiOperation("远程开机")
+    @PostMapping(value = "/equipmentOn/{eqcode}")
+    @PreAuthorize("hasAuthority('water:wtEquipment:update')")
+    public Object equipmentOn(@ApiParam("设备号") @PathVariable String eqcode) {
+        //远程开机
+        WtOpenApiInfo coupon = new WtOpenApiInfo();
+        coupon = wtOpenApiInfoMapper.selectOne(new QueryWrapper<>(coupon));
+//        Map<String, String> result = WtOpenApiInfoUtils.batchDeployOn(coupon,eqcodes);
+
+//        if(result!=null && result.toString().indexOf("\"status\":200")!=-1){
+//            return new CommonResult().success();
+//        }else{
+//            log.error("远程开机失败：%s",result.get("message"));
+//            return new CommonResult().failed("远程开机失败！");
+//        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "water", REMARK = "限制消费")
+    @ApiOperation("限制消费")
+    @PostMapping(value = "/equipmentLimitSet/{eqcode}")
+    @PreAuthorize("hasAuthority('water:wtEquipment:update')")
+    public Object equipmentLimitSet(@ApiParam("设备号") @PathVariable String eqcode) {
+        //限制消费
+        WtOpenApiInfo coupon = new WtOpenApiInfo();
+        coupon = wtOpenApiInfoMapper.selectOne(new QueryWrapper<>(coupon));
+//        Map<String, String> result = WtOpenApiInfoUtils.batchDeployOn(coupon,eqcodes);
+
+//        if(result!=null && result.toString().indexOf("\"status\":200")!=-1){
+//            return new CommonResult().success();
+//        }else{
+//            log.error("限制消费失败：%s",result.get("message"));
+//            return new CommonResult().failed("限制消费失败！");
+//        }
         return new CommonResult().failed();
     }
 

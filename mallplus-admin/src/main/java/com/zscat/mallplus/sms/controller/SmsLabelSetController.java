@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
@@ -124,7 +125,7 @@ public class SmsLabelSetController {
     @ApiOperation("保存客户标签设置")
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('sms:smsLabelSet:create')")
-    public Object saveSmsLabelSet(@RequestBody SmsLabelSet entity) throws WxErrorException {
+    public Object saveSmsLabelSet(@RequestBody @Valid SmsLabelSet entity) throws WxErrorException {
         //把标签发送到微信备份
         String tagName = entity.getLabelName();
         AccountWechats wechats = messageService.getAppId(entity.getDealerId());

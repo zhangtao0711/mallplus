@@ -1,6 +1,7 @@
 package com.zscat.mallplus.water.controller;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
@@ -20,12 +21,17 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Digits;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Date;
 import java.util.Map;
@@ -64,6 +70,25 @@ public class WtWaterCardController {
         return new CommonResult().failed();
     }
 
+    @SysLog(MODULE = "water", REMARK = "根据条件查询所有问题卡列表")
+    @ApiOperation("根据条件查询所有问题卡列表")
+    @GetMapping(value = "/listProblem")
+    @PreAuthorize("hasAuthority('water:wtWaterCard:read')")
+    public Object listProblem(WtWaterCard entity,
+                                       @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                       @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
+    ) {
+        try {
+
+            entity.setDelFlag(ConstantUtil.delFlag);
+//            return new CommonResult().success(IWtWaterCardService.page(new Page<WtWaterCard>(pageNum, pageSize), new QueryWrapper<>(entity)));
+            return new CommonResult().success(IWtWaterCardService.selectProblemData(new Page<Map<String, Object>>(pageNum, pageSize),
+                    entity,ConstantUtil.water_code_state_0));
+        } catch (Exception e) {
+            log.error("根据条件查询所有水卡列表：%s", e.getMessage(), e);
+        }
+        return new CommonResult().failed();
+    }
     @SysLog(MODULE = "water", REMARK = "保存水卡")
     @ApiOperation("保存水卡")
     @PostMapping(value = "/create")
@@ -113,6 +138,31 @@ public class WtWaterCardController {
             }
         } catch (Exception e) {
             log.error("水卡分配：%s", e.getMessage(), e);
+            return new CommonResult().failed(e.getMessage());
+        }
+        return new CommonResult().failed();
+    }
+    @SysLog(MODULE = "water", REMARK = "限额消费金额")
+    @ApiOperation("限额消费金额")
+    @PostMapping(value = "/updateLimit")
+    @PreAuthorize("hasAuthority('water:wtWaterCard:update')")
+    public Object updateLimit(@RequestBody WtWaterCard entity) {
+        try {
+
+            WtWaterCard coupon = IWtWaterCardService.getOneBy(entity);
+            if(coupon !=null){
+                coupon.setXfxeLimit(entity.getXfxeLimit());//单次消费限额
+                coupon.setXfNumLimit(entity.getXfNumLimit());//消费次数限制（天）
+                entity.setUpdateTime(new Date());
+                if (IWtWaterCardService.updateById(entity)) {
+                    return new CommonResult().success();
+                }
+            }else{
+                return new CommonResult().failed("水卡不存在！");
+            }
+
+        } catch (Exception e) {
+            log.error("限额消费金额：%s", e.getMessage(), e);
             return new CommonResult().failed(e.getMessage());
         }
         return new CommonResult().failed();
@@ -225,7 +275,7 @@ public class WtWaterCardController {
 
     @SysLog(MODULE = "water", REMARK = "添加问题卡")
     @ApiOperation("添加问题卡")
-    @PostMapping(value = "/updateState/{id}")
+    @PostMapping(value = "/updateState/{cardNo}")
     @PreAuthorize("hasAuthority('water:wtWaterCard:update')")
     public Object updateState(@RequestBody WtWaterCard entity) {
         try {

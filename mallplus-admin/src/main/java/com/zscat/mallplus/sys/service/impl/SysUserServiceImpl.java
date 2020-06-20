@@ -15,6 +15,7 @@ import com.zscat.mallplus.ums.entity.UmsMember;
 import com.zscat.mallplus.ums.mapper.UmsMemberMapper;
 import com.zscat.mallplus.ums.service.RedisService;
 import com.zscat.mallplus.ums.vo.SysDealerVo;
+import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.util.JsonUtil;
 import com.zscat.mallplus.util.JwtTokenUtil;
 import com.zscat.mallplus.util.UserUtils;
@@ -368,7 +369,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return new CommonResult().failed("注册成功");
     }
     @Override
-    public SmsCode generateCode(String phone) {
+    public SmsCode generateCode(String phone,String type) {
         //生成流水号
         String uuid = UUID.randomUUID().toString();
         StringBuilder sb = new StringBuilder();
@@ -386,7 +387,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         log.info("缓存验证码：{}", map);
 
         //存储sys_sms
-        saveSmsAndSendCode(phone, sb.toString());
+        saveSmsAndSendCode(phone, sb.toString(),type);
         SmsCode smsCode = new SmsCode();
         smsCode.setKey(uuid);
         return smsCode;
@@ -455,16 +456,23 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      *
      * @param phone
      */
-    private void saveSmsAndSendCode(String phone, String code) {
+    private void saveSmsAndSendCode(String phone, String code,String type) {
         checkTodaySendCount(phone);
 
+        //TODO 忘记密码模板以及短信签名设置问题，先用公司的测试，之后看看是用平台的还是怎么着
         Sms sms = new Sms();
         sms.setPhone(phone);
         sms.setParams(code);
+        if (type.equals(ConstantUtil.forget_password_type)){
+            sms.setTemplateCode(ConstantUtil.forget_password_template_code);
+            sms.setSignName(ConstantUtil.sign_name);
+        }else if (type.equals(ConstantUtil.phone_update_type)){
+            sms.setTemplateCode(ConstantUtil.phone_update_template_code);
+            sms.setSignName(ConstantUtil.sign_name);
+        }
         Map<String, String> params = new HashMap<>();
         params.put("code", code);
         params.put("admin", "admin");
-        //TODO 忘记密码模板以及短信签名
         smsService.save(sms, params);
 
         //异步调用阿里短信接口发送短信
