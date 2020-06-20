@@ -10,10 +10,12 @@ import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -36,13 +38,17 @@ public class WxMaPortalController {
                           @RequestParam(name = "echostr", required = false) String echostr) {
         this.logger.info("\n接收到来自微信服务器的认证消息：signature = [{}], timestamp = [{}], nonce = [{}], echostr = [{}]",
             signature, timestamp, nonce, echostr);
-        AccountWxapp wxapp = jdbcTemplate.queryForObject("select * from account_wxapp where uniacid = "+uniacid, AccountWxapp.class);
+        List<AccountWxapp> wxappList = jdbcTemplate.query("select * from account_wxapp where uniacid = "+uniacid,new BeanPropertyRowMapper<AccountWxapp>(AccountWxapp.class));
+        if (wxappList==null||wxappList.size()==0){
+            throw new IllegalArgumentException("数据错误，多条数据！");
+        }
+        AccountWxapp wxapp = wxappList.get(0);
         if (wxapp==null){
             throw new IllegalArgumentException("没有相关小程序数据");
         }
         if (StringUtils.isAnyBlank(signature, timestamp, nonce, echostr)) {
             wxapp.setStatus(3);
-            wxappService.updateById(wxapp);
+            jdbcTemplate.update("update account_wxapp set status = " + wxapp.getStatus() +" where acid = "+wxapp.getAcid());
             throw new IllegalArgumentException("请求参数非法，请核实!");
         }
 
@@ -50,11 +56,11 @@ public class WxMaPortalController {
 
         if (wxService.checkSignature(timestamp, nonce, signature)) {
             wxapp.setStatus(2);
-            wxappService.updateById(wxapp);
+            jdbcTemplate.update("update account_wxapp set status = " + wxapp.getStatus() +" where acid = "+wxapp.getAcid());
             return echostr;
         }
         wxapp.setStatus(3);
-        wxappService.updateById(wxapp);
+        jdbcTemplate.update("update account_wxapp set status = " + wxapp.getStatus() +" where acid = "+wxapp.getAcid());
         return "非法请求";
     }
 
@@ -69,7 +75,11 @@ public class WxMaPortalController {
         this.logger.info("\n接收微信请求：[msg_signature=[{}], encrypt_type=[{}], signature=[{}]," +
                 " timestamp=[{}], nonce=[{}], requestBody=[\n{}\n] ",
             msgSignature, encryptType, signature, timestamp, nonce, requestBody);
-        AccountWxapp wxapp = jdbcTemplate.queryForObject("select * from account_wxapp where uniacid = "+uniacid, AccountWxapp.class);
+        List<AccountWxapp> wxappList = jdbcTemplate.query("select * from account_wxapp where uniacid = "+uniacid,new BeanPropertyRowMapper<AccountWxapp>(AccountWxapp.class));
+        if (wxappList==null||wxappList.size()==0){
+            throw new IllegalArgumentException("数据错误，多条数据！");
+        }
+        AccountWxapp wxapp = wxappList.get(0);
         if (wxapp==null){
             throw new IllegalArgumentException("没有相关小程序数据");
         }
@@ -86,7 +96,7 @@ public class WxMaPortalController {
                 inMessage = WxMaMessage.fromXml(requestBody);
             }
             wxapp.setStatus(2);
-            wxappService.updateById(wxapp);
+            jdbcTemplate.update("update account_wxapp set status = " + wxapp.getStatus() +" where acid = "+wxapp.getAcid());
             this.route(inMessage, wxapp.getKey());
             return "success";
         }
@@ -101,12 +111,12 @@ public class WxMaPortalController {
                     timestamp, nonce, msgSignature);
             }
             wxapp.setStatus(2);
-            wxappService.updateById(wxapp);
+            jdbcTemplate.update("update account_wxapp set status = " + wxapp.getStatus() +" where acid = "+wxapp.getAcid());
             this.route(inMessage, wxapp.getKey());
             return "success";
         }
         wxapp.setStatus(3);
-        wxappService.updateById(wxapp);
+        jdbcTemplate.update("update account_wxapp set status = " + wxapp.getStatus() +" where acid = "+wxapp.getAcid());
         throw new RuntimeException("不可识别的加密类型：" + encryptType);
     }
 

@@ -78,7 +78,7 @@ public class AccountWechatsController {
             Map<String,Object> map = jdbcTemplate.queryForMap("select mp_url from admin_dsn_domin where id =1");
             entity.setAppdomain(map.get("mp_url").toString()+count.toString());
             if (IAccountWechatsService.save(entity)) {
-                return new CommonResult().success();
+                return new CommonResult().success(entity);
             }
         } catch (Exception e) {
             log.error("保存微信公众号：%s", e.getMessage(), e);
@@ -92,7 +92,14 @@ public class AccountWechatsController {
     @PostMapping(value = "/update/{id}")
     @PreAuthorize("hasAuthority('weixin:imsAccountWechats:update')")
     public Object updateImsAccountWechats(@RequestBody @Valid AccountWechats entity) {
+        if (ValidatorUtils.empty(entity.getAcid())){
+            return new CommonResult().failed("数据错误！");
+        }
         try {
+            AccountWechats wechats = IAccountWechatsService.getById(entity.getAcid());
+            if (wechats.getToken()!=entity.getToken()){
+                entity.setAuthRefreshToken(wechats.getToken());
+            }
             if (IAccountWechatsService.updateById(entity)) {
                 return new CommonResult().success();
             }

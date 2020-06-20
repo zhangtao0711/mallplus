@@ -21,7 +21,7 @@ import java.io.Serializable;
  */
 @Data
 @TableName("account_wechats")
-public class AccountWechats extends BaseEntity implements Serializable {
+public class  AccountWechats extends BaseEntity implements Serializable {
 
 
     /**
@@ -43,7 +43,7 @@ public class AccountWechats extends BaseEntity implements Serializable {
      **/
     @TableField("token")
     @NotEmpty(message = "token不能为空！")
-    @Length(min = 32,max = 32,message = "长度必须是32位!")
+    @Length(min = 32,max = 32,message = "token长度必须是32位!")
     @Pattern(regexp = "^[a-z0-9A-Z]+$",message = "token必须包含数字和字母！")
     private String token;
 
@@ -53,7 +53,7 @@ public class AccountWechats extends BaseEntity implements Serializable {
      **/
     @TableField("encodingaeskey")
     @NotEmpty(message = "encodingaeskey不能为空！")
-    @Length(min = 32,max = 32,message = "长度必须是32位!")
+    @Length(min = 32,max = 64,message = "encodingaeskey长度在32位-64位之间!")
     @Pattern(regexp = "^[a-z0-9A-Z]+$",message = "encodingaeskey必须包含数字和字母！")
     private String encodingaeskey;
 
@@ -191,7 +191,6 @@ public class AccountWechats extends BaseEntity implements Serializable {
     private Date createTime;
 
     @TableField("store_id")
-    @NotNull(message = "所属店铺不能为空！")
     private Integer storeId;
 
     @TableField("appdomain")

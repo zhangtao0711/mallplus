@@ -88,7 +88,14 @@ public class AccountWxappController {
     @PostMapping(value = "/update/{id}")
     @PreAuthorize("hasAuthority('wxminiapp:imsAccountWxapp:update')")
     public Object updateImsAccountWxapp(@RequestBody @Valid AccountWxapp entity) {
+        if (ValidatorUtils.empty(entity.getAcid())){
+            return new CommonResult().failed("数据错误！");
+        }
         try {
+//            AccountWxapp wxapp = IAccountWxappService.getById(entity.getAcid());
+//            if (wxapp.getToken()!=entity.getToken()){
+//                entity.setAuthRefreshToken(wxapp.getToken());
+//            }
             if (IAccountWxappService.updateById(entity)) {
                 return new CommonResult().success();
             }

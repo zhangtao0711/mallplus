@@ -67,7 +67,7 @@ public class AccountWxappVersion extends BaseEntity implements Serializable {
      **/
     @TableField("version")
     @NotEmpty(message = "版本号不能为空！")
-    @Pattern(regexp = "d+(.\\d+){0,2}",message = "请输入正确的版本号格式！")
+    @Pattern(regexp = "^([1-9]\\d|[0-9])(.([0-9]\\d|\\d)){2}$",message = "请输入正确的版本号格式！")
     private String version;
 
 
@@ -111,7 +111,6 @@ public class AccountWxappVersion extends BaseEntity implements Serializable {
      * 所属店铺
      **/
     @TableField("store_id")
-    @NotNull(message = "门店不能为空！")
     private Integer storeId;
 
 
