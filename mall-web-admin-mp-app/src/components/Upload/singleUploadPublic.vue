@@ -15,12 +15,11 @@
       <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过10MB</div>
     </el-upload>
     <el-dialog :visible.sync="dialogVisible">
-      <img width="100%" :src="fileList[0].url" alt />
+      <img width="100%" :src="url + fileList[0].url" alt />
     </el-dialog>
   </div>
 </template>
 <script>
-import { policy } from "@/api/oss";
 
 export default {
   name: "singleUploadPublic",
@@ -57,6 +56,7 @@ export default {
   },
   data() {
     return {
+      url: process.env.IMG_API,
       coverUrl:
         process.env.BASE_API + "/sys/upload/upload",
       dialogVisible: false

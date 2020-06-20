@@ -31,6 +31,15 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item label="小程序状态" prop="status">
+        <el-radio-group v-model="wxappData.status">
+          <el-radio-button label="0">关闭</el-radio-button>
+          <el-radio-button label="1">开启</el-radio-button>
+          <!-- <el-radio-button :label="2">已连接</el-radio-button>
+          <el-radio-button :label="3">连接失败</el-radio-button>-->
+        </el-radio-group>
+      </el-form-item>
+
       <el-form-item label="token" prop="token">
         <el-input v-model="wxappData.token" placeholder="请填写随机生成的密钥" style="width: 370px;" />
       </el-form-item>
@@ -121,12 +130,14 @@ import guide01 from "@/assets/images/guide-01.png";
 import guide02 from "@/assets/images/guide-02.png";
 import guide03 from "@/assets/images/guide-03.png";
 
-const defaultWxappData = {};
+const defaultWxappData = {
+  status: "1"
+};
 const defaultWxappVData = {};
 export default {
   name: "relatedOfficialAccount",
   props: {
-    dealerId: String
+    dealerId: Number
   },
   components: {
     SingleUploadImg
@@ -156,7 +167,8 @@ export default {
         level: [
           { required: true, message: "请选择小程序类型", trigger: "blur" }
         ],
-        token: [{ required: true, message: "请输入token", trigger: "blur" }],
+        status: [{ required: true, message: "请选择小程序状态", trigger: "blur" }],
+        // token: [{ required: true, message: "请输入token", trigger: "blur" }],
         encodingaeskey: [
           { required: true, message: "请输入encodingaeskey", trigger: "blur" }
         ],
@@ -210,9 +222,6 @@ export default {
     };
   },
   created() {
-    if (this.$route.query.id) {
-      this.dealerId = this.$route.query.id;
-    }
     if (this.dealerId) {
       this.getWxapp();
       this.getWxappV();
@@ -238,7 +247,7 @@ export default {
           this.isEditV = true;
           this.wxappVData = response.data;
         } else {
-          this.isEdit = false;
+          this.isEditV = false;
           this.wxappVData = Object.assign({}, defaultWxappVData);
         }
       });
@@ -279,6 +288,7 @@ export default {
             } else {
               this.wxappData.createBy = this.dealerId;
               this.wxappData.dealerId = this.dealerId;
+              this.wxappData.storeId = get("storeId");
               createWxapp(this.wxappData).then(response => {
                 if (response.code == 200) {
                   this.$message({
@@ -337,7 +347,6 @@ export default {
                 response => {
                   if (response.code == 200) {
                     this.getWxappV();
-                    // this.$refs[formName].resetFields();
                     this.$message({
                       message: "修改成功",
                       type: "success",
@@ -356,11 +365,10 @@ export default {
               this.wxappVData.createBy = this.dealerId;
               this.wxappVData.dealerId = this.dealerId;
               this.wxappVData.uniacid = this.wxappData.acid;
+              this.wxappVData.storeId = get("storeId");
               createWxappV(this.wxappVData).then(response => {
                 if (response.code == 200) {
                   this.getWxappV();
-                  // this.$refs[formName].resetFields();
-                  // this.wxappVData = Object.assign({}, defaultWxappVData);
                   this.$message({
                     message: "提交成功",
                     type: "success",

@@ -199,7 +199,7 @@
         this.multipleSelection = val;
       },
       handleUpdate(index, row) {
-        this.$router.push({path: '/cms/updateHelp', query: {id: row.id}})
+        this.$router.push({path: '/help/updateHelp', query: {id: row.id}})
       },
       handleDelete(index, row) {
         this.$confirm('是否要删除该品牌', '提示', {
@@ -278,7 +278,7 @@
       });
       },
       addHelp() {
-        this.$router.push({path: '/cms/addHelp'})
+        this.$router.push({path: '/help/addHelp'})
       }
     }
   }

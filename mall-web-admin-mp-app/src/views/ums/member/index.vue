@@ -1,146 +1,115 @@
-<template> 
+<template>
   <div class="app-container">
     <el-card class="filter-container" shadow="never">
-        <div>
-          <i class="el-icon-search"></i>
-          <span>筛选搜索</span>
-          <el-button
-            style="float: right"
-            @click="searchMemberList()"
-            type="primary"
-            size="small">
-            查询结果
-          </el-button>
-          <el-button
-                      style="float: right"
-                      @click="updateOrderInfo()"
-                      type="primary"
-                      size="small">
-                      同步订单统计
-                    </el-button>
-        </div>
-        <div style="margin-top: 15px">
-          <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
-            <el-form-item label="输入搜索：">
-              <el-input style="width: 203px" v-model="listQuery.phone" placeholder="请输入手机号"></el-input>
-            </el-form-item>
-             <el-form-item label="会员等级：">
-                        <el-select v-model="listQuery.memberLevelId" placeholder="请选择会员等级" clearable>
-                          <el-option
-                            v-for="item in brandOptions"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value">
-                          </el-option>
-                        </el-select>
-                      </el-form-item>
-          </el-form>
-        </div>
+      <div>
+        <i class="el-icon-search"></i>
+        <span>筛选搜索</span>
+        <el-button style="float: right" @click="searchMemberList()" type="primary" size="small">查询结果</el-button>
+      </div>
+      <div style="margin-top: 15px">
+        <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
+          <el-form-item label="输入搜索：">
+            <el-input style="width: 203px" v-model="listQuery.phone" placeholder="请输入手机号"></el-input>
+          </el-form-item>
+          <el-form-item label="会员等级：">
+            <el-select v-model="listQuery.memberLevelId" placeholder="请选择会员等级" clearable>
+              <el-option
+                v-for="item in brandOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+      </div>
     </el-card>
     <el-card class="operate-container" shadow="never">
       <i class="el-icon-tickets"></i>
       <span>数据列表</span>
 
+      <div style="float:right">
+        <el-button type="primary" size="small" @click="derived">会员卡导出</el-button>
+        <el-button type="primary" size="small" @click="limit">限制消费</el-button>
+        <el-button type="primary" size="small" @click="bindCard">批量绑卡</el-button>
+        <el-button size="mini" type="primary" @click="toDetail(11)">详情</el-button>
+      </div>
     </el-card>
     <div class="table-container">
-      <el-table ref="brandTable"
-                :data="list"
-                style="width: 100%"
-                @selection-change="handleSelectionChange"
-                v-loading="listLoading"
-                border>
-
+      <el-table
+        ref="brandTable"
+        :data="list"
+        style="width: 100%"
+        @selection-change="handleSelectionChange"
+        v-loading="listLoading"
+        border
+      >
         <el-table-column type="selection" width="60" align="center"></el-table-column>
         <el-table-column label="编号" width="60" align="center">
           <template slot-scope="scope">{{scope.row.id}}</template>
         </el-table-column>
-         <el-table-column label="推荐人" width="140" align="center">
-                  <template slot-scope="scope">{{scope.row.invitecode}}</template>
-          </el-table-column>
 
-        <el-table-column label="用户账号" width="140" align="center">
-          <template slot-scope="scope">{{scope.row.username}}</template>
+        <el-table-column label="用户昵称" width="140" align="center">
+          <template slot-scope="scope">{{scope.row.nickname}}</template>
         </el-table-column>
-        <el-table-column label="电话号码" width="140" align="center">
+        <el-table-column label="手机号" width="140" align="center">
           <template slot-scope="scope">{{scope.row.phone}}</template>
         </el-table-column>
-         <el-table-column label="会员等级" width="140" align="center">
-                  <template slot-scope="scope">{{scope.row.memberLevelName}}</template>
-                </el-table-column>
-        <el-table-column label="用户余额" width="80" align="center">
+
+        <el-table-column label="虚拟卡" width="140" align="center">
+          <template slot-scope="scope">{{scope.row.cardInventedNum}}</template>
+        </el-table-column>
+
+        <el-table-column label="实体卡" width="140" align="center">
+          <template slot-scope="scope">{{scope.row.cardNum}}</template>
+        </el-table-column>
+
+        <el-table-column label="公众号" width="140" align="center">
+          <template slot-scope="scope">{{scope.row.uniacName}}</template>
+        </el-table-column>
+
+        <el-table-column label="会员等级" width="140" align="center">
+          <template slot-scope="scope">{{scope.row.memberLevelName}}</template>
+        </el-table-column>
+
+        <el-table-column label="会员标签" width="140" align="center">
+          <template slot-scope="scope">{{scope.row.labelName}}</template>
+        </el-table-column>
+
+        <el-table-column label="来源" width="140" align="center">
+          <template slot-scope="scope">{{scope.row.sourceType | formatType}}</template>
+        </el-table-column>
+
+        <el-table-column label="推荐人" width="140" align="center">
+          <template slot-scope="scope">{{scope.row.recommendName}}</template>
+        </el-table-column>
+
+        <el-table-column label="推荐人数" width="140" align="center">
+          <template slot-scope="scope">{{scope.row.recommendNum}}</template>
+        </el-table-column>
+
+        <el-table-column label="用户积分" width="80" align="center">
           <template slot-scope="scope">
-            <p> {{scope.row.blance}}</p>
-            <p>
+            <p>{{scope.row.integration}}</p>
+            <!-- <p>
               <el-button
                 type="text"
-                @click="handleShowVeriyEditDialog(scope.$index, scope.row)">余额记录
-              </el-button>
-            </p>
+                @click="handleShowIntegrationDialog(scope.$index, scope.row)"
+              >积分记录</el-button>
+            </p> -->
           </template>
         </el-table-column>
-        <el-table-column label="用户积分" width="80" align="center">
-                  <template slot-scope="scope">
-                    <p> {{scope.row.integration}}</p>
-                    <p>
-                      <el-button
-                        type="text"
-                        @click="handleShowIntegrationDialog(scope.$index, scope.row)">积分记录
-                      </el-button>
-                    </p>
-                  </template>
-                </el-table-column>
-        <el-table-column label="是否显示" width="70" align="center">
+
+        <el-table-column label="操作" align="center">
           <template slot-scope="scope">
-            <el-switch
-              @change="handleShowChange(scope.$index, scope.row)"
-              :active-value="1"
-              :inactive-value="0"
-              v-model="scope.row.status">
-            </el-switch>
-          </template>
-        </el-table-column>
-          <el-table-column label="购买订单" width="80" align="center">
-              <template slot-scope="scope">{{scope.row.buyCount}}</template>
-          </el-table-column>
-          <el-table-column label="消费金额" width="80" align="center">
-              <template slot-scope="scope">{{scope.row.buyMoney}}</template>
-          </el-table-column>
-           <el-table-column label="注册时间" width="160" align="center">
-                    <template slot-scope="scope">{{scope.row.createTime | formatTime}}</template>
-                  </el-table-column>
-        <el-table-column label="操作"  align="center">
-          <template slot-scope="scope">
-             <p>
-              <el-button
-                      size="mini"
-                      type="danger"
-                      @click="addBlacne(scope.$index, scope.row)">余额充值
-              </el-button>
-               <el-button
-                            size="mini"
-                            type="danger"
-                            @click="handleDelete(scope.$index, scope.row)">删除
-                          </el-button>
-                          </p>
-                          <p>
-              <el-button
-                      size="mini"
-                      type="danger"
-                      @click="addIntegration(scope.$index, scope.row)">积分充值
-              </el-button>
-               <el-button
-                                    size="mini"
-                                    type="danger"
-                                    @click="userOrder(scope.$index, scope.row)">订单
-                            </el-button>
-</p>
+            <el-button size="mini" type="success" @click="addBlacne(scope.$index, scope.row)">限制消费金额</el-button>
+            <el-button size="mini" type="primary" @click="toDetail(scope.$index, scope.row)">详情</el-button>
+            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
-    <div class="batch-operate-container">
-
-    </div>
+    <div class="batch-operate-container"></div>
     <div class="pagination-container">
       <el-pagination
         background
@@ -150,581 +119,312 @@
         :page-size="listQuery.pageSize"
         :page-sizes="[10,15,50]"
         :current-page.sync="listQuery.pageNum"
-        :total="total">
-      </el-pagination>
+        :total="total"
+      ></el-pagination>
     </div>
-     <el-dialog
-          title="会员订单记录"
-          :visible.sync="dialogVisible2"
-          width="60%">
-          <el-table style="width: 100%;margin-top: 20px"
-                    :data="orderList"
-                    border>
 
-             <el-table-column label="编号" align="center">
-                                <template slot-scope="scope">{{scope.row.id}}</template>
-                            </el-table-column>
-                           <el-table-column label="订单编号" width="80" align="center">
-                                          <template slot-scope="scope">{{scope.row.id}}</template>
-                                        </el-table-column>
-                                        <el-table-column label="商品" width="180" align="center">
-                                          <template slot-scope="scope">{{scope.row.goodsName}}</template>
-                                        </el-table-column>
-                                        <el-table-column label="下单时间" width="180" align="center">
-                                          <template slot-scope="scope">{{scope.row.createTime | formatTime}}</template>
-                                        </el-table-column>
-                                       <el-table-column label="订单状态" width="80" align="center">
-                                                <template slot-scope="scope">{{scope.row.status | formatOrderStatus}}</template>
-                                         </el-table-column>
-                                        <el-table-column label="支付金额" width="80" align="center">
-                                          <template slot-scope="scope">￥{{scope.row.payAmount}}</template>
-                                        </el-table-column>
-                                        <el-table-column label="支付方式" width="120" align="center">
-                                          <template slot-scope="scope">{{scope.row.payType | formatPayType}}</template>
-                                        </el-table-column>
-                                        <el-table-column label="订单来源" width="120" align="center">
-                                          <template slot-scope="scope">{{scope.row.sourceType | formatSourceType}}</template>
-                                        </el-table-column>
-                                        <el-table-column label="订单类型"  align="center">
-                                          <template slot-scope="scope">{{scope.row.orderType | formatOrderType}}</template>
-                                        </el-table-column>
-
-
-
-          </el-table>
-        </el-dialog>
-
-    <el-dialog
-      title="积分记录"
-      :visible.sync="dialogVisible1"
-      width="40%">
-      <el-table style="width: 100%;margin-top: 20px"
-                :data="integrationList"
-                border>
-
-         <el-table-column label="编号" align="center">
-                            <template slot-scope="scope">{{scope.row.id}}</template>
-                        </el-table-column>
-                        <el-table-column label="会员" align="center">
-                            <template slot-scope="scope">{{scope.row.memberId}}</template>
-                        </el-table-column>
-                        <el-table-column label="价格" align="center">
-                            <template slot-scope="scope">{{scope.row.changeCount}}</template>
-                        </el-table-column>
-                        <el-table-column label="类别" align="center">
-                            <template slot-scope="scope">{{scope.row.changeType |formatchangeType}}</template>
-                        </el-table-column>
-                          <el-table-column label="来源" align="center">
-                                                    <template slot-scope="scope">{{scope.row.sourceType |formatsourceType}}</template>
-                                                </el-table-column>
-                        <el-table-column label="备注" align="center">
-                            <template slot-scope="scope">{{scope.row.operateNote}}</template>
-                        </el-table-column>
-                         <el-table-column label="创建时间"  align="center">
-                                  <template slot-scope="scope">{{scope.row.createTime | formatTime}}</template>
-                                </el-table-column>
+    <el-dialog title="积分记录" :visible.sync="dialogVisible1" width="40%">
+      <el-table style="width: 100%;margin-top: 20px" :data="integrationList" border>
+        <el-table-column label="编号" align="center">
+          <template slot-scope="scope">{{scope.row.id}}</template>
+        </el-table-column>
+        <el-table-column label="会员" align="center">
+          <template slot-scope="scope">{{scope.row.memberId}}</template>
+        </el-table-column>
+        <el-table-column label="价格" align="center">
+          <template slot-scope="scope">{{scope.row.changeCount}}</template>
+        </el-table-column>
+        <el-table-column label="类别" align="center">
+          <template slot-scope="scope">{{scope.row.changeType |formatchangeType}}</template>
+        </el-table-column>
+        <el-table-column label="来源" align="center">
+          <template slot-scope="scope">{{scope.row.sourceType |formatsourceType}}</template>
+        </el-table-column>
+        <el-table-column label="备注" align="center">
+          <template slot-scope="scope">{{scope.row.operateNote}}</template>
+        </el-table-column>
+        <el-table-column label="创建时间" align="center">
+          <template slot-scope="scope">{{scope.row.createTime | formatTime}}</template>
+        </el-table-column>
       </el-table>
     </el-dialog>
-    <el-dialog
-          title="余额记录"
-          :visible.sync="dialogVisible"
-          width="40%">
-          <el-table style="width: 100%;margin-top: 20px"
-                    :data="blanceList"
-                    border>
 
-            <el-table-column label="会员" align="center">
-                                       <template slot-scope="scope">{{scope.row.memberId}}</template>
-                                   </el-table-column>
-                                   <el-table-column label="价格" align="center">
-                                       <template slot-scope="scope">{{scope.row.price}}</template>
-                                   </el-table-column>
-                                   <el-table-column label="类别" align="center">
-                                       <template slot-scope="scope">{{scope.row.type |formatStatus}}</template>
-                                   </el-table-column>
-                                   <el-table-column label="备注" align="center">
-                                       <template slot-scope="scope">{{scope.row.note}}</template>
-                                   </el-table-column>
-                                   <el-table-column label="创建时间"  align="center">
-                                                                     <template slot-scope="scope">{{scope.row.createTime | formatTime}}</template>
-                                                                   </el-table-column>
-          </el-table>
-        </el-dialog>
-      <el-dialog
-              title="余额充值"
-              :visible.sync="blance.dialogVisible"
-              width="40%">
-          <el-form :model="blance"  ref="brandFrom" label-width="150px">
+    <el-dialog title="限制消费金额" :visible.sync="blance.dialogVisible" width="40%">
+      <el-form :model="blance" ref="brandFrom" label-width="150px">
+        <el-form-item label="单次消费：" prop="detail">
+          <el-input v-model="blance.xfxeLimit"></el-input>
+        </el-form-item>
 
-              <el-form-item label="充值金额：" prop="detail">
-                  <el-input v-model="blance.blance"></el-input>
-              </el-form-item>
+        <el-form-item label="累计消费：" prop="detail">
+          <el-input placeholder="24小时刷新一次" v-model="blance.xfNumLimit"></el-input>
+        </el-form-item>
 
-              <el-form-item>
-                  <el-button @click="blance.dialogVisible = false">取 消</el-button>
-                  <el-button type="primary" @click="handleEditBlance">确 定</el-button>
-              </el-form-item>
-          </el-form>
-
-      </el-dialog>
-
-      <el-dialog
-              title="积分充值"
-              :visible.sync="integration.dialogVisible"
-              width="40%">
-          <el-form :model="integration"  ref="brandFrom" label-width="150px">
-
-              <el-form-item label="充值积分：" prop="detail">
-                  <el-input v-model="integration.integration"></el-input>
-              </el-form-item>
-
-              <el-form-item>
-                  <el-button @click="integration.dialogVisible = false">取 消</el-button>
-                  <el-button type="primary" @click="handleEditIntegration">确 定</el-button>
-              </el-form-item>
-          </el-form>
-
-      </el-dialog>
+        <el-form-item>
+          <el-button @click="blance.dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="handleEditBlance">确 定</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 <script>
-  import {formatDate} from '@/utils/date';
-  import {fetchList, updateShowStatus, updateFactoryStatus, deleteMember,updateMemberOrderInfo,handleEditIntegration,handleEditBlance} from '@/api/ums/member'
-    import {fetchList as fetchBlanceList} from '@/api/ums/memberBlanceLog'
-    import {fetchList as fetchIntegrationList} from '@/api/ums/memberIntegration'
-     import {fetchList as fetchMberLevelList} from '@/api/memberLevel'
+import { formatDate } from "@/utils/date";
+import {
+  fetchList,
+  updateShowStatus,
+  updateFactoryStatus,
+  deleteMember,
+  updateMemberOrderInfo,
+  handleEditIntegration,
+  handleEditBlance,
+  updateLimit
+} from "@/api/ums/member";
+import { fetchList as fetchBlanceList } from "@/api/ums/memberBlanceLog";
+import { fetchList as fetchIntegrationList } from "@/api/ums/memberIntegration";
+import { fetchList as fetchMberLevelList } from "@/api/memberLevel";
 
- import {fetchList as fetchOrderList} from '@/api/order'
-  export default {
-    name: 'memberList',
-    data() {
-      return {
-        dialogVisible:false,
-         dialogVisible1:false,
-              dialogVisible2:false,
-        blanceList:null,
-        integrationList:null,
-        orderList:null,
-          blance:{
-              dialogVisible:false,
-              id:null,
+import axios from "axios";
+import { getToken, get } from "@/utils/auth";
+
+import { fetchList as fetchOrderList } from "@/api/order";
+export default {
+  name: "memberList",
+  data() {
+    return {
+      dialogVisible1: false,
+      blanceList: null,
+      integrationList: null,
+      orderList: null,
+      blance: {
+        dialogVisible: false,
+        id: null
+      },
+      brandOptions: [],
+      listQuery: {
+        phone: null,
+        pageNum: 1,
+        pageSize: 10
+      },
+      list: null,
+      total: null,
+      listLoading: true,
+      multipleSelection: []
+    };
+  },
+  created() {
+    // this.getList();
+    this.geteMberLevelList();
+  },
+  filters: {
+    formatType(value) {
+      if (value === 1) {
+        return "小程序";
+      } else if (value === 2) {
+        return "h5";
+      } else if (value === 3) {
+        return "app";
+      }
+    },
+  },
+  methods: {
+    derived() {
+      this.$router.push({ path: "/ums/updateMember" });
+    },
+    limit() {
+      this.$router.push({ path: "/ums/wtWaterCardLimit" });
+    },
+    bindCard() {
+      this.$router.push({ path: "/ums/batchCardBinding" });
+    },
+    // toDetail(index, row) {
+    //   this.$router.push({ path: "/ums/updateMember", query: { id: row.id } });
+    // },
+    toDetail(id) {
+      this.$router.push({ path: "/ums/updateMember", query: { id: id } });
+    },
+    geteMberLevelList() {
+      fetchMberLevelList({ pageNum: 1, pageSize: 100 }).then(response => {
+        this.brandOptions = [];
+        let brandList = response.data.records;
+        for (let i = 0; i < brandList.length; i++) {
+          this.brandOptions.push({
+            label: brandList[i].name,
+            value: brandList[i].id
+          });
+        }
+      });
+    },
+    addBlacne(index, row) {
+      this.blance.dialogVisible = true;
+      this.blance.id = row.cardNo;
+    },
+    handleEditBlance() {
+      if (this.blance.xfxeLimit == null) {
+        this.$message({
+          message: "请输入单次消费",
+          type: "warning",
+          duration: 1000
+        });
+        return;
+      }
+      if (this.blance.xfNumLimit == null) {
+        this.$message({
+          message: "请输入累计消费",
+          type: "warning",
+          duration: 1000
+        });
+        return;
+      }
+      this.$confirm("是否要进行限制消费金额", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
+        // updateLimit(this.blance.id,params).then(response => {
+        //   this.$message({
+        //     message: "操作成功",
+        //     type: "success",
+        //     duration: 1000
+        //   });
+        //   this.getList();
+        // });
+
+        axios({
+          method: "POST",
+          url: process.env.BASE_API + "/water/wtWaterCard/updateLimit",
+          headers: {
+            // "Content-Type": "multipart/form-data",
+            Authorization: getToken()
           },
-          integration:{
-              dialogVisible:false,
-              id:null,
-          },
-        operates: [
-          {
-            label: "显示会员",
-            value: "showMember"
-          },
-          {
-            label: "隐藏会员",
-            value: "hideMember"
+          data: {
+            cardNo: this.blance.id,
+            xfxeLimit: this.blance.xfxeLimit,
+            xfNumLimit: this.blance.xfNumLimit
           }
-        ],
-        operateType: null,
-        brandOptions: [],
-        listQuery: {
-          phone: null,
-          pageNum: 1,
-          pageSize: 10
-        },
-        list: null,
-        total: null,
-        listLoading: true,
-        multipleSelection: []
-      }
-    },
-    created() {
-      this.getList();
-       this.geteMberLevelList();
-    },
-    filters:{
-     formatPayType(value) {
-                     if (value === 2) {
-                       return '支付宝';
-                     } else if (value === 1) {
-                       return '微信小程序';
-                     } else  if (value === 3){
-                       return '余额支付';
-                     } else  if (value === 5){
-                                return '积分兑换';
-                              }
-                   },
-                   formatSourceType(value) {
-                     if (value === 1) {
-                       return '小程序';
-                     } else if (value === 2){
-                       return 'h5订单';
-                     }else if (value === 3){
-                       return 'PC订单';
-                     }else if (value === 4){
-                       return 'android订单';
-                     }else if (value === 5){
-                       return 'ios订单';
-                     }
-                   },
-                   formatOrderType(value) {
-                     if (value === 2) {
-                       return '拼团订单';
-                     } else if (value === 3) {
-                       return '团购订单';
-                     } else  if (value === 6){
-                       return '秒杀订单';
-                     }else if (value === 1) {
-                       return '普通订单';
-                     }else if (value === 4) {
-                                return '砍价订单';
-                              } else if (value === 5) {
-                                     return '积分订单';
-                                 }
-                   },
-              formatOrderStatus(value) {
-                if (value === 12) {
-                  return '待付款';
-                }if (value === 1) {
-                  return '支付成功，没有回掉';
-                }else if (value === 2) {
-                  return '待发货';
-                } else if (value === 3) {
-                  return '待收货';
-                } else if (value === 4) {
-                  return '待评价';
-                } else if (value === 5) {
-                  return '已完成';
-                } else if (value === 6) {
-                  return '维权中';
-                } else if (value === 7) {
-                  return '维权已完成';
-                } else if (value === 8) {
-                  return '待分享';
-                } else if (value === 13) {
-                  return '申请退款';
-                } else if (value === 14) {
-                  return '已退款';
-                }  else if (value === 15) {
-                  return '已关闭';
-                } else if (value === 16) {
-                  return '无效订单';
-                } else if (value === 17) {
-                            return '已删除';
-                          }
-              },
-      formatTime(time) {
-        if(time==null||time===''){
-          return 'N/A';
-        }
-        let date = new Date(time);
-        return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
-      },
-      verifyStatusFilter(value) {
-        if (value === 1) {
-          return '消费';
-        } else {
-          return '收入';
-        }
-      },
-      formatchangeType(value) {
-              if (value === 1) {
-                return '增加';
-              } else {
-                return '减少';
-              }
-            },
-            formatsourceType(value) {
-                    if (value === 1) {
-                      return '下单';
-                    } if (value === 2) {
-                                            return '登录';
-                                          }else {
-                      return '注册';
-                    }
-                  },
-      formatStatus(value){
-        if (value === 1) {
-                    return '消费';
-                  } if (value === 2) {
-                                return '退款';
-                              }
-                              if (value === 3) {
-                                          return '充值';
-                                        }
-                                        if (value === 4) {
-                                                    return '提现';
-                                                  }
-                                                  if (value === 5) {
-                                                              return '佣金';
-                                                            }
-                                                            if (value === 6) {
-                                                                        return '平台调整';
-                                                                      }else {
-                    return '收入';
-                  }
-      },
-      formatReturnAmount(row){
-        return row.productRealPrice*row.productCount;
-      }
-    },
-    methods: {
-     geteMberLevelList() {
-            fetchMberLevelList({pageNum: 1, pageSize: 100}).then(response => {
-              this.brandOptions = [];
-              let brandList = response.data.records;
-              for (let i = 0; i < brandList.length; i++) {
-                this.brandOptions.push({label: brandList[i].name, value: brandList[i].id});
-              }
-            });
-          },
-        addBlacne(index,row){
-            this.blance.dialogVisible=true;
-            this.blance.id=row.id;
-
-        },
-        addIntegration(index,row){
-            this.integration.dialogVisible=true;
-            this.integration.id=row.id;
-
-        },
-        handleEditBlance(){
-            if(this.blance.blance==null){
-                this.$message({
-                    message: '请输入余额',
-                    type: 'warning',
-                    duration: 1000
-                });
-                return
+        })
+          .then(response => {
+            if (response.data.code == 200) {
+              // console.log(response);
+              this.blance.xfxeLimit = "";
+              this.blance.xfNumLimit = "";
+            } else {
+              this.$message.error(response.data.msg);
             }
-            this.$confirm('是否要进行余额充值', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(()=>{
-                let params = new URLSearchParams();
-                params.append('id', this.blance.id);
-                params.append('blance', this.blance.blance);
+          })
+          .catch(function(err) {
+            console.log(err);
+          });
 
+        this.blance.dialogVisible = false;
+      });
+    },
+    handleShowIntegrationDialog(index, row) {
+      this.dialogVisible1 = true;
+      fetchIntegrationList({ memberId: row.id, pageSize: 1000 }).then(
+        response => {
+          this.integrationList = response.data.records;
+        }
+      );
+    },
 
-                handleEditBlance(params).then(response => {
-                    this.$message({
-                        message: '余额充值成功',
-                        type: 'success',
-                        duration: 1000
-                    });
-                    this.getList();
-                });
-                this.blance.dialogVisible=false;
-
-            });
-        },
-        handleEditIntegration(){
-            if(this.integration.integration==null){
-                this.$message({
-                    message: '请输入积分',
-                    type: 'warning',
-                    duration: 1000
-                });
-                return
-            }
-            this.$confirm('是否要进行积分充值', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(()=>{
-                let params = new URLSearchParams();
-                params.append('id', this.integration.id);
-                params.append('integration', this.integration.integration);
-
-
-                handleEditIntegration(params).then(response => {
-                    this.$message({
-                        message: '积分充值成功',
-                        type: 'success',
-                        duration: 1000
-                    });
-                    this.getList();
-                });
-                this.integration.dialogVisible=false;
-
-            });
-        },
-      handleShowVeriyEditDialog(index,row){
-        this.dialogVisible=true;
-        fetchBlanceList({memberId:row.id,pageSize:1000}).then(response=>{
-          this.blanceList=response.data.records;
-       });
-      },
-       handleShowIntegrationDialog(index,row){
-              this.dialogVisible1=true;
-              fetchIntegrationList({memberId:row.id,pageSize:1000}).then(response=>{
-                this.integrationList=response.data.records;
-             });
-            },
-            userOrder(index,row){
-                       this.dialogVisible2=true;
-                       fetchOrderList({memberId:row.id,pageSize:1000}).then(response=>{
-                         this.orderList=response.data.records;
-                      });
-                     },
-
-      handleShowChange(index, row) {
-        let params = new URLSearchParams();
-        params.append('ids', row.id);
-        params.append('showStatus', row.showStatus);
-        updateShowStatus(params).then(response => {
-          this.$message({
-          message: '修改成功',
-          type: 'success',
+    handleShowChange(index, row) {
+      let params = new URLSearchParams();
+      params.append("ids", row.id);
+      params.append("showStatus", row.showStatus);
+      updateShowStatus(params).then(response => {
+        this.$message({
+          message: "修改成功",
+          type: "success",
           duration: 1000
         });
       });
-      },
-      getList() {
-        this.listLoading = true;
-        fetchList(this.listQuery).then(response => {
-          this.listLoading = false;
-          this.list = response.data.records;
-          this.total = response.data.total;
-          this.totalPage = response.data.pages;
-          this.pageSize = response.data.size;
-        });
-      },
-      handleSelectionChange(val) {
-        this.multipleSelection = val;
-      },
-      handleUpdate(index, row) {
-        this.$router.push({path: '/ums/updateMember', query: {id: row.id}})
-      },
-      handleDelete(index, row) {
-        this.$confirm('是否要删除该会员', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          deleteMember(row.id).then(response => {
-            this.$message({
-              message: '删除成功',
-              type: 'success',
-              duration: 1000
-            });
-            this.getList();
-          });
-        });
-      },
-      getProductList(index, row) {
-        console.log(index, row);
-      },
-      getProductCommentList(index, row) {
-        console.log(index, row);
-      },
-      handleFactoryStatusChange(index, row) {
-        var data = new URLSearchParams();
-        data.append("ids", row.id);
-        data.append("factoryStatus", row.factoryStatus);
-        updateFactoryStatus(data).then(response => {
+    },
+    getList() {
+      this.listLoading = true;
+      fetchList(this.listQuery).then(response => {
+        this.listLoading = false;
+        this.list = response.data.records;
+        this.total = response.data.total;
+        this.totalPage = response.data.pages;
+        this.pageSize = response.data.size;
+      });
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+    handleDelete(index, row) {
+      this.$confirm("是否要删除该会员", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
+        deleteMember(row.id).then(response => {
           this.$message({
-            message: '修改成功',
-            type: 'success',
+            message: "删除成功",
+            type: "success",
             duration: 1000
           });
-        }).catch(error => {
+          this.getList();
+        });
+      });
+    },
+    handleFactoryStatusChange(index, row) {
+      var data = new URLSearchParams();
+      data.append("ids", row.id);
+      data.append("factoryStatus", row.factoryStatus);
+      updateFactoryStatus(data)
+        .then(response => {
+          this.$message({
+            message: "修改成功",
+            type: "success",
+            duration: 1000
+          });
+        })
+        .catch(error => {
           if (row.factoryStatus === 0) {
             row.factoryStatus = 1;
           } else {
             row.factoryStatus = 0;
           }
         });
-      },
-      handleShowStatusChange(index, row) {
-        let data = new URLSearchParams();
-        ;
-        data.append("ids", row.id);
-        data.append("showStatus", row.showStatus);
-        updateShowStatus(data).then(response => {
+    },
+    handleShowStatusChange(index, row) {
+      let data = new URLSearchParams();
+      data.append("ids", row.id);
+      data.append("showStatus", row.showStatus);
+      updateShowStatus(data)
+        .then(response => {
           this.$message({
-            message: '修改成功',
-            type: 'success',
+            message: "修改成功",
+            type: "success",
             duration: 1000
           });
-        }).catch(error => {
+        })
+        .catch(error => {
           if (row.showStatus === 0) {
             row.showStatus = 1;
           } else {
             row.showStatus = 0;
           }
         });
-      },
-      handleSizeChange(val) {
-        this.listQuery.pageNum = 1;
-        this.listQuery.pageSize = val;
-        this.getList();
-      },
-      handleCurrentChange(val) {
-        this.listQuery.pageNum = val;
-        this.getList();
-      },
-      searchMemberList() {
-        this.listQuery.pageNum = 1;
-        this.getList();
-      },
-      updateOrderInfo(){
-       updateMemberOrderInfo().then(response => {
-                this.getList();
-                this.$message({
-                  message: '同步成功',
-                  type: 'success',
-                  duration: 1000
-                });
-              });
-      },
-      handleBatchOperate() {
-        console.log(this.multipleSelection);
-        if (this.multipleSelection < 1) {
-          this.$message({
-            message: '请选择一条记录',
-            type: 'warning',
-            duration: 1000
-          });
-          return;
-        }
-        let showStatus = 0;
-        if (this.operateType === 'showMember') {
-          showStatus = 1;
-        } else if (this.operateType === 'hideMember') {
-          showStatus = 0;
-        } else {
-          this.$message({
-            message: '请选择批量操作类型',
-            type: 'warning',
-            duration: 1000
-          });
-          return;
-        }
-        let ids = [];
-        for (let i = 0; i < this.multipleSelection.length; i++) {
-          ids.push(this.multipleSelection[i].id);
-        }
-        let data = new URLSearchParams();
-        data.append("ids", ids);
-        data.append("showStatus", showStatus);
-        updateShowStatus(data).then(response => {
-          this.getList();
-          this.$message({
-            message: '修改成功',
-            type: 'success',
-            duration: 1000
-          });
-        });
-      },
-      addMember() {
-        this.$router.push({path: '/pms/addMember'})
-      }
-    }
+    },
+    handleSizeChange(val) {
+      this.listQuery.pageNum = 1;
+      this.listQuery.pageSize = val;
+      this.getList();
+    },
+    handleCurrentChange(val) {
+      this.listQuery.pageNum = val;
+      this.getList();
+    },
+    searchMemberList() {
+      this.listQuery.pageNum = 1;
+      this.getList();
+    },
   }
+};
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
-
-
 </style>
 
 

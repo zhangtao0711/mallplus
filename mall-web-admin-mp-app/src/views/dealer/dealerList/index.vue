@@ -10,6 +10,9 @@
       <el-tab-pane label="已入驻" name="third">
         <settled-in-list></settled-in-list>
       </el-tab-pane>
+      <el-tab-pane label="已驳回" name="forth">
+        <rejected-list></rejected-list>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -17,13 +20,15 @@
 import SettledInList from "./components/settledInList";
 import WaitingList from "./components/waitingList";
 import ApplyingList from "./components/applyingList";
+import RejectedList from "./components/rejectedList";
 
 export default {
   name: "addDealer",
   components: {
     SettledInList,
     WaitingList,
-    ApplyingList
+    ApplyingList,
+    RejectedList
   },
   data() {
     return {

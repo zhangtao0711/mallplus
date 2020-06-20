@@ -27,7 +27,212 @@ export const constantRouterMap = [
   { path: '/contactAdmin', component: () => import('@/views/login/contactAdmin'), hidden: true },
   { path: '/index1', component: () => import('@/views/home/index1'), hidden: true },
   { path: '/404', component: () => import('@/views/404'), hidden: true },
+  {
+    path: '/freightTemplate',
+    component: Layout,
+    redirect: '/freightTemplate/FeightTemplate',
+    name: 'freightTemplate',
+    meta: { title: '运费模板', icon: 'home' },
+    children: [
+      {
+        path: 'FeightTemplate',
+        name: 'FeightTemplate',
+        component: () => import('@/views/pms/feightTemplate/index'),
+        meta: { title: '运费模版', icon: 'product-list' }
+      },
+      {
+        path: 'addFeightTemplate',
+        name: 'addFeightTemplate',
+        component: () => import('@/views/pms/feightTemplate/add'),
+        meta: { title: '添加运费模版' },
+        hidden: true
+      },
+      {
+        path: 'updateFeightTemplate',
+        name: 'updateFeightTemplate',
+        component: () => import('@/views/pms/feightTemplate/update'),
+        meta: { title: '编辑运费模版' },
+        hidden: true
+      }
+    ]
+  },
+  {
+    path: '/merchandise',
+    component: Layout,
+    redirect: '/merchandise/smsWaterPage',
+    name: 'merchandise',
+    meta: { title: '商品列表', icon: 'home' },
+    children: [
+      // 配件商品
+      {
+        path: 'fittingsProduct',
+        name: 'fittingsProduct',
+        component: () => import('@/views/merchandise/product/index'),
+        meta: { title: '配件商品列表', icon: 'product-list' }
+      },
+      {
+        path: 'addFittingsProduct',
+        name: 'addFittingsProduct',
+        component: () => import('@/views/merchandise/product/add'),
+        meta: { title: '添加配件商品', icon: 'product-add' }
+      },
+      {
+        path: 'updateFittingsProduct',
+        name: 'updateFittingsProduct',
+        component: () => import('@/views/merchandise/product/update'),
+        meta: { title: '修改配件商品', icon: 'product-add' },
+        hidden: true
+      },
+      {
+        path: 'productFittingsRecycle',
+        name: 'productFittingsRecycle',
+        component: () => import('@/views/merchandise/product/index'),
+        meta: { title: '商品回收站', icon: 'product-recycle' },
+        hidden: true
+      },
+      // 积分商品
+      {
+        path: 'integrationProduct',
+        name: 'integrationProduct',
+        component: () => import('@/views/merchandise/integrationProduct/index'),
+        meta: { title: '积分商品列表', icon: 'product-list' }
+      },
+      {
+        path: 'addIntegrationProduct',
+        name: 'addIntegrationProduct',
+        component: () => import('@/views/merchandise/integrationProduct/add'),
+        meta: { title: '添加积分商品', icon: 'product-add' }
+      },
+      {
+        path: 'updateIntegrationProduct',
+        name: 'updateIntegrationProduct',
+        component: () => import('@/views/merchandise/integrationProduct/update'),
+        meta: { title: '修改积分商品', icon: 'product-add' },
+        hidden: true
+      },
+      {
+        path: 'productIntegrationRecycle',
+        name: 'productIntegrationRecycle',
+        component: () => import('@/views/merchandise/integrationProduct/index'),
+        meta: { title: '商品回收站', icon: 'product-recycle' },
+        hidden: true
+      },
+      // 普通商品
+      {
+        path: 'ordinaryProduct',
+        name: 'ordinaryProduct',
+        component: () => import('@/views/merchandise/ordinaryProduct/index'),
+        meta: { title: '普通商品列表', icon: 'product-list' }
+      },
+      {
+        path: 'addOrdinaryProduct',
+        name: 'addOrdinaryProduct',
+        component: () => import('@/views/merchandise/ordinaryProduct/add'),
+        meta: { title: '普通积分商品', icon: 'product-add' }
+      },
+      {
+        path: 'updateOrdinaryProduct',
+        name: 'updateOrdinaryProduct',
+        component: () => import('@/views/merchandise/ordinaryProduct/update'),
+        meta: { title: '普通积分商品', icon: 'product-add' },
+        hidden: true
+      },
+      {
+        path: 'productOrdinaryRecycle',
+        name: 'productOrdinaryRecycle',
+        component: () => import('@/views/merchandise/ordinaryProduct/index'),
+        meta: { title: '普通回收站', icon: 'product-recycle' },
+        hidden: true
+      },
+      // 标签管理
+      {
+        path: 'umsMemberTag',
+        name: 'umsMemberTag',
+        component: () => import('@/views/merchandise/umsMemberTag/index'),
+        meta: { title: '标签列表', icon: 'product-list' }
+      },
 
+      {
+        path: 'addCommodityLabel',
+        name: 'addCommodityLabel',
+        component: () => import('@/views/merchandise/umsMemberTag/add'),
+        meta: { title: '添加标签' },
+        hidden: true
+      },
+      {
+        path: 'updateCommodityLabel',
+        name: 'updateCommodityLabel',
+        component: () => import('@/views/merchandise/umsMemberTag/update'),
+        meta: { title: '编辑标签' },
+        hidden: true
+      },
+      // 商品分类
+      {
+        path: 'productCate',
+        name: 'productCate',
+        component: () => import('@/views/merchandise/productCate/index'),
+        meta: { title: '商品分类', icon: 'product-cate' }
+      },
+      {
+        path: 'addProductCate',
+        name: 'addProductCate',
+        component: () => import('@/views/merchandise/productCate/add'),
+        meta: { title: '添加商品分类' },
+        hidden: true
+      },
+      {
+        path: 'updateProductCate',
+        name: 'updateProductCate',
+        component: () => import('@/views/merchandise/productCate/update'),
+        meta: { title: '修改商品分类' },
+        hidden: true
+      },
+
+      // 购水
+      {
+        path: 'smsWaterPage',
+        name: 'smsWaterPage',
+        component: () => import('@/views/merchandise/smsWaterPage/index'),
+        meta: { title: '购水页面列表', icon: 'product-list' }
+      },
+      {
+        path: 'addSmsWaterPage',
+        name: 'addSmsWaterPage',
+        component: () => import('@/views/merchandise/smsWaterPage/add'),
+        meta: { title: '添加购水页面' },
+        hidden: true
+      },
+      {
+        path: 'updateSmsWaterPage',
+        name: 'updateSmsWaterPage',
+        component: () => import('@/views/merchandise/smsWaterPage/update'),
+        meta: { title: '编辑购水页面' },
+        hidden: true
+      },
+
+      // 套餐
+      {
+        path: 'smsRechargePackage',
+        name: 'smsRechargePackage',
+        component: () => import('@/views/merchandise/smsRechargePackage/index'),
+        meta: { title: '充值套餐列表', icon: 'product-list' }
+      },
+      {
+        path: 'addSmsRechargePackage',
+        name: 'addSmsRechargePackage',
+        component: () => import('@/views/merchandise/smsRechargePackage/add'),
+        meta: { title: '添加充值套餐' },
+        hidden: true
+      },
+      {
+        path: 'updateSmsRechargePackage',
+        name: 'updateSmsRechargePackage',
+        component: () => import('@/views/merchandise/smsRechargePackage/update'),
+        meta: { title: '编辑充值套餐' },
+        hidden: true
+      },
+    ]
+  },
   {
     path: '/equipment',
     component: Layout,
@@ -52,6 +257,12 @@ export const constantRouterMap = [
         name: 'updateWtSimCard',
         component: () => import('@/views/equipment/wtSimCard/update'),
         meta: { title: '修改SIM卡', icon: 'product-list' }
+      },
+      {
+        path: 'simDetail',
+        name: 'simDetail',
+        component: () => import('@/views/equipment/wtSimCard/simDetail'),
+        meta: { title: 'SIM卡详情', icon: 'product-list' }
       },
       {
         path: 'filterList',
@@ -112,6 +323,34 @@ export const constantRouterMap = [
     meta: { title: '经销商管理', icon: 'home' },
     children: [
       {
+        path: 'sysMerchantAudit',
+        name: 'sysMerchantAudit',
+        component: () => import('@/views/dealer/sysMerchantAudit/index'),
+        meta: { title: '经销商交叉授权列表', icon: 'product-list' }
+      },
+      {
+        path: 'addSysMerchantAudit',
+        name: 'addSysMerchantAudit',
+        component: () => import('@/views/dealer/sysMerchantAudit/add'),
+        meta: { title: '添加经销商交叉授权' },
+        hidden: true
+      },
+      {
+        path: 'updateSysMerchantAudit',
+        name: 'updateSysMerchantAudit',
+        component: () => import('@/views/dealer/sysMerchantAudit/update'),
+        meta: { title: '编辑经销商交叉授权' },
+        hidden: true
+      },
+      {
+        path: 'infoDetail',
+        name: 'infoDetail',
+        component: () => import('@/views/dealer/sysMerchantAudit/components/infoDetail'),
+        meta: { title: '交叉授权详情' },
+        hidden: true
+      },
+
+      {
         path: 'detailsList',
         name: 'detailsList',
         component: () => import('@/views/dealer/dealerList/components/detailsList'),
@@ -157,6 +396,12 @@ export const constantRouterMap = [
         path: 'settledInList',
         name: 'settledInList',
         component: () => import('@/views/dealer/dealerList/components/settledInList'),
+        meta: { title: '经销商列表', icon: 'product-list' }
+      },
+      {
+        path: 'rejectedList',
+        name: 'rejectedList',
+        component: () => import('@/views/dealer/dealerList/components/rejectedList'),
         meta: { title: '经销商列表', icon: 'product-list' }
       },
       {
@@ -452,6 +697,42 @@ export const constantRouterMap = [
         hidden: true
       },
 
+      {
+        path: 'allOrders',
+        name: 'allOrders',
+        component: () => import('@/views/oms/order/allOrders'),
+        meta: { title: '全部订单', icon: 'product-list' }
+      },
+      {
+        path: 'toBeDelivered',
+        name: 'toBeDelivered',
+        component: () => import('@/views/oms/order/toBeDelivered'),
+        meta: { title: '待发货', icon: 'product-list' }
+      },
+      {
+        path: 'goodsToBeReceived',
+        name: 'goodsToBeReceived',
+        component: () => import('@/views/oms/order/goodsToBeReceived'),
+        meta: { title: '待收货', icon: 'product-list' }
+      },
+      {
+        path: 'obligations',
+        name: 'obligations',
+        component: () => import('@/views/oms/order/obligations'),
+        meta: { title: '待付款', icon: 'product-list' }
+      },
+      {
+        path: 'finished',
+        name: 'finished',
+        component: () => import('@/views/oms/order/finished'),
+        meta: { title: '已完成', icon: 'product-list' }
+      },
+      {
+        path: 'cancelled',
+        name: 'cancelled',
+        component: () => import('@/views/oms/order/cancelled'),
+        meta: { title: '已取消', icon: 'product-list' }
+      },
 
       {
         path: 'order',
@@ -495,27 +776,6 @@ export const constantRouterMap = [
         meta: { title: '订单评论' },
         hidden: true
       },
-      {
-        path: 'FeightTemplate',
-        name: 'FeightTemplate',
-        component: () => import('@/views/pms/feightTemplate/index'),
-        meta: { title: '运费模版', icon: 'product-list' }
-      },
-
-      {
-        path: 'addFeightTemplate',
-        name: 'addFeightTemplate',
-        component: () => import('@/views/pms/feightTemplate/add'),
-        meta: { title: '添加运费模版' },
-        hidden: true
-      },
-      {
-        path: 'updateFeightTemplate',
-        name: 'updateFeightTemplate',
-        component: () => import('@/views/pms/feightTemplate/update'),
-        meta: { title: '编辑运费模版' },
-        hidden: true
-      }
 
     ]
   },
@@ -1085,7 +1345,6 @@ export const constantRouterMap = [
         meta: { title: '编辑会员等级' },
         hidden: true
       },
-
       {
         path: 'umsMemberLevel',
         name: 'umsMemberLevel',
@@ -1212,6 +1471,46 @@ export const constantRouterMap = [
         meta: { title: '新增授权' },
         hidden: true
       },
+      {
+        path: 'wtWaterCardLimit',
+        name: 'wtWaterCardLimit',
+        component: () => import('@/views/ums/wtWaterCardLimit/index'),
+        meta: {title: '水卡限制消费列表', icon: 'product-list'}
+        },
+        {
+        path: 'addWtWaterCardLimit',
+        name: 'addWtWaterCardLimit',
+        component: () => import('@/views/ums/wtWaterCardLimit/add'),
+        meta: {title: '添加水卡限制消费'},
+        hidden: true
+        },
+        {
+          path: 'addWtWaterCardLimitBatch',
+          name: 'addWtWaterCardLimitBatch',
+          component: () => import('@/views/ums/wtWaterCardLimit/addBatch'),
+          meta: {title: '添加水卡限制消费'},
+          hidden: true
+          },
+        {
+        path: 'updateWtWaterCardLimit',
+        name: 'updateWtWaterCardLimit',
+        component: () => import('@/views/ums/wtWaterCardLimit/update'),
+        meta: {title: '编辑水卡限制消费'},
+        hidden: true
+        },
+        {
+          path: 'wtWaterCardProblem',
+          name: 'wtWaterCardProblem',
+          component: () => import('@/views/ums/wtWaterCardProblem/index'),
+          meta: {title: '问题卡列表', icon: 'product-list'}
+        },
+        {
+          path: 'addWtWaterCardProblem',
+          name: 'addWtWaterCardProblem',
+          component: () => import('@/views/ums/wtWaterCardProblem/add'),
+          meta: {title: '添加问题卡'},
+          hidden: true
+        },
 
 
 
@@ -2050,6 +2349,63 @@ export const constantRouterMap = [
 
     ]
   },
+
+  {
+    path: '/help',
+    component: Layout,
+    redirect: '/help/help',
+    name: 'help',
+    meta: { title: '帮助中心', icon: 'home' },
+    children: [
+      {
+        path: 'help',
+        name: 'help',
+        component: () => import('@/views/cms/help/index'),
+        meta: { title: '帮助列表', icon: 'product-list' }
+      }, {
+        path: 'addHelp',
+        name: 'addHelp',
+        component: () => import('@/views/cms/help/add'),
+        meta: { title: '添加帮助' },
+        hidden: true
+      },
+      {
+        path: 'updateHelp',
+        name: 'updateHelp',
+        component: () => import('@/views/cms/help/update'),
+        meta: { title: '编辑帮助' },
+        hidden: true
+      },
+      {
+        path: 'helpCategory',
+        name: 'helpCategory',
+        component: () => import('@/views/cms/helpCategory/index'),
+        meta: { title: '专题分类列表', icon: 'product-list' }
+      },
+      {
+        path: 'addHelpCategory',
+        name: 'addHelpCategory',
+        component: () => import('@/views/cms/helpCategory/add'),
+        meta: { title: '添加专题分类' },
+        hidden: true
+      },
+      {
+        path: 'updateHelpCategory',
+        name: 'updateHelpCategory',
+        component: () => import('@/views/cms/helpCategory/update'),
+        meta: { title: '编辑专题分类' },
+        hidden: true
+      },
+      {
+        path: 'helpSet',
+        name: 'helpSet',
+        component: () => import('@/views/cms/helpSet/index'),
+        meta: { title: '帮助设置', icon: 'product-list' }
+      }
+    ]
+  },
+ 
+
   {
     path: '/cms',
     component: Layout,
@@ -2078,25 +2434,7 @@ export const constantRouterMap = [
         meta: { title: '编辑招聘管理' },
         hidden: true
       },
-      {
-        path: 'help',
-        name: 'help',
-        component: () => import('@/views/cms/help/index'),
-        meta: { title: '帮助列表', icon: 'product-list' }
-      }, {
-        path: 'addHelp',
-        name: 'addHelp',
-        component: () => import('@/views/cms/help/add'),
-        meta: { title: '添加帮助' },
-        hidden: true
-      },
-      {
-        path: 'updateHelp',
-        name: 'updateHelp',
-        component: () => import('@/views/cms/help/update'),
-        meta: { title: '编辑帮助' },
-        hidden: true
-      },
+
       {
         path: 'subject',
         name: 'subject',
@@ -2115,28 +2453,7 @@ export const constantRouterMap = [
         component: () => import('@/views/cms/subject/update'),
         meta: { title: '编辑专题' },
         hidden: true
-      }
-      ,
-      {
-        path: 'helpCategory',
-        name: 'helpCategory',
-        component: () => import('@/views/cms/helpCategory/index'),
-        meta: { title: '专题分类列表', icon: 'product-list' }
-      }, {
-        path: 'addHelpCategory',
-        name: 'addHelpCategory',
-        component: () => import('@/views/cms/helpCategory/add'),
-        meta: { title: '添加专题分类' },
-        hidden: true
       },
-      {
-        path: 'updateHelpCategory',
-        name: 'updateHelpCategory',
-        component: () => import('@/views/cms/helpCategory/update'),
-        meta: { title: '编辑专题分类' },
-        hidden: true
-      }
-      ,
       {
         path: 'memberReport',
         name: 'memberReport',

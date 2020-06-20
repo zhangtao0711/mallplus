@@ -7,46 +7,6 @@
       <el-tab-pane label="内容" name="content">
         <div class="pannelcontent">
           <div class="pannelItem">
-            <div class="tit">轮播按钮</div>
-            <el-radio-group v-model="dot_isshow" @on-change="changeShow">
-              <el-radio label="dot_show">
-                <span>显示</span>
-              </el-radio>
-              <el-radio label="dot_hide">
-                <span>不显示</span>
-              </el-radio>
-            </el-radio-group>
-          </div>
-          <div class="pannelItem">
-            <div class="tit">按钮形状</div>
-            <el-radio-group v-model="dot_type" @on-change="changeType">
-              <el-radio label="dot_rectangle">
-                <span>长方形</span>
-              </el-radio>
-              <el-radio label="dot_square">
-                <span>正方形</span>
-              </el-radio>
-              <el-radio label="dot_circle">
-                <span>圆形</span>
-              </el-radio>
-            </el-radio-group>
-          </div>
-          <div class="pannelItem">
-            <div class="tit">按钮位置</div>
-            <el-radio-group v-model="dot_position" @on-change="changePosition">
-              <el-radio label="dot_inside">
-                <span>轮播图内</span>
-              </el-radio>
-              <el-radio label="dot_outside">
-                <span>轮播图外</span>
-              </el-radio>
-            </el-radio-group>
-          </div>
-          <div class="pannelItem">
-            <div class="tit">按钮颜色</div>
-            <el-color-picker @on-change="changeColor" placement="bottom-start" v-model="dot_color" :editable="false"/>
-          </div>
-          <div class="pannelItem">
             <div class="tit">上传图片</div>
             <div class="colorGroup">
               <draggable v-model="colorGroup" v-bind="dragOptions" handle=".handle" @change="changeDisplay">
@@ -59,17 +19,6 @@
                        size="24"
                        @click="deleteColor(index)"
                        v-if="index != 0"></i>
-                   <!-- <Icon
-                      class="iconfont icon-drag handle"
-                      size="24"
-                      style="position:absolute;top:0px;right:25px;"
-                    />
-                    <Icon
-                      type="ios-trash img-trash"
-                      size="24"
-                      @click="deleteColor(index)"
-                      v-if="index != 0"
-                    />-->
                     <img v-if="item.adImg" class="colorIcon" :src="item.adImg" alt>
                     <img v-else class="colorIcon" src="../../static/img/default_onegoods.jpg" alt>
                     <div class="colorInput">
@@ -105,10 +54,6 @@ export default {
   },
   data() {
     return {
-      dot_isshow: "dot_show",
-      dot_type: "dot_rectangle",
-      dot_position: "dot_inside",
-      dot_color: "#fff",
       newOptions: {},
       colorGroup: [
         {
@@ -151,51 +96,18 @@ export default {
       if (JSON.stringify(optionsParams) == "{}") {
         _this.restore();
       } else {
-        _this.dot_isshow = optionsParams.dot_isshow;
-        _this.dot_type = optionsParams.dot_type;
-        _this.dot_position = optionsParams.dot_position;
-        _this.dot_color = optionsParams.dot_color;
         _this.colorGroup = optionsParams.colorGroup;
       }
     },
     // 恢复初始状态
     restore() {
       let _this = this;
-      _this.dot_isshow = "dot_show";
-      _this.dot_type = "dot_rectangle";
-      _this.dot_position = "dot_inside";
-      _this.dot_color = "#fff";
       _this.colorGroup = [
         {
           adImg: "",
           adLink: ""
         }
       ];
-      _this.changeForm();
-    },
-    // 改变轮播按钮是否显示
-    changeShow(value) {
-      let _this = this;
-      _this.dot_isshow = value;
-      _this.changeForm();
-    },
-    // 改变轮播形状
-    changeType(value) {
-      let _this = this;
-      _this.dot_type = value;
-      _this.changeForm();
-    },
-    // 改变轮播位置
-    changePosition(value) {
-      let _this = this;
-      _this.dot_position = value;
-      _this.changeForm();
-    },
-    // 改变轮播按钮颜色
-    changeColor(value) {
-      let _this = this;
-      console.log(value)
-      _this.dot_color = value;
       _this.changeForm();
     },
 
@@ -206,19 +118,11 @@ export default {
       let changeData;
       if (index) {
         changeData = {
-          dot_isshow: _this.dot_isshow,
-          dot_type: _this.dot_type,
-          dot_position: _this.dot_position,
-          dot_color: _this.dot_color,
           colorGroup: _this.colorGroup,
           addIndex: index - 1
         };
       } else {
         changeData = {
-          dot_isshow: _this.dot_isshow,
-          dot_type: _this.dot_type,
-          dot_position: _this.dot_position,
-          dot_color: _this.dot_color,
           colorGroup: _this.colorGroup
         };
       }

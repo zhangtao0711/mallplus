@@ -217,9 +217,9 @@ export default {
     },
     exportExcel(index, row) {
       window.open(
-        process.env.BASE_API +
-          "/water/wtWaterCardCreate/exportExcel?id=" +
-          row.id
+        process.env.BASE_API + 
+        "/water/wtWaterCardCreate/exportExcel?id=" + row.id
+          // "/water/wtWaterCardCreate?id=" + row.id
       );
     },
     getList() {

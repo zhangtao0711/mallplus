@@ -43,7 +43,7 @@
       >
         <el-table-column type="selection" width="60" align="center"></el-table-column>
 
-        <el-table-column prop="id" label="id" align="center">
+        <el-table-column prop="id" label="编号" align="center">
           <template slot-scope="scope">{{scope.row.id }}</template>
         </el-table-column>
 
@@ -85,8 +85,13 @@
 
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
-            <el-button size="mini" @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            <i
+              class="el-icon-view"
+              style="cursor: pointer"
+              @click="handleView(scope.$index, scope.row)"
+            ></i>
+            <!-- <el-button size="mini" @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
+            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>-->
           </template>
         </el-table-column>
       </el-table>
@@ -180,10 +185,15 @@ export default {
     }
   },
   methods: {
+    handleView(index, row) {
+      this.$router.push({
+        path: "/equipment/simDetail",
+        query: { id: row.id }
+      });
+    },
     getList() {
       this.listLoading = true;
       fetchList(this.listQuery).then(response => {
-        console.log(response.data);
         this.listLoading = false;
         this.list = response.data.records;
         this.total = response.data.total;

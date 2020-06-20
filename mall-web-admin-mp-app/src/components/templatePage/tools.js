@@ -50,12 +50,19 @@ const tools = {
           all: 1,
           components: 'shouhuodizhi'
         }, {
+        //   id: 7,
+        //   name: '步骤条',
+        //   icon: 'icon-danlieshangpin',
+        //   current: 0,
+        //   all: 1,
+        //   components: 'bangzhuzhongxin'
+        // }, {
           id: 7,
-          name: '步骤条',
+          name: '首页图标导航',
           icon: 'icon-danlieshangpin',
           current: 0,
           all: 1,
-          components: 'bangzhuzhongxin'
+          components: 'iconBanner'
         }
         // {
         //   id:3,
