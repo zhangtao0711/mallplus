@@ -4,10 +4,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zscat.mallplus.sms.entity.SmsLabelSet;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Digits;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -233,6 +237,21 @@ public class UmsMember implements Serializable {
      * 虚拟卡数量
      */
     private transient String cardInventedNum;
+    /**
+     * 体验金额
+     **/
+    private transient BigDecimal experienceMoney;
+    /**
+     * 体验到期日
+     **/
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private transient Date experienceEndData;
+
+    /**
+     * 赠送金额
+     **/
+    private transient BigDecimal giveMoney;
+
 //    /**
 //     * 用户标签ids
 //     */

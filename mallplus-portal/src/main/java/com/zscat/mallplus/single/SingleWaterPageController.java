@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jfinal.kit.StrKit;
 import com.zscat.mallplus.annotation.SysLog;
-import com.zscat.mallplus.common.CommonConstant;
 import com.zscat.mallplus.core.enums.SignType;
 import com.zscat.mallplus.core.enums.TradeType;
 import com.zscat.mallplus.core.kit.HttpKit;
@@ -14,24 +13,21 @@ import com.zscat.mallplus.enums.AllEnum;
 import com.zscat.mallplus.exception.ApiMallPlusException;
 import com.zscat.mallplus.merchant.entity.MerchatFacilitatorConfig;
 import com.zscat.mallplus.merchant.mapper.MerchatFacilitatorConfigMapper;
-import com.zscat.mallplus.set.entity.SetSalesBuy;
-import com.zscat.mallplus.set.mapper.SetSalesBuyMapper;
 import com.zscat.mallplus.sms.entity.*;
 import com.zscat.mallplus.sms.mapper.*;
 import com.zscat.mallplus.sms.service.ISmsLabelMemberService;
+import com.zscat.mallplus.sms.service.IWtEquipmentService;
 import com.zscat.mallplus.ums.entity.SysAppletSet;
 import com.zscat.mallplus.ums.entity.UmsMember;
 import com.zscat.mallplus.ums.service.ISysAppletSetService;
 import com.zscat.mallplus.ums.service.IUmsMemberService;
 import com.zscat.mallplus.ums.service.RedisService;
+import com.zscat.mallplus.util.CharUtil;
 import com.zscat.mallplus.util.applet.StringConstantUtil;
 import com.zscat.mallplus.utils.CommonResult;
-import com.zscat.mallplus.water.entity.WtConsumeRecord;
-import com.zscat.mallplus.water.entity.WtEquipment;
-import com.zscat.mallplus.water.entity.WtWaterCard;
-import com.zscat.mallplus.water.entity.WtWaterCardVituralConsume;
+import com.zscat.mallplus.utils.ValidatorUtils;
+import com.zscat.mallplus.water.entity.*;
 import com.zscat.mallplus.water.mapper.WtConsumeRecordMapper;
-import com.zscat.mallplus.water.mapper.WtEquipmentMapper;
 import com.zscat.mallplus.water.mapper.WtWaterCardMapper;
 import com.zscat.mallplus.water.mapper.WtWaterCardVituralConsumeMapper;
 import com.zscat.mallplus.wxminiapp.entity.AccountWxapp;
@@ -50,6 +46,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Api(tags = "购水页面显示问题")
@@ -85,6 +83,9 @@ public class SingleWaterPageController extends ApiBaseAction {
     @Resource
     private ISmsLabelMemberService labelMemberService;
 
+    @Resource
+    private IWtEquipmentService iWtEquipmentService;
+
     private String notifyUrl = "http://siliang.zlkjhb.cn/api";
     private String refundNotifyUrl;
 
@@ -116,7 +117,211 @@ public class SingleWaterPageController extends ApiBaseAction {
         refundNotifyUrl = apiConfig.getDomain().concat("/api/pay/refundNotify");
         return apiConfig;
     }
+    /*********************************lyn*****************************************/
+    @SysLog(MODULE = "single", REMARK = "小程序取水")
+    @ApiOperation("小程序取水售水扫码后再次查询")
+    @RequestMapping(value = "/getWaterCardByEq", method = RequestMethod.GET)
+    @ResponseBody
+    public Object getWaterCardByEq(WtEquipmentForPortal entity) {
+        try {
+            if(ValidatorUtils.empty(entity.getEqcode()) || ValidatorUtils.empty(entity.getDealerId())
+                    || ValidatorUtils.empty(entity.getGetType())|| ValidatorUtils.empty(entity.getUmsMemberId())){
+                log.error("小程序取水售水扫码后再次查询参数不全",null,null);
+                return new CommonResult().paramFailed("数据获取失败！");
+            }
+            entity.setDelFlag(StringConstantUtil.delFlag);
+            entity.setState(StringConstantUtil.water_code_state_0);//水卡正常
+            entity.setStateEq(StringConstantUtil.state_eq_3);//设备正常
+            entity.setCardType(StringConstantUtil.card_type_virtual);//虚拟卡不需要和设备关联
+            //取水
+            if(entity.getGetType().equals(StringConstantUtil.not)){
+                return new CommonResult().success(iWtEquipmentService.getWaterCardByEq(entity));
+            }else{//售水
+                //通过deviceNo找到数据
+                SmsClassConfig config = smsClassConfigMapper.selectByDeviceId(String.valueOf(entity.getDealerId()));
+                JSONObject j = new JSONObject();
+                List<String> waters = Arrays.asList(config.getWaterIds());
+                List<SmsWaterPage> waterPages = new ArrayList<>();
+                for (String water:waters){
+                    SmsWaterPage waterPage = smsWaterPageMapper.selectById(water);
+                    waterPages.add(waterPage);
+                }
+                j.put("waterList",waterPages);
+                //获取套餐
+                SmsRechargePackage rechargePackage = new SmsRechargePackage();
+                rechargePackage.setDealerId(config.getDealerId());
+                rechargePackage.setStoreId(config.getStoreId());
+                List<SmsRechargePackage> rechargePackages = smsRechargePackageMapper.selectList(new QueryWrapper<>(rechargePackage));
+                j.put("rechargePackages",rechargePackages);
+                return new CommonResult().success(j);
+            }
 
+        } catch (Exception e) {
+            log.error("小程序取水售水扫码后再次查询失败：%s", e.getMessage(), e);
+        }
+        return new CommonResult().failed();
+    }
+    @SysLog(MODULE = "single", REMARK = "取水参数获取")
+    @ApiOperation("取水参数获取")
+    @PostMapping(value = "/getWaterList")
+    public Object getWaterList(@RequestParam String deviceId) {
+        if(ValidatorUtils.empty(deviceId)){
+            log.error("充值套餐获取参数不全",null,null);
+            return new CommonResult().paramFailed("数据获取失败！");
+        }
+        //通过deviceNo找到数据
+        SmsClassConfig config = smsClassConfigMapper.selectByDeviceId(deviceId);
+        JSONObject j = new JSONObject();
+        List<String> waters = Arrays.asList(config.getWaterIds());
+        List<SmsWaterPage> waterPages = new ArrayList<>();
+        for (String water:waters){
+            SmsWaterPage waterPage = smsWaterPageMapper.selectById(water);
+            waterPages.add(waterPage);
+        }
+        j.put("waterList",waterPages);
+        return new CommonResult().success(j);
+    }
+
+    @SysLog(MODULE = "single", REMARK = "开始取水")
+    @ApiOperation("开始取水")
+    @PostMapping(value = "/getWater")
+    @ResponseBody
+    public Object getWater(WtConsumeRecord consume) throws WxErrorException{
+        if(ValidatorUtils.empty(consume.getEqcode()) || ValidatorUtils.empty(consume.getDealerId())
+                || ValidatorUtils.empty(consume.getConsumeMoney())|| ValidatorUtils.empty(consume.getCreateBy())){
+            log.error("开始取水参数不全",null,null);
+            return new CommonResult().paramFailed("取水失败！");
+        }
+        if(!CharUtil.isInteger(String.valueOf(consume.getConsumeMoney()))){
+            return new CommonResult().paramFailed("消费金额错误！");
+        }
+        //判断设备是否空闲
+        if(iWtEquipmentService.checkEquipmentState(consume.getEqcode(),StringConstantUtil.is)){
+            return new CommonResult().paramFailed("设备忙线中，请稍后再试！");
+        }
+        WtConsumeRecord wtConsumeRecord = new WtConsumeRecord();
+        wtConsumeRecord.setId(getRecordId());//订单号生成
+        //设备号
+        wtConsumeRecord.setWaterType("00");//冷水00
+        wtConsumeRecord.setConsumeType(StringConstantUtil.consumeType_1);//消费方式 线上
+        //水卡号
+        //消费金额单位转分
+        wtConsumeRecord.setOrderState("1");//订单状态
+        wtConsumeRecord.setCreateTime(new Date());//创建日期
+        wtConsumeRecord.setDelFlag(StringConstantUtil.delFlag);
+
+        //保存订单信息
+        consumeRecordMapper.insert(consume);
+        //有卡号时更新水卡金额
+        if(!ValidatorUtils.empty(consume.getCardNo())){
+            WtWaterCard wtWaterCard = new WtWaterCard();
+            wtWaterCard.setCardNo(consume.getCardNo());
+            WtWaterCard waterCard = waterCardMapper.selectOne(new QueryWrapper<>(wtWaterCard));
+            waterCard.setUpdateBy(consume.getCreateBy());//更新人
+            waterCard.setUpdateTime(consume.getCreateTime());//更新时间
+            waterCard.setCardMoney(waterCard.getCardMoney().subtract(
+                    new BigDecimal(consume.getConsumeMoney()/100)).setScale(2,BigDecimal.ROUND_DOWN));
+            waterCardMapper.updateById(waterCard);
+            //标签
+            UmsMember member = memberService.getById(waterCard.getUmsMemberId());
+            labelMemberService.addCardLabel(member.getUniacid(),consume.getStoreId(),waterCard.getCardMoney(),member.getId(),member.getWeixinOpenid());
+        }
+        //TODO 调用硬件出水
+        return new CommonResult().success("取水中");
+    }
+
+    @SysLog(MODULE = "single", REMARK = "中断取水")
+    @ApiOperation("中断取水")
+    @PostMapping(value = "/stopWater")
+    @ResponseBody
+    public Object stopWater(WtConsumeRecord consume) throws WxErrorException{
+        if(ValidatorUtils.empty(consume.getEqcode()) || ValidatorUtils.empty(consume.getDealerId())
+                || ValidatorUtils.empty(consume.getConsumeMoney())|| ValidatorUtils.empty(consume.getCreateBy())){
+            log.error("中断取水参数不全",null,null);
+            return new CommonResult().paramFailed("中断取水失败！");
+        }
+
+        WtConsumeRecord wtConsumeRecord = consumeRecordMapper.selectById(consume.getId());
+        wtConsumeRecord.setOrderState("2");//订单状态
+        wtConsumeRecord.setEndTime(new Date());//结束日期
+        //更新订单信息
+        consumeRecordMapper.updateById(wtConsumeRecord);
+
+        //TODO 调用硬件停止出水
+        return new CommonResult().success("停止出水");
+    }
+
+    //生成售水机取水订单id
+    private String getRecordId(){
+        DateFormat formater = new SimpleDateFormat("yyyyMMddHHmmss");
+        String date=formater.format(new Date());
+        //获取最大订单号
+        String maxNo = consumeRecordMapper.getMaxIdByDate(date);
+        if(ValidatorUtils.empty(maxNo)){
+            maxNo="1";
+        }
+        return date+CharUtil.padRight(maxNo,4,'0');
+    }
+
+    @SysLog(MODULE = "single", REMARK = "充值套餐获取")
+    @ApiOperation("充值套餐获取")
+    @PostMapping(value = "/getRechargePackages")
+    public Object getRechargePackages(@RequestParam String deviceId) {
+        if(ValidatorUtils.empty(deviceId)){
+            log.error("充值套餐获取参数不全",null,null);
+            return new CommonResult().paramFailed("数据获取失败！");
+        }
+        //通过deviceNo找到数据
+        SmsClassConfig config = smsClassConfigMapper.selectByDeviceId(String.valueOf(deviceId));
+        JSONObject j = new JSONObject();
+        //获取套餐
+        SmsRechargePackage rechargePackage = new SmsRechargePackage();
+        rechargePackage.setDealerId(config.getDealerId());
+        rechargePackage.setStoreId(config.getStoreId());
+        List<SmsRechargePackage> rechargePackages = smsRechargePackageMapper.selectList(new QueryWrapper<>(rechargePackage));
+        j.put("rechargePackages",rechargePackages);
+        return new CommonResult().success(j);
+    }
+
+    @SysLog(MODULE = "single", REMARK = "套餐充值")
+    @ApiOperation("套餐充值")
+    @PostMapping(value = "/createSinglePackage")
+    public Object saveSinglePackage(@RequestBody WtWaterCardRecharge entity) {
+        try {
+            if(entity.getRechargePackage()==null || entity.getRechargePackage().isEmpty()){
+                return new CommonResult().failed("请选择充值套餐！");
+            }
+
+//            //套餐充值
+//            entity.setRechargeType(StringConstantUtil.recharge_type_0);
+//            entity.setRechargeMoneyType(StringConstantUtil.recharge_money_type_0);//充值金额
+//            //必须输入校验
+//            if(entity.getCardNo().isEmpty()
+//                    ||entity.getReceivedMoney()==null){
+//                return new CommonResult().failed("卡号、实收金额必须输入！");
+//            }
+//
+//            //计算套餐下的金额
+//            List<String> rechargePackageIds = Arrays.asList(entity.getRechargePackage().split(","));
+//            for(String id:rechargePackageIds){
+//                SmsRechargePackage coupon = ISmsRechargePackageService.getById(id);
+//                if(coupon !=null && coupon.getActualFee() !=null && coupon.getDonateFee() !=null){
+//                    entity.setRechargeMoney(entity.getRechargeMoney().add(coupon.getActualFee().subtract(coupon.getDonateFee())));//充值金额=实际到账金额-赠送金额
+//                }
+//            }
+
+//            entity.setDelFlag(ConstantUtil.delFlag);
+            entity.setCreateTime(new Date());
+//            if (IWtWaterCardRechargeService.save(entity)) {
+//                return new CommonResult().success();
+//            }
+        } catch (Exception e) {
+            log.error("保存充值：%s", e.getMessage(), e);
+            return new CommonResult().failed(e.getMessage());
+        }
+        return new CommonResult().failed();
+    }
+    /*********************************lyn*****************************************/
     /**
      * 扫码之后的购水页面
      */

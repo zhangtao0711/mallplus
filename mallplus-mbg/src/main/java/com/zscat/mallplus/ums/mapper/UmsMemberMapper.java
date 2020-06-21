@@ -32,7 +32,7 @@ public interface UmsMemberMapper extends BaseMapper<UmsMember> {
     UmsMember getUmsIdNickname(@Param("umsMemberId")Long umsMemberId
             , @Param("umsMemberNickname")String umsMemberNickname,@Param("status_off") Integer ums_status_off, @Param("storeId")Integer storeId);
     //根据条件查询所有会员表列表
-    List<Map<String,Object>> selectMember(Page<Map<String,Object>> page, @Param("entity")UmsMember entity);
+    List<Map<String,Object>> selectMember(@Param("entity")UmsMember entity);
 //    //查询会员详情
 //    UmsMember getById(Long id);
     //删除用户标签

@@ -58,7 +58,7 @@ public class WtWaterCardActivateServiceImpl extends ServiceImpl
         //添加水卡和设备关联信息表
         for(Long i =Long.valueOf(entity.getStartNo());i<=Long.valueOf(entity.getEndNo());i++){
             //左补位到10位
-            String num = StringUtils.padRight(i.toString(),10,'0');
+            String num = StringUtils.padRight(i.toString(),9,'0');
             WtEquipmentWarterCard wtEquipmentWarterCard = new WtEquipmentWarterCard();
             wtEquipmentWarterCard.setEqcode(entity.getEqcode());//设备号
             wtEquipmentWarterCard.setCardNo(num);//卡号

@@ -149,6 +149,12 @@ public class WtEquipment extends BaseEntity implements Serializable {
     private Long shopClassId;
 
     /**
+     * 设备二维码地址
+     **/
+    @TableField("qr_code_url")
+    private String qrCodeUrl;
+
+    /**
      * 今日销售额
      */
     private transient BigDecimal salesVolumeOfday;
@@ -164,7 +170,7 @@ public class WtEquipment extends BaseEntity implements Serializable {
     /**
      * 软件版本
      **/
-    private String equipmentvr;
+    private transient String equipmentvr;
 
 
     /**
@@ -180,7 +186,7 @@ public class WtEquipment extends BaseEntity implements Serializable {
     /**
      * 当前制水状态(01=正在制水、02=水箱水满)
      **/
-    private String zsysstate;
+    private transient String zsysstate;
     /**
      * SIM卡
      */

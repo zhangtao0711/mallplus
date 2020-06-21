@@ -131,5 +131,6 @@ public class SmsLabelSet extends BaseEntity implements Serializable {
 
     @TableField("tag_id")
     private Long tagId;
-
+    //会员id
+    private transient Long umsMemberId;
 }

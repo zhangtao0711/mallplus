@@ -53,7 +53,7 @@ public class WtWaterCardServiceImpl extends ServiceImpl
     }
     //检索数据
     public IPage<Map<String, Object>> selectData(Page<Map<String,Object>> page, WtWaterCard entity){
-        return page.setRecords(wtWaterCardMapper.selectData(page,entity));
+        return page.setRecords(wtWaterCardMapper.selectData(entity));
     }
 
     //查询问题卡

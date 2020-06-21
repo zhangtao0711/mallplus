@@ -53,7 +53,9 @@ public interface WtWaterCardMapper extends BaseMapper<WtWaterCard> {
     //根据卡号修改卡状态
     boolean updateStateByCard(@Param("cardNo")String cardNo, @Param("state")String state, @Param("updateBy")Long updateBy);
     //检索数据
-    List<Map<String,Object>> selectData(Page<Map<String,Object>> page,  @Param("entity")WtWaterCard entity);
+    List<Map<String,Object>> selectData( @Param("entity")WtWaterCard entity);
     //查询问题卡
     List<Map<String,Object>> selectProblemData(Page<Map<String,Object>> page, @Param("entity")WtWaterCard entity,@Param("state")String state);
+    //查询
+    List<WtWaterCard> selectLists(@Param("entity")WtWaterCard entity);
 }

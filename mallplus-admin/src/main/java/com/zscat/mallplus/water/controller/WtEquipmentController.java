@@ -3,7 +3,14 @@ package com.zscat.mallplus.water.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.common.StringUtils;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.zscat.mallplus.annotation.SysLog;
+import com.zscat.mallplus.core.kit.QrCodeKit;
 import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.water.entity.WtEquipment;
 import com.zscat.mallplus.water.entity.WtOpenApiInfo;
@@ -23,7 +30,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Date;
 import java.util.Map;
@@ -68,9 +78,12 @@ public class WtEquipmentController {
     @ApiOperation("保存设备信息")
     @PostMapping(value = "/create")
 //    @PreAuthorize("hasAuthority('water:wtEquipment:create')")
-    public Object saveWtEquipment(@RequestBody WtEquipment entity) {
+    public Object saveWtEquipment(@RequestBody WtEquipment entity, HttpServletRequest request) {
         try {
-
+            //设备号
+            if (ValidatorUtils.empty(entity.getEqcode())) {
+                return new CommonResult().failed("设备号不能为空！");
+            }
             //经纬度校验
             if(entity.getEqAddressLatitude()!=null && entity.getEqAddressLongitude()!=null){
                 if(!WtUtils.checkItude(entity.getEqAddressLongitude(),entity.getEqAddressLatitude())){
@@ -85,13 +98,11 @@ public class WtEquipmentController {
             WtOpenApiInfo coupon = new WtOpenApiInfo();
             coupon = wtOpenApiInfoMapper.selectOne(new QueryWrapper<>(coupon));
             Map<String, String> result = WtOpenApiInfoUtils.saveDevice(coupon,entity);
-//            int result1 = str1.indexOf("a");
-//            if(result1 != -1){
-//                System.out.println("字符串str中包含子串“a”"+result1);
-//            }else{
-//                System.out.println("字符串str中不包含子串“a”"+result1);
-//            }
-
+            //设备二维码生成
+            entity.setQrCodeUrl(createQrCode(entity.getEqcode(),request));
+            if(ValidatorUtils.empty(entity.getQrCodeUrl())){
+                return new CommonResult().failed("二维码生成失败！");
+            }
             if(result!=null && result.toString().indexOf("\"status\":200")!=-1){
                 entity.setDelFlag(ConstantUtil.delFlag);
                 entity.setCreateTime(new Date());
@@ -108,6 +119,41 @@ public class WtEquipmentController {
             return new CommonResult().failed(e.getMessage());
         }
         return new CommonResult().failed();
+    }
+
+    /**
+     * 生成设备的二维码
+     * eqcode：二维码内容
+     */
+    private String createQrCode(String eqcode, HttpServletRequest request){
+        int width = 300; // 二维码图片宽度
+        int height = 300; // 二维码图片高度
+        String format = ".png";// 二维码的图片格式
+        try{
+            Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();
+            hints.put(EncodeHintType.CHARACTER_SET, "utf-8"); // 内容所使用字符集编码
+            String url=ConstantUtil.portal_url+"/api/water/getWaterCardByEq/"+eqcode;
+
+            // 生成二维码
+            // 存放上传图片的文件夹
+            String path="/opt/upFiles/upload";
+            File file = new File(path + File.separator);
+            if (!file.exists()) {
+                file.mkdirs();// 创建文件根目录
+            }
+            Boolean encode = QrCodeKit.encode(eqcode, BarcodeFormat.QR_CODE, 3
+                    , ErrorCorrectionLevel.H, "png", width, height, file.getPath()+"\\"+eqcode+format);
+//            //生成二维码保存的路径
+//            log.info(ResourceUtils.getURL("classpath:").getPath());
+
+            if(encode){
+                return file.getPath()+"\\"+eqcode+".png";
+            }else{
+                return "";
+            }
+        }catch (Exception e){
+            return "";
+        }
     }
 
     @SysLog(MODULE = "water", REMARK = "激活设备")

@@ -77,4 +77,18 @@ public class CharUtil {
         str = oriStr + str;
         return str;
     }
+    /**
+     * 判断字符是不是Integer类型
+     * @param str
+     * @return
+     */
+    public static boolean isInteger(String str){
+        boolean b = true;
+        try{
+            Integer.valueOf(str);
+        }catch(Exception e){
+            b = false;
+        }
+        return b;
+    }
 }
