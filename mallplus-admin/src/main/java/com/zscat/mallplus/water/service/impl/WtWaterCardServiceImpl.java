@@ -60,4 +60,36 @@ public class WtWaterCardServiceImpl extends ServiceImpl
     public IPage<Map<String, Object>> selectProblemData(Page<Map<String,Object>> page, WtWaterCard entity,String state){
         return page.setRecords(wtWaterCardMapper.selectProblemData(page,entity,state));
     }
+    //查询经销商的用户列表
+    public IPage<Map<String, Object>> selectByDealerId(Page<Map<String,Object>> page, WtWaterCard entity){
+        return page.setRecords(wtWaterCardMapper.selectByDealerId(entity));
+    }
+
+    /**
+     * 会员卡充值记录
+     * @param cardNo 卡号
+     * @param year 年度
+     * @param date 日期
+     * @param userName 操作人
+     * @param type '0'后台 1线上
+     * @return
+     */
+    public IPage<Map<String, Object>> selectUserRecharge(Page<Map<String,Object>> page, String cardNo
+            , String year, String date, String userName, String type){
+        return page.setRecords(wtWaterCardMapper.selectUserRecharge( cardNo
+                , year, date, userName, type));
+    }
+    /**
+     * 会员卡消费记录
+     * @param cardNo 卡号
+     * @param year 年度
+     * @param date 日期
+     * @param address 消费地点
+     * @return
+     */
+    public IPage<Map<String, Object>> selectUserConsume(Page<Map<String,Object>> page, String cardNo
+            , String year, String date, String address){
+        return page.setRecords(wtWaterCardMapper.selectUserConsume( cardNo
+                , year, date, address));
+    }
 }

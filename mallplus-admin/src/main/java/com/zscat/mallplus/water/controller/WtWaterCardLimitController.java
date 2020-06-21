@@ -72,7 +72,7 @@ public class WtWaterCardLimitController {
     public Object saveWtWaterCardLimit(@RequestBody WtWaterCardLimit entity) {
         try {
             //左补位到10位
-            entity.setCardNo(StringUtils.padRight(entity.getCardNo(),10,'0'));
+            entity.setCardNo(StringUtils.padRight(entity.getCardNo(),9,'0'));
             //获取卡号关联经销商和登录者经销商是否一致
             if (!IWtWaterCardRechargeService.getDealerId(Long.valueOf(entity.getCardNo()),Long.valueOf(entity.getCardNo()),entity.getDealerId())) {
                 return new CommonResult().failed("此卡没有绑定在您的账号下！");
@@ -121,10 +121,13 @@ public class WtWaterCardLimitController {
             if (!IWtEquipmentService.getDealerId(entity.getEqcode(),entity.getDealerId())) {
                 return new CommonResult().failed("此设备没有绑定在您的账号下！");
             }
+
+            entity.setStartNo(StringUtils.padRight(entity.getStartNo(),9,'0'));
+            entity.setEndNo(StringUtils.padRight(entity.getEndNo(),9,'0'));
             //添加水卡和设备关联信息表
             for(Long i =Long.valueOf(entity.getStartNo());i<=Long.valueOf(entity.getEndNo());i++){
                 //左补位到10位
-                String num = StringUtils.padRight(i.toString(),10,'0');
+                String num = StringUtils.padRight(i.toString(),9,'0');
                 WtEquipmentWarterCard wtEquipmentWarterCard = new WtEquipmentWarterCard();
                 wtEquipmentWarterCard.setEqcode(entity.getEqcode());//设备号
                 wtEquipmentWarterCard.setCardNo(num);//卡号

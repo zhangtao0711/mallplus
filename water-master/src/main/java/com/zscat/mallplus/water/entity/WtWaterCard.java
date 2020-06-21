@@ -233,4 +233,24 @@ public class WtWaterCard extends BaseEntity implements Serializable {
      * 推荐人名
      **/
     private transient String umsMemberReferrerName;
+
+    /**
+     * 是否绑定（0未绑定1已绑定）
+     **/
+    private transient String binding;
+    /**
+     * 卡余额最低
+     **/
+    @DecimalMin(value="0.01")
+    @DecimalMax(value="99999999.99")
+    @Digits(integer=8, fraction=2,message="卡内余额不能设定大于99999999.99,小数位数只支持2位。")
+    private transient BigDecimal cardMoneyMin;
+    /**
+     * 卡余额最高
+     **/
+    @DecimalMin(value="0.01")
+    @DecimalMax(value="99999999.99")
+    @Digits(integer=8, fraction=2,message="卡内余额不能设定大于99999999.99,小数位数只支持2位。")
+    private transient BigDecimal cardMoneyMax;
+
 }

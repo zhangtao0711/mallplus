@@ -2,6 +2,7 @@ package com.zscat.mallplus.water.mapper;
 
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zscat.mallplus.sms.entity.SmsWaterBuyRecord;
 import com.zscat.mallplus.water.entity.WtWaterCard;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zscat.mallplus.water.entity.WtWaterCardRecharge;
@@ -58,4 +59,38 @@ public interface WtWaterCardMapper extends BaseMapper<WtWaterCard> {
     List<Map<String,Object>> selectProblemData(Page<Map<String,Object>> page, @Param("entity")WtWaterCard entity,@Param("state")String state);
     //查询
     List<WtWaterCard> selectLists(@Param("entity")WtWaterCard entity);
+
+    /**
+     * 会员线上充值时更新卡内余额
+     * @param entity 金额信息
+     * @param state 被更新卡状态
+     * @return
+     */
+    Integer updateRechargeForUser(@Param("data")SmsWaterBuyRecord entity
+            ,@Param("state")String state,@Param("delFlag")String delFlag);
+    //查询经销商的用户列表
+    List<Map<String,Object>> selectByDealerId(@Param("entity")WtWaterCard entity);
+
+    /**
+     * 会员卡充值记录
+     * @param cardNo 卡号
+     * @param year 年度
+     * @param date 日期
+     * @param userName 操作人
+     * @param type '0'后台 1线上
+     * @return
+     */
+    List<Map<String,Object>> selectUserRecharge(@Param("cardNo")String cardNo
+            ,@Param("year")String year,@Param("date")String date,@Param("userName")String userName
+            ,@Param("type")String type);
+    /**
+     * 会员卡消费记录
+     * @param cardNo 卡号
+     * @param year 年度
+     * @param date 日期
+     * @param address 消费地点
+     * @return
+     */
+    List<Map<String,Object>> selectUserConsume(@Param("cardNo")String cardNo
+            ,@Param("year")String year,@Param("date")String date,@Param("address")String address);
 }

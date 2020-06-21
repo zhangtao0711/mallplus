@@ -27,4 +27,28 @@ public interface IWtWaterCardService extends IService<WtWaterCard> {
     IPage<Map<String, Object>> selectData(Page<Map<String,Object>> page, WtWaterCard entity);
     //查询问题卡
     IPage<Map<String, Object>> selectProblemData(Page<Map<String,Object>> mapPage, WtWaterCard entity,String state);
+    //查询经销商的用户列表
+    IPage<Map<String, Object>> selectByDealerId(Page<Map<String,Object>> mapPage, WtWaterCard entity);
+
+    /**
+     * 会员卡充值记录
+     * @param cardNo 卡号
+     * @param year 年度
+     * @param date 日期
+     * @param userName 操作人
+     * @param type '0'后台 1线上
+     * @return
+     */
+    IPage<Map<String, Object>> selectUserRecharge(Page<Map<String,Object>> mapPage, String cardNo
+            , String year, String date, String userName, String type);
+    /**
+     * 会员卡消费记录
+     * @param cardNo 卡号
+     * @param year 年度
+     * @param date 日期
+     * @param address 消费地点
+     * @return
+     */
+    IPage<Map<String, Object>> selectUserConsume(Page<Map<String,Object>> mapPage, String cardNo
+            , String year, String date, String address);
 }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
 import com.zscat.mallplus.util.ConstantUtil;
+import com.zscat.mallplus.util.StringUtils;
 import com.zscat.mallplus.water.entity.WtWaterCard;
 import com.zscat.mallplus.water.entity.WtWaterCardActivate;
 import com.zscat.mallplus.water.service.IWtWaterCardActivateService;
@@ -81,15 +82,9 @@ public class WtWaterCardActivateController {
             Map<String,Long> data = IWtWaterCardActivateService.getNumInfo(Long.valueOf(entity.getStartNo()),Long.valueOf(entity.getEndNo()),entity.getDealerId());
             boolean storeFlag=false;//经销商和制卡的公众号是否一致
             if (data!=null) {
-//                Iterator<Map.Entry<String, Integer>> it =data.entrySet().iterator();
-//                while(it.hasNext()){
-//                    Map.Entry<String, Integer> entry = it.next();
-//                    if(entry.getKey().equals("id")){
-                        if(data.get("id").toString().equals(entity.getDealerId().toString())){
-                            storeFlag=true;
-                        }
-//                    }
-//                }
+                if(data.get("id").toString().equals(entity.getDealerId().toString())){
+                    storeFlag=true;
+                }
                 if(!storeFlag){
                     return new CommonResult().failed("制卡时绑定的公众号和经销商绑定的公众号不一致！");
                 }else{
@@ -101,6 +96,9 @@ public class WtWaterCardActivateController {
                 return new CommonResult().failed("此区段内有的卡号信息和商家账号不一致！");
             }
 //            entity.setDelFlag(ConstantUtil.delFlag);
+
+            entity.setStartNo(StringUtils.padRight(entity.getStartNo(),9,'0'));
+            entity.setEndNo(StringUtils.padRight(entity.getEndNo(),9,'0'));
             entity.setCreateTime(new Date());
             if (IWtWaterCardActivateService.save(entity)) {
                 return new CommonResult().success();

@@ -28,8 +28,8 @@
        SET update_time=NOW()
           ,update_by=#{data.createBy}
         <if test="type != null and type == 'recharge' ">
-            ,card_money=ifnull(card_money,0) + #{data.receivedMoney}
-            ,give_money= #{data.rechargeMoney} - #{data.receivedMoney}
+            ,card_money=ifnull(card_money,0) + ifnull(#{data.receivedMoney},0)
+            ,give_money= ifnull(#{data.rechargeMoney},0) - ifnull(#{data.receivedMoney},0)
         </if>
         <if test="type != null and type == 'experience' ">
 		  ,experience_money = #{data.experienceMoney}
@@ -46,6 +46,18 @@
 
     </update>
 
+    <!-- 会员线上充值时更新卡内余额 -->
+    <update id="updateRechargeForUser">
+        UPDATE wt_water_card
+        SET update_time=NOW()
+        ,update_by=#{data.createBy}
+        ,card_money=ifnull(card_money,0) + #{data.actualAccount}
+        ,give_money= ifnull(#{data.actualAccount},0) - ifnull(#{data.actualFee},0)
+        WHERE del_flag =#{delFlag}
+        AND state=#{state}
+        AND CAST(card_no AS SIGNED) = #{data.cardNo}
+
+    </update>
     <!-- 根据开卡id获取售出卡信息 -->
     <select id="getAllSaleStateOn" resultType="com.zscat.mallplus.water.entity.WtWaterCard">
         SELECT a.* FROM wt_water_card a
@@ -210,5 +222,135 @@
             AND a.card_no=#{entity.cardNo}
         </if>
         GROUP BY a.id
+    </select>
+    <!-- 查询经销商的用户列表 -->
+    <select id="selectByDealerId" resultType="com.zscat.mallplus.water.entity.WtWaterCard">
+        SELECT
+        b.username AS "umsMemberName",
+        f.eqcode,
+        a.*
+        FROM
+        wt_water_card a
+        LEFT JOIN ums_member b ON a.ums_member_id=b.id
+
+        LEFT JOIN (SELECT eqcode,card_no
+        from wt_equipment_warter_card
+        GROUP BY card_no
+        )f ON f.card_no=a.card_no
+
+        WHERE a.del_flag=#{entity.delFlag}
+        <if test="entity.cardType != null and entity.cardType != ''">
+            AND a.card_type=#{entity.cardType}
+        </if>
+        <if test="entity.cardNo != null and entity.cardNo != ''">
+            AND a.card_no=#{entity.cardNo}
+        </if>
+        <if test="entity.state != null and entity.state != ''">
+            AND a.state=#{entity.state}
+        </if>
+        <if test="entity.state != null and entity.state != ''">
+            AND a.state=#{entity.state}
+        </if>
+
+        <if test="entity.binding != null and entity.binding != '' and entity.binding == '0'">
+            AND ifnull(a.ums_member_id,'') = ''
+        </if>
+        <if test="entity.binding != null and entity.binding != '' and entity.binding == '1'">
+            AND ifnull(a.ums_member_id,'') &lt;&gt; ''
+        </if>
+
+        <if test="entity.id != null and entity.id != ''">
+            AND a.id=#{entity.id}
+        </if>
+        <if test="entity.cardMoneyMin != null and entity.cardMoneyMax != null ">
+            AND a.card_money BETWEEN #{entity.cardMoneyMin} AND #{data.cardMoneyMax}
+        </if>
+        <if test="entity.cardMoneyMin != null and entity.cardMoneyMax == null ">
+            AND a.card_money &lt;= #{entity.cardMoneyMin}
+        </if>
+        <if test="entity.cardMoneyMin == null and entity.cardMoneyMax != null ">
+            AND a.card_money &gt;= #{entity.cardMoneyMax}
+        </if>
+        GROUP BY a.id
+    </select>
+    <!-- 会员卡充值记录 -->
+    <select id="selectUserRecharge" resultType="Map">
+       SELECT * FROM
+       (
+        SELECT
+        b.create_time AS "createTime"
+        ,b.recharge_money AS "rechargeMoney"
+        ,a.card_no AS "cardNo"
+        ,c.phone AS "phone"
+        ,d.username AS "username"
+        ,'0' AS "type"
+        FROM
+        wt_water_card a
+        LEFT JOIN wt_water_card_recharge b ON (
+        a.card_no=b.card_no or
+        CAST(a.card_no AS SIGNED) BETWEEN b.start_no and b.end_no)
+        LEFT JOIN ums_member c ON a.ums_member_id=c.id
+        LEFT JOIN sys_user d ON b.create_by=d.id
+        WHERE a.card_no=#{cardNo}
+        <if test="year != null and year != ''">
+            AND DATE_FORMAT(b.create_time, '%Y')=#{year}
+        </if>
+        <if test="date != null and date != ''">
+            AND DATE_FORMAT(b.create_time, '%Y-%m-%d')=DATE_FORMAT(#{date},'%Y-%m-%d')
+        </if>
+        <if test="userName != null and userName != ''">
+            AND d.username like concat('%',#{userName},'%')
+        </if>
+        and b.id is not null
+        union all
+        SELECT
+        b.create_time AS "createTime"
+        ,b.actual_account AS "rechargeMoney"
+        ,a.card_no AS "cardNo"
+        ,c.phone AS "phone"
+        ,c.username AS "username"
+        ,'1' AS "type"
+        FROM
+        wt_water_card a
+        LEFT JOIN sms_water_buy_record b ON
+        a.card_no=b.card_no
+        LEFT JOIN ums_member c ON a.ums_member_id=c.id
+        WHERE a.card_no=#{cardNo}
+        <if test="year != null and year != ''">
+            AND DATE_FORMAT(b.create_time, '%Y')=#{year}
+        </if>
+        <if test="date != null and date != ''">
+            AND DATE_FORMAT(b.create_time, '%Y-%m-%d')=DATE_FORMAT(#{date},'%Y-%m-%d')
+        </if>
+        <if test="userName != null and userName != ''">
+            AND c.username like concat('%',#{userName},'%')
+        </if>
+        and b.id is not null
+       ) AS a
+
+        <if test="type != null and type != ''">
+           WHERE a.type=#{type}
+        </if>
+    </select>
+    <!-- 会员卡消费记录 -->
+    <select id="selectUserConsume" resultType="Map">
+        SELECT
+        b.eq_address AS "address"
+        ,a.consume_money AS "consumeMoney"
+        ,a.consume_type AS "consumeType"
+        ,a.create_time AS "createTime"
+        FROM wt_consume_record a
+        LEFT JOIN wt_equipment b ON a.eqcode=b.eqcode
+        WHERE a.card_no=#{cardNo}
+        <if test="year != null and year != ''">
+            AND DATE_FORMAT(a.create_time, '%Y')=#{year}
+        </if>
+        <if test="date != null and date != ''">
+            AND DATE_FORMAT(a.create_time, '%Y-%m-%d')=DATE_FORMAT(#{date},'%Y-%m-%d')
+        </if>
+        <if test="address != null and address != ''">
+            AND b.eq_address=#{address}
+        </if>
+        AND a.end_time is not null
     </select>
 </mapper>

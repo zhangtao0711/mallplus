@@ -79,6 +79,65 @@ public class WtWaterCardController {
         return new CommonResult().failed();
     }
 
+    @SysLog(MODULE = "ums", REMARK = "经销商小程序-会员表列表")
+    @ApiOperation("经销商小程序-会员表列表")
+    @GetMapping(value = "/listByDealerId")
+    public Object getUmsMemberByDealerId(WtWaterCard entity,
+                                         @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                         @RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize) {
+        try {
+            return new CommonResult().success(IWtWaterCardService.selectByDealerId(new Page<Map<String, Object>>(pageNum, pageSize),
+                    entity));
+        } catch (Exception e) {
+            log.error("根据条件查询所有会员表列表：%s", e.getMessage(), e);
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "ums", REMARK = "经销商小程序-会员卡充值记录")
+    @ApiOperation("经销商小程序-会员卡充值记录")
+    @GetMapping(value = "/listUserRecharge")
+    public Object listUserRecharge(@ApiParam("水卡号") @RequestParam String cardNo
+            ,@ApiParam("年度") @RequestParam String year
+            ,@ApiParam("日期") @RequestParam String date
+            ,@ApiParam("操作人") @RequestParam String userName
+            ,@ApiParam(" '0'后台 1线上") @RequestParam String type,
+                                         @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                         @RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize) {
+        try {
+
+            if((ValidatorUtils.empty(cardNo))){
+                return new CommonResult().failed("水卡不存在，请选择水卡后查询！");
+            }
+            return new CommonResult().success(IWtWaterCardService.selectUserRecharge(new Page<Map<String, Object>>(pageNum, pageSize),
+                    cardNo,year,date,userName,type));
+        } catch (Exception e) {
+            log.error("根据条件查询所有会员表列表：%s", e.getMessage(), e);
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "ums", REMARK = "经销商小程序-会员卡消费记录")
+    @ApiOperation("经销商小程序-会员卡消费记录")
+    @GetMapping(value = "/listUserConsume")
+    public Object listUserConsume(@ApiParam("水卡号") @RequestParam String cardNo
+            ,@ApiParam("年度") @RequestParam String year
+            ,@ApiParam("日期") @RequestParam String date
+            ,@ApiParam("消费地点") @RequestParam String address,
+                                   @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                   @RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize) {
+        try {
+            if((ValidatorUtils.empty(cardNo))){
+                return new CommonResult().failed("水卡不存在，请选择水卡后查询！");
+            }
+            return new CommonResult().success(IWtWaterCardService.selectUserConsume(new Page<Map<String, Object>>(pageNum, pageSize),
+                    cardNo,year,date,address));
+        } catch (Exception e) {
+            log.error("根据条件查询所有会员表列表：%s", e.getMessage(), e);
+        }
+        return new CommonResult().failed();
+    }
+
     @SysLog(MODULE = "water", REMARK = "根据条件查询所有问题卡列表")
     @ApiOperation("根据条件查询所有问题卡列表")
     @GetMapping(value = "/listProblem")
