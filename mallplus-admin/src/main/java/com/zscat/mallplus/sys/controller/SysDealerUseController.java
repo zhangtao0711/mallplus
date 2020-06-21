@@ -12,6 +12,7 @@ import com.zscat.mallplus.sys.entity.SysDealerUse;
 import com.zscat.mallplus.sys.entity.SysPermission;
 import com.zscat.mallplus.sys.service.ISysDealerUseService;
 import com.zscat.mallplus.sys.service.ISysPermissionService;
+import com.zscat.mallplus.ums.vo.SysDealerVo;
 import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
@@ -21,11 +22,13 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.*;
 
 /**
@@ -65,7 +68,8 @@ public class SysDealerUseController {
     @ApiOperation("保存经销商的应用权限")
     @PostMapping(value = "/create")
 //    @PreAuthorize("hasAuthority('sys:sysDealerUse:create')")
-    public Object saveSysDealerUse(@RequestBody SysDealerUse entity) {
+    @Transactional
+    public Object saveSysDealerUse(@RequestBody @Valid SysDealerUse entity) {
         SysDealerUse dealerUse = new SysDealerUse();
         dealerUse.setDealerId(entity.getDealerId());
         SysDealerUse use = ISysDealerUseService.getOne(new QueryWrapper<>(dealerUse));
@@ -110,18 +114,37 @@ public class SysDealerUseController {
     @ApiOperation("更新经销商的应用权限")
     @PostMapping(value = "/update/{id}")
     @PreAuthorize("hasAuthority('sys:sysDealerUse:update')")
-    public Object updateSysDealerUse(@RequestBody SysDealerUse entity) {
+    public Object updateSysDealerUse(@RequestBody @Valid SysDealerUse entity) {
+        if (ValidatorUtils.empty(entity.getId())){
+            return new CommonResult().failed("id不能为空！");
+        }
         try {
+            SysDealerUse old = ISysDealerUseService.getById(entity.getId());
+            if (old==null){
+                return new CommonResult().failed("数据错误，原数据为空！");
+            }
             //在保存前先判定能不能修改
             //1.先找到已经授权的应用
             SetSalesBuy buy = new SetSalesBuy();
             buy.setDealerId(entity.getDealerId());
             List<SetSalesBuy> list = setSalesBuyService.list(new QueryWrapper<>(buy));
-            if (entity.getPermissionIds()==null) {
+
+            //这里做一下逻辑鉴定,乱入的空集
+            if (entity.getPermissionIds()==null||entity.getPermissionIds().trim().equals("")) {
+                if (list!=null&&list.size()!=0) {
+                    for (SetSalesBuy salesBuy:list){
+                        //多出来的
+                        if (salesBuy.getIsBuy().equals(ConstantUtil.is)){
+                            return new CommonResult().failed("该经销商已购买"+salesBuy.getPerssionName()+"权限，无法修改！");
+                        }else {
+                            setSalesBuyService.removeById(salesBuy.getId());
+                        }
+                    }
+                }
                 //正常更新就行
                 if (ISysDealerUseService.updateById(entity)) {
                     return new CommonResult().success();
-                }else {
+                } else {
                     return new CommonResult().failed();
                 }
             }
@@ -129,6 +152,7 @@ public class SysDealerUseController {
             List<String> in = new ArrayList<>();
             for (SetSalesBuy salesBuy:list){
                 if (entity.getPermissionIds().contains(salesBuy.getPerssionId().toString())){
+                    in.add(salesBuy.getPerssionId().toString());
                     continue;
                 }else {
                     //多出来的
@@ -138,7 +162,6 @@ public class SysDealerUseController {
                         setSalesBuyService.removeById(salesBuy.getId());
                     }
                 }
-                in.add(salesBuy.getPerssionId().toString());
             }
             //把新的ids整成list，然后和交集求差集
             List<String> newList = new ArrayList<>(Arrays.asList(entity.getPermissionIds().split(",")));

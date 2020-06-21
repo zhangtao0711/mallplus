@@ -1,21 +1,13 @@
 package com.zscat.mallplus.wtUtil;
 
 
-import com.alibaba.fastjson.JSONObject;
-import com.zscat.mallplus.util.SendPostUtil;
 import com.zscat.mallplus.water.entity.WtEquipment;
 import com.zscat.mallplus.water.entity.WtOpenApiInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.jcp.xml.dsig.internal.dom.Utils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

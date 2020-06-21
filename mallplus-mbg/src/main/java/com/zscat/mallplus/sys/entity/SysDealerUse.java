@@ -13,7 +13,10 @@ import java.util.Date;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.io.Serializable;
 
@@ -35,6 +38,7 @@ public class SysDealerUse extends BaseEntity implements Serializable {
      * 经销商的id
      **/
     @TableField("dealer_id")
+    @NotNull(message = "经销商不能为空！")
     private Long dealerId;
 
 
@@ -56,6 +60,8 @@ public class SysDealerUse extends BaseEntity implements Serializable {
      * 是否开通共享水卡
      **/
     @TableField("is_share_card")
+    @NotEmpty(message = "是否开通共享水卡不能为空！")
+    @Length(min = 1,max = 1,message = "是否开通共享水卡数据值传输错误！")
     private String isShareCard;
 
 
@@ -91,6 +97,8 @@ public class SysDealerUse extends BaseEntity implements Serializable {
      * 是否开通商户审核权限
      **/
     @TableField("is_dealer_audit")
+    @NotEmpty(message = "是否开通商户审核权限不能为空！")
+    @Length(min = 1,max = 1,message = "是否开通商户审核权限数据值传输错误！")
     private String isDealerAudit;
 
 
@@ -98,6 +106,8 @@ public class SysDealerUse extends BaseEntity implements Serializable {
      * 是否开通商户关联公众号，小程序
      **/
     @TableField("is_relation")
+    @NotEmpty(message = "是否开通商户关联公众号不能为空！")
+    @Length(min = 1,max = 1,message = "是否开通商户关联公众号，小程序数据值传输错误！")
     private String isRelation;
 
 
@@ -105,6 +115,7 @@ public class SysDealerUse extends BaseEntity implements Serializable {
      * 绑定经销商id
      **/
     @TableField("create_by")
+    @NotNull(message = "创建人不能为空！")
     private Long createBy;
 
 
@@ -139,5 +150,6 @@ public class SysDealerUse extends BaseEntity implements Serializable {
      *
      **/
     @TableField("store_name")
+    @NotEmpty(message = "所属店铺不能为空！")
     private String storeName;
 }
