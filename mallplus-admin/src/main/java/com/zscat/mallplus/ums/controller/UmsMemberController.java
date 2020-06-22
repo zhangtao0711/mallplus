@@ -197,20 +197,20 @@ public class UmsMemberController {
     @PostMapping(value = "/addLabel")
     @PreAuthorize("hasAuthority('ums:UmsMember:update')")
     @Transactional
-    public Object addLabel(@RequestBody SmsLabelSet entity,@RequestParam("umsMemberId") Long umsMemberId) {
+    public Object addLabel(@RequestBody SmsLabelSet entity) {
         try {
             //判断用户标签是否可以添加
-            if(entity.getIsSystem().equals(ConstantUtil.is)){
+            if(ValidatorUtils.empty(entity.getIsSystem()) || entity.getIsSystem().equals(ConstantUtil.is)){
                 return new CommonResult().failed("系统标签不能手动添加！");
             }
             SmsLabelMember smsLabelMember = new SmsLabelMember();
-            smsLabelMember.setMemberId(umsMemberId);
+            smsLabelMember.setMemberId(entity.getUmsMemberId());
             smsLabelMember.setLabelId(entity.getId());
 
             if (ISmsLabelMemberService.save(smsLabelMember)) {
                 //添加日志
                 UmsMemberLog umsMemberLog= new UmsMemberLog();
-                umsMemberLog.setMemberId(umsMemberId);//会员id
+                umsMemberLog.setMemberId(entity.getUmsMemberId());//会员id
                 umsMemberLog.setFalg(ConstantUtil.member_log_falg_0);//日志
                 umsMemberLog.setContent("添加用户标签："+entity.getLabelName());//内容
                 umsMemberLog.setCreateTime(new Date());
@@ -484,6 +484,5 @@ public class UmsMemberController {
             return new CommonResult().failed();
         }
     }
-
 
 }

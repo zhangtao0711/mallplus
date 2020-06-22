@@ -69,8 +69,8 @@ public class WtWarterCardEmpowerController {
     @PreAuthorize("hasAuthority('water:wtWarterCardEmpower:create')")
     public Object saveWtWarterCardEmpower(@RequestBody WtWarterCardEmpower entity) {
         try {
-            //左补位到10位
-            entity.setCardNo(StringUtils.padRight(entity.getCardNo(),10,'0'));
+            //左补位到9位
+            entity.setCardNo(StringUtils.padRight(entity.getCardNo(),9,'0'));
             //获取卡号关联经销商和登录者经销商是否一致
             if (!IWtWaterCardRechargeService.getDealerId(Long.valueOf(entity.getCardNo()),Long.valueOf(entity.getCardNo()),entity.getDealerId())) {
                 return new CommonResult().failed("此卡没有绑定在您的账号下！");

@@ -120,4 +120,9 @@ public class ConstantUtil {
     //0备注1滤芯履历
     public static final String remarks_type_0 = "0";
     public static final String remarks_type_1 = "1";
+    //小程序访问地址
+    public static final String portal_url = "http://localhost:8083/";
+    //水卡状态
+    public static final String card_type_0 = "0";//实体卡
+    public static final String card_type_1 = "1";//虚拟卡
 }

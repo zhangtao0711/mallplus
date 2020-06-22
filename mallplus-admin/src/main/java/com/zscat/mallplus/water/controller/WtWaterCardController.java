@@ -6,17 +6,23 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
 import com.zscat.mallplus.sys.entity.SysUser;
+import com.zscat.mallplus.sys.util.BeanUtils;
 import com.zscat.mallplus.ums.entity.UmsMember;
 import com.zscat.mallplus.ums.entity.UmsMemberLevel;
+import com.zscat.mallplus.ums.mapper.UmsMemberMapper;
 import com.zscat.mallplus.ums.service.IUmsMemberService;
 import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.util.UserUtils;
 import com.zscat.mallplus.water.entity.WtWaterCard;
+import com.zscat.mallplus.water.entity.WtWaterCardExcel;
+import com.zscat.mallplus.water.mapper.WtWaterCardMapper;
 import com.zscat.mallplus.water.service.IWtWaterCardService;
 import com.zscat.mallplus.util.EasyPoiUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
 import com.zscat.mallplus.water.vo.WtWaterCardExcelBind;
+import com.zscat.mallplus.water.vo.WtWaterCardExport;
+import com.zscat.mallplus.water.vo.WtWaterCardExportVirtual;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -32,6 +38,7 @@ import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import java.util.Map;
@@ -51,6 +58,8 @@ public class WtWaterCardController {
     private IWtWaterCardService IWtWaterCardService;
     @Resource
     private IUmsMemberService IUmsMemberService;
+    @Resource
+    private WtWaterCardMapper wtWaterCardMapper;
 
     @SysLog(MODULE = "water", REMARK = "根据条件查询所有水卡列表")
     @ApiOperation("根据条件查询所有水卡列表")
@@ -66,6 +75,65 @@ public class WtWaterCardController {
                     entity));
         } catch (Exception e) {
             log.error("根据条件查询所有水卡列表：%s", e.getMessage(), e);
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "ums", REMARK = "经销商小程序-会员表列表")
+    @ApiOperation("经销商小程序-会员表列表")
+    @GetMapping(value = "/listByDealerId")
+    public Object getUmsMemberByDealerId(WtWaterCard entity,
+                                         @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                         @RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize) {
+        try {
+            return new CommonResult().success(IWtWaterCardService.selectByDealerId(new Page<Map<String, Object>>(pageNum, pageSize),
+                    entity));
+        } catch (Exception e) {
+            log.error("根据条件查询所有会员表列表：%s", e.getMessage(), e);
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "ums", REMARK = "经销商小程序-会员卡充值记录")
+    @ApiOperation("经销商小程序-会员卡充值记录")
+    @GetMapping(value = "/listUserRecharge")
+    public Object listUserRecharge(@ApiParam("水卡号") @RequestParam String cardNo
+            ,@ApiParam("年度") @RequestParam String year
+            ,@ApiParam("日期") @RequestParam String date
+            ,@ApiParam("操作人") @RequestParam String userName
+            ,@ApiParam(" '0'后台 1线上") @RequestParam String type,
+                                         @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                         @RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize) {
+        try {
+
+            if((ValidatorUtils.empty(cardNo))){
+                return new CommonResult().failed("水卡不存在，请选择水卡后查询！");
+            }
+            return new CommonResult().success(IWtWaterCardService.selectUserRecharge(new Page<Map<String, Object>>(pageNum, pageSize),
+                    cardNo,year,date,userName,type));
+        } catch (Exception e) {
+            log.error("根据条件查询所有会员表列表：%s", e.getMessage(), e);
+        }
+        return new CommonResult().failed();
+    }
+
+    @SysLog(MODULE = "ums", REMARK = "经销商小程序-会员卡消费记录")
+    @ApiOperation("经销商小程序-会员卡消费记录")
+    @GetMapping(value = "/listUserConsume")
+    public Object listUserConsume(@ApiParam("水卡号") @RequestParam String cardNo
+            ,@ApiParam("年度") @RequestParam String year
+            ,@ApiParam("日期") @RequestParam String date
+            ,@ApiParam("消费地点") @RequestParam String address,
+                                   @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                   @RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize) {
+        try {
+            if((ValidatorUtils.empty(cardNo))){
+                return new CommonResult().failed("水卡不存在，请选择水卡后查询！");
+            }
+            return new CommonResult().success(IWtWaterCardService.selectUserConsume(new Page<Map<String, Object>>(pageNum, pageSize),
+                    cardNo,year,date,address));
+        } catch (Exception e) {
+            log.error("根据条件查询所有会员表列表：%s", e.getMessage(), e);
         }
         return new CommonResult().failed();
     }
@@ -266,11 +334,29 @@ public class WtWaterCardController {
     @SysLog(MODULE = "water", REMARK = "会员卡导出")
     @GetMapping("/exportExcelCard")
     public void exportCard(HttpServletResponse response, WtWaterCard entity) {
+        entity.setDelFlag(ConstantUtil.delFlag);
         // 模拟从数据库获取需要导出的数据
-        List<WtWaterCard> personList = IWtWaterCardService.list(new QueryWrapper<>(entity));
-        // 导出操作
-        EasyPoiUtils.exportExcel(personList, "导出社区数据", "社区数据", WtWaterCard.class, "导出社区数据.xls", response);
+        List<WtWaterCard> personList = wtWaterCardMapper.selectLists(entity);
 
+        // 导出操作
+        if(entity.getCardType().equals(ConstantUtil.card_type_0)){
+            List<WtWaterCardExport> data = new ArrayList<>();
+           for(WtWaterCard map : personList ){
+               WtWaterCardExport wtWaterCardExport=new WtWaterCardExport();
+               BeanUtils.copyProperties(map,wtWaterCardExport);
+               data.add(wtWaterCardExport);
+           }
+            EasyPoiUtils.exportExcel(data, "会员卡导出", "会员卡导出", WtWaterCardExport.class, "会员卡导出.xls", response);
+        }else{
+
+            List<WtWaterCardExportVirtual> data = new ArrayList<>();
+            for(WtWaterCard map : personList ){
+                WtWaterCardExportVirtual wtWaterCardExportVirtual=new WtWaterCardExportVirtual();
+                BeanUtils.copyProperties(map,wtWaterCardExportVirtual);
+                data.add(wtWaterCardExportVirtual);
+            }
+            EasyPoiUtils.exportExcel(data, "会员卡导出", "会员卡导出", WtWaterCardExportVirtual.class, "会员卡导出.xls", response);
+        }
     }
 
     @SysLog(MODULE = "water", REMARK = "添加问题卡")

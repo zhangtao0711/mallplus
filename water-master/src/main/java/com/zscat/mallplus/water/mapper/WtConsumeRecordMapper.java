@@ -15,4 +15,6 @@ import java.util.Map;
 public interface WtConsumeRecordMapper extends BaseMapper<WtConsumeRecord> {
     //根据条件查询所有会员表列表
     List<Map<String,Object>> getListSum(@Param("entity")WtConsumeRecord entity);
+    //根据日期获取最大订单号
+    String getMaxIdByDate(@Param("date")String date);
 }

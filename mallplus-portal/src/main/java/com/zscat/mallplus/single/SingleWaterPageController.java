@@ -21,14 +21,20 @@ import com.zscat.mallplus.sms.mapper.SmsClassConfigMapper;
 import com.zscat.mallplus.sms.mapper.SmsRechargePackageMapper;
 import com.zscat.mallplus.sms.mapper.SmsWaterBuyRecordMapper;
 import com.zscat.mallplus.sms.mapper.SmsWaterPageMapper;
+import com.zscat.mallplus.sms.entity.*;
+import com.zscat.mallplus.sms.mapper.*;
 import com.zscat.mallplus.sms.service.ISmsLabelMemberService;
+import com.zscat.mallplus.sms.service.IWtEquipmentService;
 import com.zscat.mallplus.ums.entity.SysAppletSet;
 import com.zscat.mallplus.ums.entity.UmsMember;
 import com.zscat.mallplus.ums.service.ISysAppletSetService;
 import com.zscat.mallplus.ums.service.IUmsMemberService;
 import com.zscat.mallplus.ums.service.RedisService;
+import com.zscat.mallplus.util.CharUtil;
 import com.zscat.mallplus.util.applet.StringConstantUtil;
 import com.zscat.mallplus.utils.CommonResult;
+import com.zscat.mallplus.utils.ValidatorUtils;
+import com.zscat.mallplus.water.entity.*;
 import com.zscat.mallplus.water.entity.WtConsumeRecord;
 import com.zscat.mallplus.water.entity.WtWaterCard;
 import com.zscat.mallplus.water.entity.WtWaterCardVituralConsume;
@@ -86,6 +92,11 @@ public class SingleWaterPageController extends ApiBaseAction {
     @Resource
     private ISmsLabelMemberService labelMemberService;
 
+    @Resource
+    private IWtEquipmentService iWtEquipmentService;
+    @Resource
+    private WtWaterCardMapper wtWaterCardMapper;
+
     private String notifyUrl = "http://siliang.zlkjhb.cn/api";
     private String refundNotifyUrl;
 
@@ -117,7 +128,301 @@ public class SingleWaterPageController extends ApiBaseAction {
         refundNotifyUrl = apiConfig.getDomain().concat("/api/pay/refundNotify");
         return apiConfig;
     }
+    /*********************************lyn*****************************************/
+    @SysLog(MODULE = "single", REMARK = "小程序取水")
+    @ApiOperation("小程序取水售水扫码后再次查询")
+    @RequestMapping(value = "/getWaterCardByEq", method = RequestMethod.GET)
+    @ResponseBody
+    public Object getWaterCardByEq(WtEquipmentForPortal entity) {
+        try {
+            if(ValidatorUtils.empty(entity.getEqcode()) || ValidatorUtils.empty(entity.getDealerId())
+                    || ValidatorUtils.empty(entity.getGetType())|| ValidatorUtils.empty(entity.getUmsMemberId())){
+                log.error("小程序取水售水扫码后再次查询参数不全",null,null);
+                return new CommonResult().paramFailed("数据获取失败！");
+            }
+            entity.setDelFlag(StringConstantUtil.delFlag);
+            entity.setState(StringConstantUtil.water_code_state_0);//水卡正常
+            entity.setStateEq(StringConstantUtil.state_eq_3);//设备正常
+            entity.setCardType(StringConstantUtil.card_type_virtual);//虚拟卡不需要和设备关联
+            //取水
+            if(entity.getGetType().equals(StringConstantUtil.not)){
+                return new CommonResult().success(iWtEquipmentService.getWaterCardByEq(entity));
+            }else{//售水
+                //通过deviceNo找到数据
+                SmsClassConfig config = smsClassConfigMapper.selectByDeviceId(String.valueOf(entity.getDealerId()));
+                JSONObject j = new JSONObject();
+                List<String> waters = Arrays.asList(config.getWaterIds());
+                List<SmsWaterPage> waterPages = new ArrayList<>();
+                for (String water:waters){
+                    SmsWaterPage waterPage = smsWaterPageMapper.selectById(water);
+                    waterPages.add(waterPage);
+                }
+                j.put("waterList",waterPages);
+                //获取套餐
+                SmsRechargePackage rechargePackage = new SmsRechargePackage();
+                rechargePackage.setDealerId(config.getDealerId());
+                rechargePackage.setStoreId(config.getStoreId());
+                List<SmsRechargePackage> rechargePackages = smsRechargePackageMapper.selectList(new QueryWrapper<>(rechargePackage));
+                j.put("rechargePackages",rechargePackages);
+                return new CommonResult().success(j);
+            }
 
+        } catch (Exception e) {
+            log.error("小程序取水售水扫码后再次查询失败：%s", e.getMessage(), e);
+        }
+        return new CommonResult().failed();
+    }
+    @SysLog(MODULE = "single", REMARK = "取水参数获取")
+    @ApiOperation("取水参数获取")
+    @PostMapping(value = "/getWaterList")
+    public Object getWaterList(@RequestParam String deviceId) {
+        if(ValidatorUtils.empty(deviceId)){
+            log.error("取水参数获取参数不全",null,null);
+            return new CommonResult().paramFailed("数据获取失败！");
+        }
+        //通过deviceNo找到数据
+        SmsClassConfig config = smsClassConfigMapper.selectByDeviceId(deviceId);
+        JSONObject j = new JSONObject();
+        List<String> waters = Arrays.asList(config.getWaterIds());
+        List<SmsWaterPage> waterPages = new ArrayList<>();
+        for (String water:waters){
+            SmsWaterPage waterPage = smsWaterPageMapper.selectById(water);
+            waterPages.add(waterPage);
+        }
+        j.put("waterList",waterPages);
+        return new CommonResult().success(j);
+    }
+
+    @SysLog(MODULE = "single", REMARK = "开始取水")
+    @ApiOperation("开始取水")
+    @PostMapping(value = "/getWater")
+    @ResponseBody
+    public Object getWater(WtConsumeRecord consume) throws WxErrorException{
+        if(ValidatorUtils.empty(consume.getEqcode()) || ValidatorUtils.empty(consume.getDealerId())
+                || ValidatorUtils.empty(consume.getConsumeMoney())|| ValidatorUtils.empty(consume.getCreateBy())){
+            log.error("开始取水参数不全",null,null);
+            return new CommonResult().paramFailed("取水失败！");
+        }
+        if(!CharUtil.isInteger(String.valueOf(consume.getConsumeMoney()))){
+            return new CommonResult().paramFailed("消费金额错误！");
+        }
+        //判断设备是否空闲
+        if(iWtEquipmentService.checkEquipmentState(consume.getEqcode(),StringConstantUtil.is)){
+            return new CommonResult().paramFailed("设备忙线中，请稍后再试！");
+        }
+        WtConsumeRecord wtConsumeRecord = new WtConsumeRecord();
+        wtConsumeRecord.setId(getRecordId());//订单号生成
+        //设备号
+        wtConsumeRecord.setWaterType("00");//冷水00
+        wtConsumeRecord.setConsumeType(StringConstantUtil.consumeType_1);//消费方式 线上
+        //水卡号
+        //消费金额单位转分
+        wtConsumeRecord.setOrderState("1");//订单状态
+        wtConsumeRecord.setCreateTime(new Date());//创建日期
+        wtConsumeRecord.setDelFlag(StringConstantUtil.delFlag);
+
+        //保存订单信息
+        consumeRecordMapper.insert(consume);
+        //有卡号时更新水卡金额
+        if(!ValidatorUtils.empty(consume.getCardNo())){
+            WtWaterCard wtWaterCard = new WtWaterCard();
+            wtWaterCard.setCardNo(consume.getCardNo());
+            WtWaterCard waterCard = waterCardMapper.selectOne(new QueryWrapper<>(wtWaterCard));
+            waterCard.setUpdateBy(consume.getCreateBy());//更新人
+            waterCard.setUpdateTime(consume.getCreateTime());//更新时间
+            waterCard.setCardMoney(waterCard.getCardMoney().subtract(
+                    new BigDecimal(consume.getConsumeMoney()/100)).setScale(2,BigDecimal.ROUND_DOWN));
+            waterCardMapper.updateById(waterCard);
+            //标签
+            UmsMember member = memberService.getById(waterCard.getUmsMemberId());
+            labelMemberService.addCardLabel(member.getUniacid(),consume.getStoreId(),waterCard.getCardMoney(),member.getId(),member.getWeixinOpenid());
+        }
+        //TODO 调用硬件出水
+        return new CommonResult().success("取水中");
+    }
+
+    @SysLog(MODULE = "single", REMARK = "中断取水")
+    @ApiOperation("中断取水")
+    @PostMapping(value = "/stopWater")
+    @ResponseBody
+    public Object stopWater(WtConsumeRecord consume) throws WxErrorException{
+        if(ValidatorUtils.empty(consume.getEqcode()) || ValidatorUtils.empty(consume.getDealerId())
+                || ValidatorUtils.empty(consume.getConsumeMoney())|| ValidatorUtils.empty(consume.getCreateBy())){
+            log.error("中断取水参数不全",null,null);
+            return new CommonResult().paramFailed("中断取水失败！");
+        }
+
+        WtConsumeRecord wtConsumeRecord = consumeRecordMapper.selectById(consume.getId());
+        wtConsumeRecord.setOrderState("2");//订单状态
+        wtConsumeRecord.setEndTime(new Date());//结束日期
+        //更新订单信息
+        consumeRecordMapper.updateById(wtConsumeRecord);
+
+        //TODO 调用硬件停止出水
+        return new CommonResult().success("停止出水");
+    }
+
+    //生成售水机取水订单id
+    private String getRecordId(){
+        DateFormat formater = new SimpleDateFormat("yyyyMMddHHmmss");
+        String date=formater.format(new Date());
+        //获取最大订单号
+        String maxNo = consumeRecordMapper.getMaxIdByDate(date);
+        if(ValidatorUtils.empty(maxNo)){
+            maxNo="1";
+        }
+        return date+CharUtil.padRight(maxNo,4,'0');
+    }
+
+    @SysLog(MODULE = "single", REMARK = "充值套餐获取")
+    @ApiOperation("充值套餐获取")
+    @PostMapping(value = "/getRechargePackages")
+    public Object getRechargePackages(@RequestParam String deviceId) {
+        if(ValidatorUtils.empty(deviceId)){
+            log.error("充值套餐获取参数不全",null,null);
+            return new CommonResult().paramFailed("数据获取失败！");
+        }
+        //通过deviceNo找到数据
+        SmsClassConfig config = smsClassConfigMapper.selectByDeviceId(String.valueOf(deviceId));
+        JSONObject j = new JSONObject();
+        //获取套餐
+        SmsRechargePackage rechargePackage = new SmsRechargePackage();
+        rechargePackage.setDealerId(config.getDealerId());
+        rechargePackage.setStoreId(config.getStoreId());
+        List<SmsRechargePackage> rechargePackages = smsRechargePackageMapper.selectList(new QueryWrapper<>(rechargePackage));
+        j.put("rechargePackages",rechargePackages);
+        return new CommonResult().success(j);
+    }
+
+    @SysLog(MODULE = "single", REMARK = "套餐充值")
+    @ApiOperation("套餐充值")
+    @PostMapping(value = "/createSinglePackage")
+    public Object saveSinglePackage(@RequestBody SmsWaterBuyRecord entity) {
+        //添加记录信息
+        String outTradeNo = WxPayKit.generateStr();
+        //小程序支付统一下单-服务商支付
+        //1.获取支付的金额
+        if (entity.getPayFee()==null||entity.getActualFee()==null){
+            return new CommonResult().failed("订单金额不能为空！");
+        }
+        BigDecimal price = entity.getActualFee().multiply(new BigDecimal("100")).setScale(BigDecimal.ROUND_DOWN,0);
+        BigDecimal actual = entity.getActualFee().multiply(new BigDecimal("994")).setScale(BigDecimal.ROUND_DOWN,2);
+        entity.setActualAccount(actual);
+        //2.获取IP
+        String ip = IpKit.getRealIp(request);
+        if (StrKit.isBlank(ip)) {
+            ip = "127.0.0.1";
+        }
+        //3. 获取服务商和底下的特约商户的信息（平台)
+        WxPayApiConfig config = this.getApiConfig(entity.getUniacid());
+        if (config==null){
+            return new CommonResult().failed("没有设置支付配置");
+        }
+        //4.拼接需要的数据
+        Map<String, String> params = UnifiedOrderModel
+                .builder()
+                .appid(config.getAppId())
+                .mch_id(config.getMchId())
+                .sub_appid(config.getSlAppId())
+                .sub_mch_id(config.getSlMchId())
+                .nonce_str(WxPayKit.generateStr())
+                .body("套餐充值")
+                .out_trade_no(outTradeNo)
+                .total_fee(price.toString())
+                .spbill_create_ip(ip)
+                .notify_url(notifyUrl)
+                .trade_type(TradeType.JSAPI.getTradeType())
+                .openid(entity.getOpenId())
+                .build()
+                .createSign(config.getPartnerKey(), SignType.HMACSHA256);
+        //5.统一下单
+        String xmlResult = WxPayApi.pushOrder(false, params);
+        log.info("统一下单:" + xmlResult);
+        //6.将返回信息的信息转成map
+        Map<String, String> result = WxPayKit.xmlToMap(xmlResult);
+        //7.获取return_code
+        String returnCode = result.get("return_code");
+        String returnMsg = result.get("return_msg");
+        System.out.println(returnMsg);
+        //8.如果失败则判断状态存储起来
+        if (!WxPayKit.codeIsOk(returnCode)) {
+            //处理自己的逻辑
+            entity.setStatus(StringConstantUtil.rechargeStatus_1);
+            recordMapper.insert(entity);
+            return new CommonResult().failed("error:" + returnMsg);
+        }
+        //9.return_code返回的是成功，则判断result_code
+        String resultCode = result.get("result_code");
+        //如果失败则判断状态存储起来
+        if (!WxPayKit.codeIsOk(resultCode)) {
+            //处理自己的逻辑
+            entity.setStatus(StringConstantUtil.rechargeStatus_1);
+            recordMapper.insert(entity);
+            return new CommonResult().failed("error:" + result.get("err_code_des"));
+        }
+        entity.setStatus(StringConstantUtil.rechargeStatus_2);
+        entity.setPrepayId(result.get("prepay_id"));
+        recordMapper.insert(entity);
+        return new CommonResult().success();
+    }
+    /**
+     * 套餐充值异步通知
+     */
+    @RequestMapping(value = "/payNotifyPackage", method = {RequestMethod.POST, RequestMethod.GET})
+    @ResponseBody
+    public String payNotifyPackage(HttpServletRequest request) {
+        //1.获取微信异步通知结果准换成map
+        String xmlMsg = HttpKit.readData(request);
+        Map<String, String> params = WxPayKit.xmlToMap(xmlMsg);
+        log.info("微信支付通知=" + params);
+        //2.获取返回的code
+        String returnCode = params.get("return_code");
+        //3.获取订单编号，根据订单编号获取唯一的订单
+        String out_trade_no = params.get("out_trade_no");
+        SmsWaterBuyRecord waterBuyRecord = new SmsWaterBuyRecord();
+        waterBuyRecord.setOutTradeNo(out_trade_no);
+        SmsWaterBuyRecord record = recordMapper.selectOne(new QueryWrapper<>(waterBuyRecord));
+        AccountWxapp accountWxapp = new AccountWxapp();
+        accountWxapp.setUniacid(record.getUniacid());
+        AccountWxapp wxapp = wxappMapper.selectOne(new QueryWrapper<>(accountWxapp));
+        // 注意重复通知的情况，同一订单号可能收到多次通知，请注意一定先判断订单状态
+        // 4.注意此处签名方式需与统一下单的签名类型一致
+        if (WxPayKit.verifyNotify(params, this.getApiConfig(wxapp.getUniacid()).getPartnerKey(), SignType.HMACSHA256)) {
+            if (WxPayKit.codeIsOk(returnCode)) {
+                // 5.更新订单信息
+                if (record.getStatus().equals(StringConstantUtil.rechargeStatus_2)){
+                    record.setStatus(StringConstantUtil.rechargeStatus_3);
+                    recordMapper.updateById(record);
+                    //更新卡内余额
+                    wtWaterCardMapper.updateRechargeForUser(record,StringConstantUtil.water_code_state_0,StringConstantUtil.delFlag);
+                    //用户买水分账或者企业付款到零钱
+                    String ip = IpKit.getRealIp(request);
+                    if (StrKit.isBlank(ip)) {
+                        ip = "127.0.0.1";
+                    }
+                    String transaction_id = params.get("transaction_id");
+                    appletSetService.getRout(record.getDealerId(),record.getActualAccount(),ip,transaction_id,record.getId(),1);
+                }
+                // 发送通知等
+                Map<String, String> xml = new HashMap<String, String>(2);
+                xml.put("return_code", "SUCCESS");
+                xml.put("return_msg", "OK");
+                return WxPayKit.toXml(xml);
+            } else {
+                record.setStatus(StringConstantUtil.rechargeStatus_4);
+                recordMapper.updateById(record);
+                log.error("订单" + out_trade_no + "支付失败");
+            }
+        }else {
+            // 发送通知等
+            Map<String, String> xml = new HashMap<String, String>(2);
+            xml.put("return_code", "FAIL");
+            xml.put("return_msg", "签名失败");
+            return WxPayKit.toXml(xml);
+        }
+        return null;
+    }
+    /*********************************lyn*****************************************/
     /**
      * 扫码之后的购水页面
      */

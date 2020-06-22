@@ -93,10 +93,10 @@ public class WtWaterCardCreateController {
             if(!IWtWaterCardCreateService.checkNum(Long.valueOf(entity.getStartNo()),Long.valueOf(entity.getEndNo()))){
                 return new CommonResult().failed("此区段内有已经生成过的卡号存在，请重新设定起始卡号-终止卡号范围！");
             }
-//            AccountWxapp accountWxapp=iAccountWxappService.getById(entity.getAcid());
-//            if(IWtWaterCardCreateService.getAcidKey(entity.getAcid())==null || IWtWaterCardCreateService.getAcidKey(entity.getAcid()).isEmpty()){
-//                return new CommonResult().failed("此公众号没有key，请选择其他信息完整的公众号！");
-//            }
+            AccountWxapp accountWxapp=iAccountWxappService.getById(entity.getAcid());
+            if(IWtWaterCardCreateService.getAcidKey(entity.getAcid())==null || IWtWaterCardCreateService.getAcidKey(entity.getAcid()).isEmpty()){
+                return new CommonResult().failed("此公众号没有key，请选择其他信息完整的公众号！");
+            }
 
             //将代号转为大写
             entity.setCode(entity.getCode().toUpperCase());
@@ -108,6 +108,9 @@ public class WtWaterCardCreateController {
             //设定制卡状态0未制卡
             entity.setState(ConstantUtil.card_create_state_0);
 //            entity.setDelFlag(ConstantUtil.delFlag);
+
+            entity.setStartNo(StringUtils.padRight(entity.getStartNo(),9,'0'));
+            entity.setEndNo(StringUtils.padRight(entity.getEndNo(),9,'0'));
             if (IWtWaterCardCreateService.saveAll(entity,"1220")) {
                 return new CommonResult().success();
             }

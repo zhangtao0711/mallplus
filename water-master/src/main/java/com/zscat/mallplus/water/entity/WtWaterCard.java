@@ -60,13 +60,13 @@ public class WtWaterCard extends BaseEntity implements Serializable {
     @TableField("ums_member_id")
     private Long umsMemberId;
     /**
-     * 卡状态 card_type
+     * 卡状态 card_type（0实体卡1虚拟卡）
      **/
     @TableField("card_type")
     private String cardType;
 
     /**
-     * 卡状态 字典water_code_state
+     * 卡状态（0正常1复制卡2挂失卡3删除卡4非经销商卡） 字典water_code_state
      **/
     @TableField("state")
     private String state;
@@ -233,4 +233,24 @@ public class WtWaterCard extends BaseEntity implements Serializable {
      * 推荐人名
      **/
     private transient String umsMemberReferrerName;
+
+    /**
+     * 是否绑定（0未绑定1已绑定）
+     **/
+    private transient String binding;
+    /**
+     * 卡余额最低
+     **/
+    @DecimalMin(value="0.01")
+    @DecimalMax(value="99999999.99")
+    @Digits(integer=8, fraction=2,message="卡内余额不能设定大于99999999.99,小数位数只支持2位。")
+    private transient BigDecimal cardMoneyMin;
+    /**
+     * 卡余额最高
+     **/
+    @DecimalMin(value="0.01")
+    @DecimalMax(value="99999999.99")
+    @Digits(integer=8, fraction=2,message="卡内余额不能设定大于99999999.99,小数位数只支持2位。")
+    private transient BigDecimal cardMoneyMax;
+
 }

@@ -38,7 +38,7 @@ public class WtWaterCardCreateServiceImpl extends ServiceImpl
         if(super.save(var)){
             for(Long i =Long.valueOf(var.getStartNo());i<=Long.valueOf(var.getEndNo());i++){
                 //左补位到10位
-                String num = StringUtils.padRight(i.toString(),10,'0');
+                String num = StringUtils.padRight(i.toString(),9,'0');
                 //卡信息保存
                 WtWaterCard wtWaterCard = new WtWaterCard();
                 wtWaterCard.setCardCreateId(var.getId());//生成批号

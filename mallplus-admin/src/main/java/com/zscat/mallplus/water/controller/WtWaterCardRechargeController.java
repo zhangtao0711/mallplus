@@ -8,6 +8,7 @@ import com.zscat.mallplus.sms.entity.SmsRechargePackage;
 import com.zscat.mallplus.sms.service.ISmsRechargePackageService;
 import com.zscat.mallplus.sys.entity.SysUser;
 import com.zscat.mallplus.util.ConstantUtil;
+import com.zscat.mallplus.util.StringUtils;
 import com.zscat.mallplus.util.UserUtils;
 import com.zscat.mallplus.water.entity.WtWaterCardRecharge;
 import com.zscat.mallplus.water.service.IWtWaterCardRechargeService;
@@ -87,6 +88,9 @@ public class WtWaterCardRechargeController {
                 if (!IWtWaterCardRechargeService.getDealerId(Long.valueOf(entity.getStartNo()),Long.valueOf(entity.getEndNo()),entity.getDealerId())) {
                     return new CommonResult().failed("此区段内有卡没有绑定在您的账号下！");
                 }
+
+                entity.setStartNo(StringUtils.padRight(entity.getStartNo(),9,'0'));
+                entity.setEndNo(StringUtils.padRight(entity.getEndNo(),9,'0'));
             //选择充值体验金额
             }else{
                 if(entity.getCardType().equals(ConstantUtil.card_type_virtual)){
@@ -118,6 +122,9 @@ public class WtWaterCardRechargeController {
                     if(entity.getExperienceEndData()==null && entity.getExperienceEndDay()==null){
                         return new CommonResult().failed("到期日或有效天数必须设定一个！");
                     }
+
+                    entity.setStartNo(StringUtils.padRight(entity.getStartNo(),9,'0'));
+                    entity.setEndNo(StringUtils.padRight(entity.getEndNo(),9,'0'));
                 //筛选充值
                 }else{
                     //判断有没有购买用户标签功能
@@ -177,6 +184,8 @@ public class WtWaterCardRechargeController {
             if(Long.valueOf(entity.getCardNo())> ConstantUtil.max_card_no){
                 return new CommonResult().failed("制卡卡号最大值是"+ ConstantUtil.max_card_no +"！");
             }
+
+            entity.setCardNo(StringUtils.padRight(entity.getCardNo(),9,'0'));
             //获取卡号关联经销商和登录者经销商是否一致
             if (!IWtWaterCardRechargeService.getDealerId(Long.valueOf(entity.getCardNo()),Long.valueOf(entity.getCardNo()),entity.getDealerId())) {
                 return new CommonResult().failed("此卡没有绑定在您的账号下！");
@@ -202,10 +211,10 @@ public class WtWaterCardRechargeController {
             if(entity.getRechargePackage()==null || entity.getRechargePackage().isEmpty()){
                 return new CommonResult().failed("请选择充值套餐！");
             }
-//            //判断有没有购买充值套餐功能
-//            if(!IWtWaterCardRechargeService.getSalesInfo(entity.getDealerId(),ConstantUtil.recharge_package_id)){
-//                return new CommonResult().failed("您尚未购买此功能，或已到期。请开通此功能后再次使用！");
-//            }
+            //判断有没有购买充值套餐功能
+            if(!IWtWaterCardRechargeService.getSalesInfo(entity.getDealerId(),ConstantUtil.recharge_package_id)){
+                return new CommonResult().failed("您尚未购买此功能，或已到期。请开通此功能后再次使用！");
+            }
 
             //套餐充值
             entity.setRechargeType(ConstantUtil.recharge_type_0);
@@ -218,6 +227,8 @@ public class WtWaterCardRechargeController {
             if(Long.valueOf(entity.getCardNo())> ConstantUtil.max_card_no){
                 return new CommonResult().failed("制卡卡号最大值是"+ ConstantUtil.max_card_no +"！");
             }
+
+            entity.setCardNo(StringUtils.padRight(entity.getCardNo(),9,'0'));
             //获取卡号关联经销商和登录者经销商是否一致
             if (!IWtWaterCardRechargeService.getDealerId(Long.valueOf(entity.getCardNo()),Long.valueOf(entity.getCardNo()),entity.getDealerId())) {
                 return new CommonResult().failed("此卡没有绑定在您的账号下！");

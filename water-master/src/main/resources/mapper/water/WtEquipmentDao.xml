@@ -65,6 +65,43 @@
         <if test="entity.setUpTime != null and entity.setUpTime != ''">
             AND e.update_time=#{entity.setUpTime}
         </if>
+    </select>
 
+    <!-- 根据设备用户查询水卡信息 -->
+    <select id="getWaterCardByEq" resultType="com.zscat.mallplus.water.entity.WtEquipmentForPortal">
+        SELECT
+        a.id AS "umsMemberId"
+        ,b.card_no AS "waterCardNo"
+        ,b.card_type AS "cardType"
+        ,b.state AS "state"
+        ,b.experience_money AS "experienceMoney"
+        ,b.experience_end_data AS "experienceEndData"
+        ,b.card_money AS "cardMoney"
+        ,b.give_money AS "giveMoney"
+        ,c.eqcode
+        ,d.eqcode AS "eqcode"
+        ,d.state AS "stateEq"
+        FROM
+        ums_member a
+        LEFT JOIN wt_water_card b ON a.id=b.ums_member_id
+        AND b.del_flag=#{entity.delFlag} AND b.dealer_id=#{entity.dealerId}
+        LEFT JOIN wt_equipment_warter_card c ON b.card_no=c.card_no
+        LEFT JOIN wt_equipment d ON c.eqcode=d.eqcode
+        AND d.del_flag=#{entity.delFlag}  AND d.dealer_id=#{entity.dealerId}
+        AND b.state=#{entity.stateEq}
+        WHERE a.status=#{entity.state}
+        AND a.dealer_id=#{entity.dealerId}
+        AND (d.eqcode=#{entity.eqcode} or b.card_type=#{entity.cardType})
+    </select>
+
+    <!-- 设备是否空闲 -->
+    <select id="getEquipmentState" resultType="Map">
+        SELECT b.id AS "id" FROM
+        wt_equipment a
+        LEFT JOIN wt_consume_record b ON a.eqcode = b.eqcode
+        AND b.end_time is null
+        LEFT JOIN wt_equipment_detailes c ON a.eqcode = c.eqcode
+        WHERE a.eqcode=#{eqcode}
+        AND c.onOff=#{on}
     </select>
 </mapper>

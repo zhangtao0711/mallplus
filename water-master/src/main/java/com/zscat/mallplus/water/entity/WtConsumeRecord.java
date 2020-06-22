@@ -39,7 +39,7 @@ public class WtConsumeRecord extends BaseEntity implements Serializable {
 
 
     /**
-     * 消费方式（投币/线上/刷卡）
+     * 消费方式（0投币/1线上/2刷卡）
      **/
     @TableField("consume_type")
     private String consumeType;
