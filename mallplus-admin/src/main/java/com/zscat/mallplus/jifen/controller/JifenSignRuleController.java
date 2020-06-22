@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -53,7 +54,7 @@ public class JifenSignRuleController {
     @ApiOperation("保存积分签到规则")
     @PostMapping(value = "/create")
     @PreAuthorize("hasAuthority('jifen:jifenSignRule:create')")
-    public Object saveJifenSignRule(@RequestBody JifenSignRule entity) {
+    public Object saveJifenSignRule(@RequestBody @Valid JifenSignRule entity) {
         try {
 
             if (IJifenSignRuleService.save(entity)) {
@@ -72,6 +73,9 @@ public class JifenSignRuleController {
     @PreAuthorize("hasAuthority('jifen:jifenSignRule:update')")
     public Object updateJifenSignRule(@RequestBody JifenSignRule entity) {
         try {
+            if (ValidatorUtils.empty(entity.getId())){
+                return new CommonResult().failed("id不能为空！");
+            }
             if (IJifenSignRuleService.updateById(entity)) {
                 return new CommonResult().success();
             }

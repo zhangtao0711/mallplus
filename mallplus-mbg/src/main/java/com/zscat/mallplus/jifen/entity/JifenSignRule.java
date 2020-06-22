@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -23,11 +26,18 @@ public class JifenSignRule implements Serializable {
 
 
     @TableField("contineu_count")
+    @NotNull(message = "连续几天不能为空！")
+    @Min(1)
     private Integer contineuCount;
 
 
     @TableField("donate_integrtion")
     private Integer donateIntegrtion;
 
+    @TableField("dealer_id")
+    private Long dealerId;
+
+    @TableField(exist = false)
+    private Integer status;//状态 0未达标 1领取 2 已领取
 
 }

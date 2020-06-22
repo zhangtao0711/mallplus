@@ -57,12 +57,21 @@ public class UmsIntegrationConsumeSettingController {
     @PreAuthorize("hasAuthority('ums:UmsIntegrationConsumeSetting:create')")
     public Object saveUmsIntegrationConsumeSetting(@RequestBody @Valid UmsIntegrationConsumeSetting entity) {
         try {
+            UmsIntegrationConsumeSetting umsIntegrationConsumeSetting = new UmsIntegrationConsumeSetting();
+            umsIntegrationConsumeSetting.setDealerId(entity.getDealerId());
+            UmsIntegrationConsumeSetting setting1 = IUmsIntegrationConsumeSettingService.getOne(new QueryWrapper<UmsIntegrationConsumeSetting>(umsIntegrationConsumeSetting));
+            if (setting1!=null){
+                return new CommonResult().failed("已经添加过数据不能重复添加！");
+            }
             UmsIntegrationConsumeSetting set = new UmsIntegrationConsumeSetting();
             UmsIntegrationConsumeSetting setting = IUmsIntegrationConsumeSettingService.getById(1);
             BeanUtil.copyProperties(setting,set);
-            set.setRegister(entity.getRegister());
-            set.setWaterFee(entity.getWaterFee());
             set.setDealerId(entity.getDealerId());
+            set.setRegister(entity.getRegister());
+            set.setSign(entity.getSign());
+            set.setOrders(entity.getOrders());
+            set.setOrdersStatus(entity.getOrdersStatus());
+            set.setWaterFee(entity.getWaterFee());
             if (IUmsIntegrationConsumeSettingService.save(set)) {
                 return new CommonResult().success();
             }
@@ -109,19 +118,17 @@ public class UmsIntegrationConsumeSettingController {
     }
 
     @SysLog(MODULE = "ums", REMARK = "给积分消费设置分配积分消费设置")
-    @ApiOperation("查询积分消费设置明细")
+    @ApiOperation("查询积分消费设置明细-传经销商id")
     @GetMapping(value = "/{id}")
     @PreAuthorize("hasAuthority('ums:UmsIntegrationConsumeSetting:read')")
-    public Object getUmsIntegrationConsumeSettingById(@ApiParam("积分消费设置id") @PathVariable Long id) {
+    public Object getUmsIntegrationConsumeSettingById(@ApiParam("积分消费设置id-经销商id") @PathVariable Long id) {
         try {
             if (ValidatorUtils.empty(id)) {
                 return new CommonResult().paramFailed("积分消费设置id");
             }
-            UmsIntegrationConsumeSetting coupon = IUmsIntegrationConsumeSettingService.getOne(new QueryWrapper<>());
-            if (coupon == null) {
-                coupon = new UmsIntegrationConsumeSetting();
-                IUmsIntegrationConsumeSettingService.save(coupon);
-            }
+            UmsIntegrationConsumeSetting setting = new UmsIntegrationConsumeSetting();
+            setting.setDealerId(id);
+            UmsIntegrationConsumeSetting coupon = IUmsIntegrationConsumeSettingService.getOne(new QueryWrapper<UmsIntegrationConsumeSetting>(setting));
             return new CommonResult().success(coupon);
         } catch (Exception e) {
             log.error("查询积分消费设置明细：%s", e.getMessage(), e);
