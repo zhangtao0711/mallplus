@@ -18,6 +18,7 @@ import com.zscat.mallplus.ums.service.IUmsIntegrationChangeHistoryService;
 import com.zscat.mallplus.ums.service.IUmsIntegrationConsumeSettingService;
 import com.zscat.mallplus.ums.service.IUmsMemberService;
 import com.zscat.mallplus.util.JsonUtils;
+import com.zscat.mallplus.util.TimeUtil;
 import com.zscat.mallplus.util.applet.StringConstantUtil;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
@@ -177,8 +178,16 @@ public class SingleJifenMemberSignRecordController {
         }else {
             //修改
             record.setMark(entity.getMark());
-            record.setContinueSign(record.getContinueSign()+1);
-            record.setCount(record.getCount()+1);
+            net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject.fromObject(record.getMark());
+            //获取昨天的时间字符串
+            String yesterdayStr = TimeUtil.getYesterdayStr("yyyy-MM-dd");
+            //查看昨天有没有签到,如果昨天的key是空的，那么就是漏签的，所以连续签到清零，重新计时
+            if (jsonObject.getString(yesterdayStr)==null){
+                record.setContinueSign(0);
+            }else {
+                record.setContinueSign(record.getContinueSign() + 1);
+            }
+            record.setCount(record.getCount() + 1);
             record.setUpdateTime(new Date());
             if (jifenMemberSignRecordMapper.updateById(record)>0){
                 j.put("top",record.getCount());
