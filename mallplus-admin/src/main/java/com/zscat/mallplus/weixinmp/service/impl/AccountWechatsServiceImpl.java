@@ -5,17 +5,23 @@ import com.zscat.mallplus.weixinmp.mapper.AccountWechatsMapper;
 import com.zscat.mallplus.weixinmp.service.IAccountWechatsService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
+
 /**
-* @author lyn
-* @date 2020-05-22
-*/
+ * @author lyn
+ * @date 2020-05-22
+ */
 @Service
 public class AccountWechatsServiceImpl extends ServiceImpl
-<AccountWechatsMapper, AccountWechats> implements IAccountWechatsService {
+        <AccountWechatsMapper, AccountWechats> implements IAccountWechatsService {
 
-@Resource
-private AccountWechatsMapper accountWechatsMapper;
+    @Resource
+    private AccountWechatsMapper accountWechatsMapper;
 
 
+    @Override
+    public Long getLastNum(Long dealerId) {
+        return accountWechatsMapper.getLastNum(dealerId);
+    }
 }

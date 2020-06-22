@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.sms.mapper.SmsWaterBuyRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zscat.mallplus.sms.entity.SmsWaterBuyRecord">
+        <id column="id" property="id"/>
+        <result column="uniacid" property="uniacid"/>
+        <result column="open_id" property="openId" />
+        <result  column="create_time" property="createTime"/>
+        <result column="buy_time" property="buyTime"/>
+        <result column="pay_way" property="payWay" />
+        <result column="status" property="status" />
+        <result column="pay_fee" property="payFee" />
+        <result column="actual_fee" property="actualFee" />
+        <result column="actual_account" property="actualAccount" />
+        <result column="out_trade_no" property="outTradeNo" />
+        <result column="store_id" property="storeId" />
+        <result column="dealer_id" property="dealerId"/>
+        <result column="prepay_id" property="prepayId" />
+        <result column="transaction_id" property="transactionId" />
+        <result column="rout_out_order_no" property="routOutOrderNo" />
+        <result column="order_id" property="orderId" />
+        <result column="first_amount" property="firstAmount" />
+        <result column="second_amount" property="secondAmount" />
+        <result column="third_amount" property="thirdAmount" />
+        <result column="rout_status" property="routStatus" />
+        <result column="withdraw_status" property="withdrawStatus" />
+        <result column="card_no" property="cardNo" />
+        <result column="water_id" property="waterId" />
+        <result column="device" property="device" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,uniacid,open_id,create_time,buy_time,pay_way,status,pay_fee,actual_fee,actual_account,out_trade_no,store_id,
+        dealer_id,prepay_id,transaction_id,rout_out_order_no,order_id,first_amount,second_amount,third_amount,rout_status,
+        withdraw_status,card_no,water_id,device
+  </sql>
+
+    <!-- 首页的售水商品统计 -->
+    <select id="statisticsWater" resultType="Map">
+        SELECT
+            b.name as "name",
+            sum(a.actual_fee) as "total",
+            DATE_FORMAT(a.create_time,'%m-%d') as "date"
+        FROM
+            sms_water_buy_record a
+        LEFT JOIN sms_water_page b on b.id = a.id and b.dealer_id = a.dealer_id
+        WHERE  a.store_id = #{storeId}
+        <if test="dealerId != null">
+            and a.dealer_id = #{dealerId}
+        </if>
+        and YEARWEEK(date_format(a.create_time,'%Y-%m-%d')) = YEARWEEK(now());
+    </select>
+</mapper>

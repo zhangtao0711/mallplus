@@ -153,5 +153,10 @@ public class SmsWaterBuyRecord extends BaseEntity implements Serializable {
     @TableField("withdraw_status")
     private String withdrawStatus;
 
+    @TableField("water_id")
+    private Integer waterId;
+
+    @TableField("device")
+    private Long device;
 
 }

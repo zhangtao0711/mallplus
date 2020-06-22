@@ -23,6 +23,7 @@ import com.zscat.mallplus.util.ConstantUtil;
 import com.zscat.mallplus.util.StringUtils;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.ValidatorUtils;
+import com.zscat.mallplus.weixinmp.service.IAccountWechatsService;
 import com.zscat.mallplus.wxpay.WxPayApi;
 import com.zscat.mallplus.wxpay.model.OrderQueryModel;
 import com.zscat.mallplus.wxpay.model.ProfitSharingModel;
@@ -64,6 +65,8 @@ public class SysAppletSetController {
     private RedisService redisService;
     @Resource
     private ISysApaySetService sysApaySetService;
+    @Resource
+    private IAccountWechatsService wechatsService;
 
 
     @SysLog(MODULE = "ums", REMARK = "根据条件查询所有列表")
@@ -183,6 +186,9 @@ public class SysAppletSetController {
         }
         SysApaySet apaySet = sysApaySetService.getById(parentUserId);
         if (apaySet==null||apaySet.getEnable().equals(ConstantUtil.fail)){
+            return new CommonResult().failed("该账号没有开通企业付款功能！");
+        }
+        if (wechatsService.getLastNum(parentUserId)<2){
             return new CommonResult().failed("该账号没有开通企业付款功能！");
         }
         return new CommonResult().success(apaySet);

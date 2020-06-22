@@ -28,6 +28,7 @@ import com.zscat.mallplus.util.JsonUtil;
 import com.zscat.mallplus.util.JwtTokenUtil;
 import com.zscat.mallplus.util.StringUtils;
 import com.zscat.mallplus.util.UserUtils;
+import com.zscat.mallplus.utils.BeanUtil;
 import com.zscat.mallplus.utils.CommonResult;
 import com.zscat.mallplus.utils.PhoneUtil;
 import com.zscat.mallplus.utils.ValidatorUtils;
@@ -50,6 +51,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.ValidationException;
 import java.security.Principal;
 import java.util.*;
 
@@ -179,6 +181,53 @@ public class SysUserController extends ApiController {
             appletSet.setAppid("0");
             appletSet.setStoreId(user.getStoreId());
             appletSet.setLevelId(user.getLevel());
+            if (appletSet.getSelfType()==2){
+                //代收的话，将代收账号的APPid添加上
+                SysAppletSet set = appletSetService.getById(appletSet.getParentUserId());
+                if (set==null){
+                    throw new ValidationException("上级账号信息不能为空！");
+                }
+                appletSet.setAppid(set.getAppid());
+                appletSet.setAppsecret(set.getAppsecret());
+                appletSet.setMchid(set.getMchid());
+                appletSet.setPaySignKey(set.getPaySignKey());
+                appletSet.setCertname(set.getCertname());
+                appletSet.setNotifyurl(set.getNotifyurl());
+                appletSet.setTemplateid1(set.getTemplateid1());
+                appletSet.setTemplateid2(set.getTemplateid2());
+                appletSet.setTemplateid3(set.getTemplateid3());
+                appletSet.setTemplateid4(set.getTemplateid4());
+                appletSet.setTemplateid5(set.getTemplateid5());
+                appletSet.setTemplateid6(set.getTemplateid6());
+                //添加上级的公众号和小程序
+                AccountWxapp wxapp = new AccountWxapp();
+                AccountWxapp accountWxapp1 = new AccountWxapp();
+                accountWxapp1.setCreateBy(appletSet.getParentUserId());
+                AccountWxapp accountWxapp = wxappService.getOne(new QueryWrapper<AccountWxapp>(accountWxapp1));
+                if (accountWxapp==null){
+                    throw new ValidationException("上级账号小程序信息不能为空！");
+                }
+                BeanUtil.copyProperties(accountWxapp,wxapp);
+                Integer count = wxappService.getCount();
+                wxapp.setUniacid(count);
+                wxapp.setCreateBy(user.getId());
+                wxapp.setCreateTime(new Date());
+                wxappService.save(wxapp);
+                //添加上级的公众号
+                AccountWechats wechats = new AccountWechats();
+                AccountWechats accountWechats = new AccountWechats();
+                accountWechats.setCreateBy(appletSet.getParentUserId());
+                AccountWechats accountWechats1 = wechatsService.getOne(new QueryWrapper<AccountWechats>(accountWechats));
+                if (accountWechats1==null){
+                    throw new ValidationException("上级账号公众号信息不能为空！");
+                }
+                BeanUtil.copyProperties(accountWechats1,wechats);
+                Integer count1 = wxappService.getCount();
+                wechats.setCreateBy(user.getId());
+                wechats.setCreateTime(new Date());
+                wechats.setUniacid(count1);
+                wechatsService.save(wechats);
+            }
             if (!appletSetService.save(appletSet)){
                 return new CommonResult().failed("添加经销商基本入驻信息错误！");
             }

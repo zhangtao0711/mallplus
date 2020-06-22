@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscat.mallplus.sms.mapper.SmsRechargeRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zscat.mallplus.sms.entity.SmsRechargeRecord">
+        <id column="id" property="id"/>
+        <result column="member_id" property="memberId"/>
+        <result column="member_name" property="memberName" />
+        <result  column="package_id" property="packageId"/>
+        <result column="replace_id" property="replaceId" />
+        <result column="create_time" property="createTime"/>
+        <result column="buy_time" property="buyTime" />
+        <result column="pay_way" property="payWay" />
+        <result column="card_id" property="cardId" />
+        <result column="card_no" property="cardNo" />
+        <result column="gift" property="gift" />
+        <result column="pay_fee" property="payFee" />
+        <result column="actual_fee" property="actualFee" />
+        <result column="actual_account" property="actualAccount" />
+        <result column="reward" property="reward" />
+        <result column="recharge_type" property="rechargeType" />
+        <result column="out_trade_no" property="outTradeNo" />
+        <result column="store_id" property="storeId" />
+        <result column="dealer_id" property="dealerId" />
+        <result column="uniacid" property="uniacid" />
+        <result column="transaction_id" property="transactionId" />
+        <result column="rout_out_order_no" property="routOutOrderNo" />
+        <result column="order_id" property="orderId" />
+        <result column="first_amount" property="firstAmount" />
+        <result column="second_amount" property="secondAmount" />
+        <result column="third_amount" property="thirdAmount" />
+        <result column="rout_status" property="routStatus" />
+        <result column="withdraw_status" property="withdrawStatus" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,member_id,member_name,package_id,replace_id,create_time,buy_time,pay_way,card_id,card_no,status,gift,pay_fee,
+        actual_fee,actual_account,reward,recharge_type,out_trade_no,store_id,dealer_id,uniacid,transaction_id,rout_out_order_no,
+        order_id,first_amount,second_amount,third_amount,rout_status,withdraw_status
+         </sql>
+
+    <select id="statisticsPackage" resultType="Map">
+        SELECT
+            "满"+ b.term_fee +"送" + b.donate_fee + "实际到账" + b.actual_fee as "name",
+            sum(a.actual_fee) as "total"
+        FROM
+            sms_recharge_record a
+            LEFT JOIN sms_recharge_package b on b.id = a.package_id and b.dealer_id = a.dealer_id and b.store_id = a.store_id
+            WHERE a.store_id = #{storeId}
+            <if test="dealerId != null">
+                and a.dealer_id = #{dealerId}
+            </if>
+        and YEARWEEK(date_format(a.create_time,'%Y-%m-%d')) = YEARWEEK(now());
+    </select>
+
+</mapper>

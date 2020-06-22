@@ -36,4 +36,15 @@
     <sql id="Base_Column_List">
         acid,uniacid,token,encodingaeskey,level,name,account,original,signature,country,province,city,logo,qr_code,lastupdate,`key`,secret,styleid,subscribeurl,auth_refresh_token,create_by,create_time,store_id,appdomain,status
     </sql>
+
+    <select id="getLastNum" resultType="Long">
+        SELECT
+             count(*)
+        FROM
+            account_wxapp a
+            left join
+            account_wechats b on b.create_by = a.create_by
+        WHERE
+            a.create_by  = #{dealerId}
+    </select>
 </mapper>

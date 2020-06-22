@@ -344,7 +344,7 @@ public class SingelHomeController {
 
     }
 
-    @ApiOperation(value = "appLogin登录之绑定手机号")
+    @ApiOperation(value = "openID登录之绑定手机号")
     @PostMapping(value = "/bindPhone")
     public Object bindPhone(@RequestParam String openid,
                            @RequestParam Integer sex,
