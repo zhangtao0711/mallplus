@@ -40,10 +40,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author mallplus
@@ -184,8 +181,13 @@ public class MerchatBusinessMaterialsController {
 
     @SysLog(MODULE = "merchat", REMARK = "特约商户申请接口")
     @PostMapping("/applyForMerchant")
-    @PreAuthorize("hasAuthority('merchat:merchatBusinessMaterials:applyForMerchant')")
+//    @PreAuthorize("hasAuthority('merchat:merchatBusinessMaterials:applyForMerchant')")
     public Object applyForMerchant(@RequestBody @Valid MerchatBusinessMaterials merchatBusinessMaterials) throws IOException, IllegalBlockSizeException {
+        //校验数据
+        Map<String,Object> map = IMerchatBusinessMaterialsService.validInfo(merchatBusinessMaterials);
+        if (!Boolean.valueOf(map.get("false").toString())){
+            return new CommonResult().validateFailed(map.get("message").toString());
+        }
         String url = "https://api.mch.weixin.qq.com/v3/applyment4sub/applyment/";
         // 1.生成商户的申请唯一单号
         String business_code = IMerchatBusinessMaterialsService.queryMax("merchat_business_materials", "business_code");
@@ -193,17 +195,17 @@ public class MerchatBusinessMaterialsController {
         MerchatFacilitatorConfig merchatFacilitatorConfig = IMerchatFacilitatorConfigService.getOne(new QueryWrapper<>(new MerchatFacilitatorConfig()));
         String merchantId = merchatFacilitatorConfig.getMchId();
         //3.获取序列号
-        String serialNo = EncryptSensitive.getSerialNo(CertPathConfig.publicKeyPath);
+        String serialNo = EncryptSensitive.getSerialNo(merchatFacilitatorConfig.getPublicKeyPath());
         //4. 拼装请求信息 使用json请求
         merchatBusinessMaterials.setBusinessCode(business_code);
-        Map<String, Object> requestMap =IMerchatBusinessMaterialsService.getBody(merchatBusinessMaterials);
+        Map<String, Object> requestMap =IMerchatBusinessMaterialsService.getBody(merchatBusinessMaterials,merchatFacilitatorConfig.getPublicKeyPath());
         String requestParams = JSONObject.toJSONString(requestMap);
         // 平台证书路径 是必须的
-        X509Certificate certificate = PemUtil.loadCertificate(new FileInputStream(CertPathConfig.publicKeyPath));
+        X509Certificate certificate = PemUtil.loadCertificate(new FileInputStream(merchatFacilitatorConfig.getPublicKeyPath()));
         ArrayList<X509Certificate> listCertificates = new ArrayList<>();
         listCertificates.add(certificate);
         WechatPayHttpClientBuilder builder = WechatPayHttpClientBuilder.create()
-                .withMerchant(merchantId, serialNo, PemUtil.loadPrivateKey(new FileInputStream(CertPathConfig.privateKeyPath)))
+                .withMerchant(merchantId, serialNo, PemUtil.loadPrivateKey(new FileInputStream(merchatFacilitatorConfig.getPublicKeyPath())))
                 .withWechatpay(listCertificates);
         HttpPost httpPost = new HttpPost(url);
         httpPost.addHeader("Accept", "application/json");
@@ -220,16 +222,19 @@ public class MerchatBusinessMaterialsController {
             String applyment_id = jasonObject.getString("applyment_id");
             merchatBusinessMaterials.setApplymentId(applyment_id);
             IMerchatBusinessMaterialsService.save(merchatBusinessMaterials);
-            return new CommonResult().success("操作成功，请五分钟以后查询您的申请结果！");
+            return new CommonResult().success("操作成功，请五分钟以后查询您的申请结果,订单号："+business_code + ", 或者请求单号："  + applyment_id);
         } else {
             System.out.println("apply failed,resp code=" + statusCode + ",body=" + body);
-            return new CommonResult().failed();
+            return new CommonResult().failed("apply failed,resp code=" + statusCode + ",body=" + body);
         }
     }
 
     @SysLog(MODULE = "merchat", REMARK = "通过业务申请编号查询申请状态")
     @PostMapping("/queryByBusinessCode")
     public Object queryByBusinessCode(@RequestParam("businessCode") String businessCode) throws IOException {
+        if (ValidatorUtils.empty(businessCode)){
+            return new CommonResult().validateFailed("参数不能为空！");
+        }
         String url = "https://api.mch.weixin.qq.com/v3/applyment4sub/applyment/business_code/"+businessCode;
         //1.获取唯一的申请信息
         MerchatBusinessMaterials materials = new MerchatBusinessMaterials();
@@ -239,13 +244,13 @@ public class MerchatBusinessMaterialsController {
         MerchatFacilitatorConfig merchatFacilitatorConfig = IMerchatFacilitatorConfigService.getOne(new QueryWrapper<>(new MerchatFacilitatorConfig()));
         String merchantId = merchatFacilitatorConfig.getMchId();
         //3.获取序列号
-        String serialNo = EncryptSensitive.getSerialNo(CertPathConfig.publicKeyPath);
+        String serialNo = EncryptSensitive.getSerialNo(merchatFacilitatorConfig.getPublicKeyPath());
         // 平台证书路径 是必须的
-        X509Certificate certificate = PemUtil.loadCertificate(new FileInputStream(CertPathConfig.publicKeyPath));
+        X509Certificate certificate = PemUtil.loadCertificate(new FileInputStream(merchatFacilitatorConfig.getPublicKeyPath()));
         ArrayList<X509Certificate> listCertificates = new ArrayList<>();
         listCertificates.add(certificate);
         WechatPayHttpClientBuilder builder = WechatPayHttpClientBuilder.create()
-                .withMerchant(merchantId, serialNo, PemUtil.loadPrivateKey(new FileInputStream(CertPathConfig.privateKeyPath)))
+                .withMerchant(merchantId, serialNo, PemUtil.loadPrivateKey(new FileInputStream(merchatFacilitatorConfig.getPublicKeyPath())))
                 .withWechatpay(listCertificates);
         HttpGet httpGet = new HttpGet(url);
         httpGet.addHeader("Accept", "application/json");
@@ -280,6 +285,9 @@ public class MerchatBusinessMaterialsController {
     @SysLog(MODULE = "merchat", REMARK = "通过申请单号查询申请状态")
     @PostMapping("/queryByApplymentId")
     public Object queryByApplymentId(@RequestParam("applyment_id") String applymentId) throws IOException {
+        if (ValidatorUtils.empty(applymentId)){
+            return new CommonResult().validateFailed("参数不能为空！");
+        }
         String url = "https://api.mch.weixin.qq.com/v3/applyment4sub/applyment/business_code/"+applymentId;
         //1.获取唯一的申请信息
         MerchatBusinessMaterials materials = new MerchatBusinessMaterials();
@@ -289,13 +297,13 @@ public class MerchatBusinessMaterialsController {
         MerchatFacilitatorConfig merchatFacilitatorConfig = IMerchatFacilitatorConfigService.getOne(new QueryWrapper<>(new MerchatFacilitatorConfig()));
         String merchantId = merchatFacilitatorConfig.getMchId();
         //3.获取序列号
-        String serialNo = EncryptSensitive.getSerialNo(CertPathConfig.publicKeyPath);
+        String serialNo = EncryptSensitive.getSerialNo(merchatFacilitatorConfig.getPublicKeyPath());
         // 平台证书路径 是必须的
-        X509Certificate certificate = PemUtil.loadCertificate(new FileInputStream(CertPathConfig.publicKeyPath));
+        X509Certificate certificate = PemUtil.loadCertificate(new FileInputStream(merchatFacilitatorConfig.getPublicKeyPath()));
         ArrayList<X509Certificate> listCertificates = new ArrayList<>();
         listCertificates.add(certificate);
         WechatPayHttpClientBuilder builder = WechatPayHttpClientBuilder.create()
-                .withMerchant(merchantId, serialNo, PemUtil.loadPrivateKey(new FileInputStream(CertPathConfig.privateKeyPath)))
+                .withMerchant(merchantId, serialNo, PemUtil.loadPrivateKey(new FileInputStream(merchatFacilitatorConfig.getPublicKeyPath())))
                 .withWechatpay(listCertificates);
         HttpGet httpGet = new HttpGet(url);
         httpGet.addHeader("Accept", "application/json");
@@ -348,10 +356,17 @@ public class MerchatBusinessMaterialsController {
 
     @SysLog(MODULE = "merchat", REMARK = "视频上传API")
     @PostMapping("/videoUpload")
-    public Object videoUpload(@RequestParam File file) throws Exception {
-//        String fileName = multipartFile.getOriginalFilename();
-//        File file = File.createTempFile(fileName, fileName.substring(fileName.lastIndexOf(".")).substring(fileName.lastIndexOf(".")));
-//        multipartFile.transferTo(file);
+    public Object videoUpload(@RequestParam(value = "multipartFile",required = false) MultipartFile multipartFile) throws Exception {
+
+        // 获取文件类型
+        String fileName = multipartFile.getContentType();
+        // 获取文件后缀
+        String pref = fileName.indexOf("/") != -1 ? fileName.substring(fileName.lastIndexOf("/") + 1, fileName.length()) : null;
+        String prefix = "." + pref;
+        // 用uuid作为文件名，防止生成的临时文件重复
+       File file = File.createTempFile(String.valueOf(UUID.randomUUID()), prefix);
+        // MultipartFile to File
+        multipartFile.transferTo(file);
         MerchatFacilitatorConfig merchatFacilitatorConfig = IMerchatFacilitatorConfigService.getOne(new QueryWrapper<>(new MerchatFacilitatorConfig()));
         String merchantId = merchatFacilitatorConfig.getMchId();
         String privateKeyPath = merchatFacilitatorConfig.getPrivateKeyPath();

@@ -16,5 +16,7 @@ public interface IMerchatBusinessMaterialsService extends IService<MerchatBusine
 
     public String queryMax(String tableName, String columnName);
 
-    Map<String, Object> getBody(MerchatBusinessMaterials merchatBusinessMaterials) throws IOException, IllegalBlockSizeException;
+    Map<String, Object> getBody(MerchatBusinessMaterials merchatBusinessMaterials,String certPath) throws IOException, IllegalBlockSizeException;
+
+    Map<String,Object> validInfo(MerchatBusinessMaterials merchatBusinessMaterials);
 }

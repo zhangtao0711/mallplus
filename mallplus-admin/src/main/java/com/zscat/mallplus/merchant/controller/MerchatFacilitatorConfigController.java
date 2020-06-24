@@ -86,6 +86,9 @@ public class MerchatFacilitatorConfigController {
     @PostMapping(value = "/update/{id}")
     @PreAuthorize("hasAuthority('merchat:merchatFacilitatorConfig:update')")
     public Object updateMerchatFacilitatorConfig(@RequestBody @Valid MerchatFacilitatorConfig entity) {
+        if (ValidatorUtils.empty(entity.getId())){
+            return new CommonResult().failed("id不能为空！");
+        }
         try {
             if (IMerchatFacilitatorConfigService.updateById(entity)) {
                 return new CommonResult().success();
@@ -187,7 +190,7 @@ public class MerchatFacilitatorConfigController {
             return new CommonResult().failed();
         }
         Map<String,String> map = new HashMap<>();
-        map.put("path",CertPathConfig.publicKeyPath+ File.separator + "wechatpay_" + mchSerialNo +"-" + System.currentTimeMillis() + ".pem");
+        map.put("path",CertPathConfig.publicKeyPath+ "wechatpay_" + mchSerialNo +"-" + System.currentTimeMillis() + ".pem");
         return new CommonResult().success(map);
     }
 

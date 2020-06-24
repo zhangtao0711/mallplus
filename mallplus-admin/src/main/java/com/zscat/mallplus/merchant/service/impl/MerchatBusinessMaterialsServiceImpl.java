@@ -1,14 +1,18 @@
 package com.zscat.mallplus.merchant.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zscat.mallplus.elias.config.CertPathConfig;
 import com.zscat.mallplus.encrypt.EncryptSensitive;
+import com.zscat.mallplus.merchant.entity.MerchantBankInfo;
 import com.zscat.mallplus.merchant.entity.MerchatBusinessMaterials;
+import com.zscat.mallplus.merchant.mapper.MerchantBankInfoMapper;
 import com.zscat.mallplus.merchant.mapper.MerchatBusinessMaterialsMapper;
 import com.zscat.mallplus.merchant.service.IMerchatBusinessMaterialsService;
 import com.zscat.mallplus.merchat.utils.MerchantUtil;
 import com.zscat.mallplus.sdk.util.PemUtil;
 import com.zscat.mallplus.util.StringUtils;
+import com.zscat.mallplus.utils.ValidatorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -34,6 +38,8 @@ public class MerchatBusinessMaterialsServiceImpl extends ServiceImpl
 
     @Resource
     private MerchatBusinessMaterialsMapper merchatBusinessMaterialsMapper;
+    @Resource
+    private MerchantBankInfoMapper merchantBankInfoMapper;
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -52,7 +58,7 @@ public class MerchatBusinessMaterialsServiceImpl extends ServiceImpl
         List<Map<String,Object>> map = jdbcTemplate.queryForList(sql);
         String maxString = null;
         if (map!=null&&map.size()!=0){
-            maxString = map.get(0).get("out_trade_no").toString();
+            maxString = map.get(0).get("business_code").toString();
         }
         String equipmentType = prefix  + System.currentTimeMillis();
         String equipmentServiceNo = MerchantUtil.createSelfIncrement(equipmentType,maxString);
@@ -63,8 +69,8 @@ public class MerchatBusinessMaterialsServiceImpl extends ServiceImpl
     }
 
     @Override
-    public Map<String, Object> getBody(MerchatBusinessMaterials merchatBusinessMaterials) throws IOException, IllegalBlockSizeException {
-        InputStream inputStream = new FileInputStream(CertPathConfig.publicKeyPath);
+    public Map<String, Object> getBody(MerchatBusinessMaterials merchatBusinessMaterials,String certPath) throws IOException, IllegalBlockSizeException {
+        InputStream inputStream = new FileInputStream(certPath);
         X509Certificate certificate = PemUtil.loadCertificate(inputStream);
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("business_code", merchatBusinessMaterials.getBusinessCode());
@@ -107,7 +113,25 @@ public class MerchatBusinessMaterialsServiceImpl extends ServiceImpl
             organization_info.put("org_period_begin",merchatBusinessMaterials.getOrgPeriodBegin());
             organization_info.put("org_period_end",merchatBusinessMaterials.getOrgPeriodEnd());
             subject_info.put("organization_info",organization_info);
-        }else if ("SUBJECT_TYPE_INSTITUTIONS".equals(merchatBusinessMaterials.getSubjectType())||"SUBJECT_TYPE_OTHERS".equals(merchatBusinessMaterials.getSubjectType())){
+        }else if ("SUBJECT_TYPE_INSTITUTIONS".equals(merchatBusinessMaterials.getSubjectType())){
+            Map<String, Object> certificate_info = new HashMap<>();
+            certificate_info.put("cert_copy",merchatBusinessMaterials.getCertCopyMediaId());
+            certificate_info.put("cert_type",merchatBusinessMaterials.getCertType());
+            certificate_info.put("cert_number",merchatBusinessMaterials.getCertNumber());
+            certificate_info.put("merchant_name",merchatBusinessMaterials.getMerchantName());
+            certificate_info.put("company_address",merchatBusinessMaterials.getCompanyAddress());
+            certificate_info.put("legal_person",merchatBusinessMaterials.getLegalPerson());
+            certificate_info.put("period_begin",merchatBusinessMaterials.getPeriodBegin());
+            certificate_info.put("period_end",merchatBusinessMaterials.getPeriodEnd());
+            subject_info.put("certificate_info",certificate_info);
+            Map<String,Object> organization_info = new HashMap<>();
+            organization_info.put("organization_copy",merchatBusinessMaterials.getOrganizationCopyMediaId());
+            organization_info.put("organization_code",merchatBusinessMaterials.getOrganizationCode());
+            organization_info.put("org_period_begin",merchatBusinessMaterials.getOrgPeriodBegin());
+            organization_info.put("org_period_end",merchatBusinessMaterials.getOrgPeriodEnd());
+            subject_info.put("organization_info",organization_info);
+            subject_info.put("certificate_letter_copy",merchatBusinessMaterials.getCertificateLetterCopyMediaId());
+        }else if ("SUBJECT_TYPE_OTHERS".equals(merchatBusinessMaterials.getSubjectType())){
             Map<String, Object> certificate_info = new HashMap<>();
             certificate_info.put("cert_copy",merchatBusinessMaterials.getCertCopyMediaId());
             certificate_info.put("cert_type",merchatBusinessMaterials.getCertType());
@@ -288,4 +312,124 @@ public class MerchatBusinessMaterialsServiceImpl extends ServiceImpl
         return requestMap;
     }
 
+    @Override
+    public Map<String, Object> validInfo(MerchatBusinessMaterials merchatBusinessMaterials) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        if (ValidatorUtils.empty(merchatBusinessMaterials.getContactIdNumber())&&ValidatorUtils.empty(merchatBusinessMaterials.getOpenid())){
+            map.put("success",false);
+            map.put("message","超级管理员身份证件号码与超级管理员微信openid必须二选一！");
+            return map;
+        }
+        if (merchatBusinessMaterials.getSubjectType().equals("SUBJECT_TYPE_INDIVIDUAL")){
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getLicenseCopy())||ValidatorUtils.empty(merchatBusinessMaterials.getLicenseNumber())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getMerchantName())||ValidatorUtils.empty(merchatBusinessMaterials.getLegalPerson())){
+                map.put("success",false);
+                map.put("message","主体类型是个体户必须填写营业执照！");
+                return map;
+            }
+        }else if (merchatBusinessMaterials.getSubjectType().equals("SUBJECT_TYPE_ENTERPRISE")) {
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getLicenseCopy()) || ValidatorUtils.empty(merchatBusinessMaterials.getLicenseNumber())
+                    || ValidatorUtils.empty(merchatBusinessMaterials.getMerchantName()) || ValidatorUtils.empty(merchatBusinessMaterials.getLegalPerson())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getOrganizationCopy())||ValidatorUtils.empty(merchatBusinessMaterials.getOrganizationCode())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getOrgPeriodBegin())||ValidatorUtils.empty(merchatBusinessMaterials.getOrgPeriodEnd())) {
+                map.put("success",false);
+                map.put("message","主体类型是企业必须填写营业执照和组织机构代码！");
+                return map;
+            }
+        }else if (merchatBusinessMaterials.getSubjectType().equals("SUBJECT_TYPE_INSTITUTIONS")){
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getCertCopy())||ValidatorUtils.empty(merchatBusinessMaterials.getCertType())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getCertNumber())||ValidatorUtils.empty(merchatBusinessMaterials.getMerchantName())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getCompanyAddress())||ValidatorUtils.empty(merchatBusinessMaterials.getLegalPerson())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getPeriodBegin())||ValidatorUtils.empty(merchatBusinessMaterials.getPeriodEnd())
+                    ||ValidatorUtils.empty(merchatBusinessMaterials.getOrganizationCopy())||ValidatorUtils.empty(merchatBusinessMaterials.getOrganizationCode())
+                    ||ValidatorUtils.empty(merchatBusinessMaterials.getOrgPeriodBegin())||ValidatorUtils.empty(merchatBusinessMaterials.getOrgPeriodEnd())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getCertificateLetterCopyMediaId())){
+                map.put("success",false);
+                map.put("message","主体类型是党政、机关及事业单位必须填写登记证书、单位证明函照片和组织机构代码！");
+                return map;
+            }
+        }else if (merchatBusinessMaterials.getSubjectType().equals("SUBJECT_TYPE_OTHERS")){
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getCertCopy())||ValidatorUtils.empty(merchatBusinessMaterials.getCertType())
+                    ||ValidatorUtils.empty(merchatBusinessMaterials.getCertNumber())||ValidatorUtils.empty(merchatBusinessMaterials.getMerchantName())
+                    ||ValidatorUtils.empty(merchatBusinessMaterials.getCompanyAddress())||ValidatorUtils.empty(merchatBusinessMaterials.getLegalPerson())
+                    ||ValidatorUtils.empty(merchatBusinessMaterials.getPeriodBegin())||ValidatorUtils.empty(merchatBusinessMaterials.getPeriodEnd())
+                    ||ValidatorUtils.empty(merchatBusinessMaterials.getOrganizationCopy())||ValidatorUtils.empty(merchatBusinessMaterials.getOrganizationCode())
+                    ||ValidatorUtils.empty(merchatBusinessMaterials.getOrgPeriodBegin())||ValidatorUtils.empty(merchatBusinessMaterials.getOrgPeriodEnd())){
+                map.put("success",false);
+                map.put("message","主体类型是其他组织必须填写登记证书和组织机构代码！");
+                return map;
+            }
+        }else if (merchatBusinessMaterials.getOwner()==0){
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getIdType())||ValidatorUtils.empty(merchatBusinessMaterials.getUboName())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getUboIdNumber())||ValidatorUtils.empty(merchatBusinessMaterials.getUboIdPeriodBegin())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getUboIdPeriodEnd())){
+                map.put("success",false);
+                map.put("message","若经营者/法人不是最终受益所有人，则需提填写受益所有人信息！");
+                return map;
+            }else if (merchatBusinessMaterials.getIdType().equals("IDENTIFICATION_TYPE_IDCARD")){
+                if (ValidatorUtils.empty(merchatBusinessMaterials.getUboIdCardCopyMediaId())||ValidatorUtils.empty(merchatBusinessMaterials.getUboIdCardNationalMediaId())){
+                    map.put("success",false);
+                    map.put("message","受益人的证件类型为“身份证”时，上传身份证正反面照片！");
+                    return map;
+                }
+            }else{
+                if (ValidatorUtils.empty(merchatBusinessMaterials.getUboIdDocCopyMediaId())){
+                    map.put("success",false);
+                    map.put("message","受益人的证件类型为“来往内地通行证、来往大陆通行证、护照”时，上传证件照片！");
+                    return map;
+                }
+            }
+        }else if (merchatBusinessMaterials.getSalesScenesType().contains("SALES_SCENES_STORE")){
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getBizStoreName())||ValidatorUtils.empty(merchatBusinessMaterials.getBizStoreAddress())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getBizAddressCode())||ValidatorUtils.empty(merchatBusinessMaterials.getStoreEntrancePicMediaId())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getIndoorPicMediaId())){
+                map.put("success",false);
+                map.put("message","当“经营场景类型“选择“SALES_SCENES_STORE“，该场景资料必填！");
+                return map;
+            }
+        }else if (merchatBusinessMaterials.getSalesScenesType().contains("SALES_SCENES_MP")){
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getMpAppid()) && ValidatorUtils.empty(merchatBusinessMaterials.getMpSubAppid())) {
+                map.put("success",false);
+                map.put("message","服务商公众号APPID与商家公众号APPID，二选一必填！");
+                return map;
+            }
+        }else if (merchatBusinessMaterials.getSalesScenesType().contains("SALES_SCENES_MINI_PROGRAM")){
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getMiniProgramAppid())&&ValidatorUtils.empty(merchatBusinessMaterials.getMiniProgramSubAppid())){
+                map.put("success",false);
+                map.put("message","服务商小程序APPID与商家小程序APPID，二选一必填！");
+                return map;
+            }
+        }else if (merchatBusinessMaterials.getSalesScenesType().contains("SALES_SCENES_WEB")){
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getDomain())){
+                map.put("success",false);
+                map.put("message","当“经营场景类型“选择”SALES_SCENES_WEB“，域名为必填项！");
+                return map;
+            }
+        }else if (merchatBusinessMaterials.getSalesScenesType().contains("SALES_SCENES_APP")){
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getAppAppid())&&ValidatorUtils.empty(merchatBusinessMaterials.getAppSubAppid())){
+                map.put("success",false);
+                map.put("message","服务商应用APPID与商家应用APPID，二选一必填！");
+                return map;
+            }else if (ValidatorUtils.empty(merchatBusinessMaterials.getAppPicsMediaId())){
+                map.put("success",false);
+                map.put("message","请提供APP首页截图、尾页截图、应用内截图、支付页截图各1张！");
+                return map;
+            }
+        }else if (merchatBusinessMaterials.getSalesScenesType().contains("SALES_SCENES_WEWORK")){
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getSubCorpId())||ValidatorUtils.empty(merchatBusinessMaterials.getWeworkPicsMediaId())){
+                map.put("success",false);
+                map.put("message","当“经营场景类型“选择”SALES_SCENES_WEWORK“，该场景资料必填！");
+                return map;
+            }
+        } else if (merchantBankInfoMapper.selectOne(new QueryWrapper<MerchantBankInfo>().eq("bank_name",merchatBusinessMaterials.getAccountName()))==null){
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getBankBranchId())&&ValidatorUtils.empty(merchatBusinessMaterials.getBankName())) {
+                map.put("success", false);
+                map.put("message", "17家直连银行无需填写，如为其他银行，则开户银行全称（含支行）和开户银行联行号二选一！");
+                return map;
+            }
+        }
+
+        map.put("success", true);
+        return map;
+    }
 }

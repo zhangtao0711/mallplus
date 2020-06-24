@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -28,7 +29,6 @@ public class MerchatBusinessMaterials implements Serializable {
      * 业务申请编号
      **/
     @TableField("business_code")
-    @NotEmpty(message = "业务申请编号不能为空！")
     private String businessCode;
 
 
@@ -74,7 +74,7 @@ public class MerchatBusinessMaterials implements Serializable {
      * 主体类型
      **/
     @TableField("subject_type")
-    @NotEmpty(message = "联系手机不能为空！")
+    @NotEmpty(message = "主体类型不能为空！")
     private String subjectType;
 
 
@@ -335,7 +335,7 @@ public class MerchatBusinessMaterials implements Serializable {
      * 经营者/法人是否为受益人
      **/
     @TableField("owner")
-    @NotEmpty(message = "经营者/法人是否为受益人不能为空！")
+    @NotNull(message = "经营者/法人是否为受益人不能为空！")
     private Integer owner;
 
 
@@ -428,7 +428,7 @@ public class MerchatBusinessMaterials implements Serializable {
      * 客服电话
      **/
     @TableField("service_phone")
-    @NotEmpty(message = "联系手机不能为空！")
+    @NotEmpty(message = "客服电话不能为空！")
     private String servicePhone;
 
 
@@ -436,7 +436,7 @@ public class MerchatBusinessMaterials implements Serializable {
      * 经营场景类型
      **/
     @TableField("sales_scenes_type")
-    @NotEmpty(message = "联系手机不能为空！")
+    @NotEmpty(message = "经营场景类型不能为空！")
     private String salesScenesType;
 
 
