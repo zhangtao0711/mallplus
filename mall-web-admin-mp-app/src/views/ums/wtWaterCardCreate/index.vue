@@ -103,21 +103,15 @@
 
     <div>
       <el-dialog title="分配" :visible.sync="blance.dialogVisible" width="40%">
-        <el-form :model="blance" :rules="loginRules" ref="brandFrom" label-width="150px">
+        <el-form :model="blance" ref="brandFrom" label-width="150px">
           <el-form-item label="经销商：" prop="id" v-show="false">
             <el-input v-model="blance.id"></el-input>
           </el-form-item>
 
           <el-form-item label="经销商：" prop="dealerId">
-            <el-input v-model="blance.dealerId"></el-input>
-            <!-- <el-select v-model="blance.dealerId" placeholder="请选择经销商">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>-->
+            <el-input placeholder="请选择经销商" v-model="blance.dealerId" class="input-with-select">
+              <el-button slot="append" @click="chooseZ" icon="el-icon-search">选择</el-button>
+            </el-input>
           </el-form-item>
 
           <el-form-item>
@@ -127,6 +121,60 @@
         </el-form>
       </el-dialog>
     </div>
+
+    <el-dialog title="数据选择器" :visible.sync="dealer.dialogVisible" width="40%">
+      <el-table
+        ref="merchatBusinessMaterialsTable"
+        :data="dealerlist"
+        style="width: 100%;"
+        v-loading="dealerlistLoading"
+        border
+      >
+        <el-table-column prop="id" label="经销商账号" width="80" align="center">
+          <template slot-scope="scope">{{ scope.row.id }}</template>
+        </el-table-column>
+
+        <el-table-column prop="nickName" label="用户昵称 " align="center">
+          <template slot-scope="scope">{{ scope.row.nickName }}</template>
+        </el-table-column>
+
+        <el-table-column prop="mchid" label="商户号 " align="center">
+          <template slot-scope="scope">{{ scope.row.mchid }}</template>
+        </el-table-column>
+
+        <el-table-column prop="phone" label="手机号 " align="center">
+          <template slot-scope="scope">{{ scope.row.phone }}</template>
+        </el-table-column>
+
+        <el-table-column label="操作" width="150" align="center">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                type="primary"
+                @click="handleChoose(scope.$index, scope.row)"
+              >选择</el-button>
+            </template>
+          </el-table-column>
+
+      </el-table>
+
+      <div class="batch-operate-container"></div>
+      <div style="text-align:right">
+        <el-pagination
+          background
+          @size-change="handleSizeDealerChange"
+          @current-change="handleCurrentDealerChange"
+          layout="total, sizes,prev, pager, next,jumper"
+          :page-size="dealerlistQuery.pageSize"
+          :page-sizes="[5, 10, 15]"
+          :current-page.sync="dealerlistQuery.pageNum"
+          :total="dealertotal"
+        ></el-pagination>
+      </div>
+      <div style="text-align:right;margin-top:20px">
+        <el-button @click="dealer.dialogVisible = false">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -138,6 +186,7 @@ import {
   updateDealerId
 } from "@/api/water/wtWaterCardCreate";
 import { formatDate } from "@/utils/date";
+import { fetchList as fetchDealerList } from "@/api/admin";
 
 const defaultListQuery = {
   pageNum: 1,
@@ -145,7 +194,7 @@ const defaultListQuery = {
   code: null,
   startNo: null,
   endNo: null,
-  distinguishNum: null,
+  distinguishNum: null
 };
 
 export default {
@@ -153,9 +202,13 @@ export default {
   data() {
     return {
       loginRules: {
-        dealerId: [{ required: true, message: "请选择经销商", trigger: "blur" }]
+        dealerId: [{ required: true, message: "请选择经销商" }]
       },
       blance: {
+        dialogVisible: false,
+        id: null
+      },
+      dealer: {
         dialogVisible: false,
         id: null
       },
@@ -165,11 +218,18 @@ export default {
       list: null,
       total: null,
       listLoading: true,
+
+      dealerlistQuery: Object.assign({}, defaultListQuery),
+      dealerlist: null,
+      dealertotal: null,
+      dealerlistLoading: true,
+
       multipleSelection: []
     };
   },
   created() {
     this.getList();
+    this.getList1()
   },
   filters: {
     formatCreateTime(time) {
@@ -190,6 +250,40 @@ export default {
     }
   },
   methods: {
+    getList1() {
+      this.dealerlistLoading = true;
+      fetchDealerList(this.dealerlistQuery).then(response => {
+        this.dealerlistLoading = false;
+        this.dealerlist = response.data.records;
+        this.dealertotal = response.data.total;
+      });
+    },
+    chooseZ() {
+      this.dealer.dialogVisible = true;
+    },
+    getList() {
+      this.listLoading = true;
+      fetchList(this.listQuery).then(response => {
+        this.listLoading = false;
+        this.list = response.data.records;
+        this.total = response.data.total;
+        this.totalPage = response.data.pages;
+        this.pageSize = response.data.size;
+      });
+    },
+    handleSizeDealerChange(val) {
+      this.listQuery.pageNum = 1;
+      this.listQuery.pageSize = val;
+      this.getList1();
+    },
+    handleCurrentDealerChange(val) {
+      this.listQuery.pageNum = val;
+      this.getList1();
+    },
+    handleChoose(index, row) {
+      this.blance.dealerId = row.id;
+      this.dealer.dialogVisible = false;
+    },
     handleResetSearch() {
       this.listQuery = Object.assign({}, defaultListQuery);
       this.getList();
@@ -199,27 +293,34 @@ export default {
       this.blance.id = row.id;
     },
     handleEditBlance() {
+      if (this.blance.dealerId == null) {
+        this.$message({
+          message: "请选择经销商",
+          type: "warning",
+          duration: 1000
+        });
+        return;
+      }
       let data = {
         id: this.blance.id,
         dealerId: this.blance.dealerId
       };
 
-      updateDealerId(this.blance.id, data).then(
-        response => {
-          this.$message({
-            message: response.msg,
-            type: "success",
-            duration: 1000
-          });
-        }
-      );
+      updateDealerId(this.blance.id, data).then(response => {
+        this.$message({
+          message: response.msg,
+          type: "success",
+          duration: 1000
+        });
+      });
       this.blance.dialogVisible = false;
     },
     exportExcel(index, row) {
       window.open(
-        process.env.BASE_API + 
-        "/water/wtWaterCardCreate/exportExcel?id=" + row.id
-          // "/water/wtWaterCardCreate?id=" + row.id
+        process.env.BASE_API +
+          "/water/wtWaterCardCreate/exportExcel?id=" +
+          row.id
+        // "/water/wtWaterCardCreate?id=" + row.id
       );
     },
     getList() {

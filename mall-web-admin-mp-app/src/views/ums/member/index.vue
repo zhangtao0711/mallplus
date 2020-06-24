@@ -2,15 +2,28 @@
   <div class="app-container">
     <el-card class="filter-container" shadow="never">
       <div>
+        <el-button type="primary" size="small" @click="physicalCard">实体卡</el-button>
+        <el-button type="primary" size="small" @click="virtualCard">虚拟卡</el-button>
+      </div>
+      <div style="margin-top:50px">
         <i class="el-icon-search"></i>
         <span>筛选搜索</span>
         <el-button style="float: right" @click="searchMemberList()" type="primary" size="small">查询结果</el-button>
       </div>
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
-          <el-form-item label="输入搜索：">
-            <el-input style="width: 203px" v-model="listQuery.phone" placeholder="请输入手机号"></el-input>
+          <el-form-item label="用户昵称：">
+            <el-input style="width: 203px" v-model="listQuery.nickname" placeholder="按用户昵称搜索"></el-input>
           </el-form-item>
+
+          <el-form-item label="手机号：">
+            <el-input style="width: 203px" v-model="listQuery.phone" placeholder="按手机号搜索"></el-input>
+          </el-form-item>
+
+          <el-form-item label="公众号：">
+            <el-input style="width: 203px" v-model="listQuery.uniacName" placeholder="按公众号名称搜索"></el-input>
+          </el-form-item>
+
           <el-form-item label="会员等级：">
             <el-select v-model="listQuery.memberLevelId" placeholder="请选择会员等级" clearable>
               <el-option
@@ -32,7 +45,6 @@
         <el-button type="primary" size="small" @click="derived">会员卡导出</el-button>
         <el-button type="primary" size="small" @click="limit">限制消费</el-button>
         <el-button type="primary" size="small" @click="bindCard">批量绑卡</el-button>
-        <el-button size="mini" type="primary" @click="toDetail(11)">详情</el-button>
       </div>
     </el-card>
     <div class="table-container">
@@ -85,18 +97,17 @@
         </el-table-column>
 
         <el-table-column label="推荐人数" width="140" align="center">
-          <template slot-scope="scope">{{scope.row.recommendNum}}</template>
+          <template slot-scope="scope">
+              <el-button
+                type="text"
+                @click="handleShowIntegrationDialog(scope.$index, scope.row)"
+              >{{scope.row.recommendNum}}</el-button>
+          </template>
         </el-table-column>
 
         <el-table-column label="用户积分" width="80" align="center">
           <template slot-scope="scope">
             <p>{{scope.row.integration}}</p>
-            <!-- <p>
-              <el-button
-                type="text"
-                @click="handleShowIntegrationDialog(scope.$index, scope.row)"
-              >积分记录</el-button>
-            </p> -->
           </template>
         </el-table-column>
 
@@ -122,32 +133,6 @@
         :total="total"
       ></el-pagination>
     </div>
-
-    <el-dialog title="积分记录" :visible.sync="dialogVisible1" width="40%">
-      <el-table style="width: 100%;margin-top: 20px" :data="integrationList" border>
-        <el-table-column label="编号" align="center">
-          <template slot-scope="scope">{{scope.row.id}}</template>
-        </el-table-column>
-        <el-table-column label="会员" align="center">
-          <template slot-scope="scope">{{scope.row.memberId}}</template>
-        </el-table-column>
-        <el-table-column label="价格" align="center">
-          <template slot-scope="scope">{{scope.row.changeCount}}</template>
-        </el-table-column>
-        <el-table-column label="类别" align="center">
-          <template slot-scope="scope">{{scope.row.changeType |formatchangeType}}</template>
-        </el-table-column>
-        <el-table-column label="来源" align="center">
-          <template slot-scope="scope">{{scope.row.sourceType |formatsourceType}}</template>
-        </el-table-column>
-        <el-table-column label="备注" align="center">
-          <template slot-scope="scope">{{scope.row.operateNote}}</template>
-        </el-table-column>
-        <el-table-column label="创建时间" align="center">
-          <template slot-scope="scope">{{scope.row.createTime | formatTime}}</template>
-        </el-table-column>
-      </el-table>
-    </el-dialog>
 
     <el-dialog title="限制消费金额" :visible.sync="blance.dialogVisible" width="40%">
       <el-form :model="blance" ref="brandFrom" label-width="150px">
@@ -180,7 +165,6 @@ import {
   updateLimit
 } from "@/api/ums/member";
 import { fetchList as fetchBlanceList } from "@/api/ums/memberBlanceLog";
-import { fetchList as fetchIntegrationList } from "@/api/ums/memberIntegration";
 import { fetchList as fetchMberLevelList } from "@/api/memberLevel";
 
 import axios from "axios";
@@ -191,9 +175,7 @@ export default {
   name: "memberList",
   data() {
     return {
-      dialogVisible1: false,
       blanceList: null,
-      integrationList: null,
       orderList: null,
       blance: {
         dialogVisible: false,
@@ -212,7 +194,7 @@ export default {
     };
   },
   created() {
-    // this.getList();
+    this.getList();
     this.geteMberLevelList();
   },
   filters: {
@@ -224,11 +206,20 @@ export default {
       } else if (value === 3) {
         return "app";
       }
-    },
+    }
   },
   methods: {
+    physicalCard() {
+      this.$router.push({ path: "/ums/physicalCard" });
+    },
+    virtualCard() {
+      this.$router.push({ path: "/ums/virtualCard" });
+    },
+    handleShowIntegrationDialog(index, row) {
+      this.$router.push({ path: "/ums/recommendList", query: { id: row.id } });
+    },
     derived() {
-      this.$router.push({ path: "/ums/updateMember" });
+      this.$router.push({ path: "/ums/derivedCard" });
     },
     limit() {
       this.$router.push({ path: "/ums/wtWaterCardLimit" });
@@ -236,11 +227,8 @@ export default {
     bindCard() {
       this.$router.push({ path: "/ums/batchCardBinding" });
     },
-    // toDetail(index, row) {
-    //   this.$router.push({ path: "/ums/updateMember", query: { id: row.id } });
-    // },
-    toDetail(id) {
-      this.$router.push({ path: "/ums/updateMember", query: { id: id } });
+    toDetail(index, row) {
+      this.$router.push({ path: "/ums/updateMember", query: { id: row.id } });
     },
     geteMberLevelList() {
       fetchMberLevelList({ pageNum: 1, pageSize: 100 }).then(response => {
@@ -317,14 +305,6 @@ export default {
 
         this.blance.dialogVisible = false;
       });
-    },
-    handleShowIntegrationDialog(index, row) {
-      this.dialogVisible1 = true;
-      fetchIntegrationList({ memberId: row.id, pageSize: 1000 }).then(
-        response => {
-          this.integrationList = response.data.records;
-        }
-      );
     },
 
     handleShowChange(index, row) {
@@ -420,7 +400,7 @@ export default {
     searchMemberList() {
       this.listQuery.pageNum = 1;
       this.getList();
-    },
+    }
   }
 };
 </script>

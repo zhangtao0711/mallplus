@@ -54,7 +54,7 @@ export default {
   data() {
     return {
       coverUrl:
-        process.env.BASE_API + "/merchat/merchatBusinessMaterials/uploadLocal"
+        process.env.BASE_API + "/merchat/merchatFacilitatorConfig/uploadLocal"
     };
   },
   methods: {

@@ -9,13 +9,14 @@
       <el-step title="结算银行账户"></el-step>
       <el-step title="补充资料"></el-step>
     </el-steps>
+    <!-- 业务申请编号 -->
     <business-application-number
       v-show="showStatus[0]"
       v-model="merchatBusinessMaterials"
       :is-edit="isEdit"
       @nextStep="nextStep"
     ></business-application-number>
-
+    <!-- 超级管理员信息 -->
     <super-admin-info
       v-show="showStatus[1]"
       v-model="merchatBusinessMaterials"
@@ -23,7 +24,7 @@
       @nextStep="nextStep"
       @prevStep="prevStep"
     ></super-admin-info>
-
+    <!-- 主体资料 -->
     <subject-data
       v-show="showStatus[2]"
       v-model="merchatBusinessMaterials"
@@ -31,7 +32,7 @@
       @nextStep="nextStep"
       @prevStep="prevStep"
     ></subject-data>
-
+    <!-- 经营资料 -->
     <business-data
       v-show="showStatus[3]"
       v-model="merchatBusinessMaterials"
@@ -39,7 +40,7 @@
       @prevStep="prevStep"
       @nextStep="nextStep"
     ></business-data>
-
+    <!-- 结算规则 -->
     <settlement-rules
       v-show="showStatus[4]"
       v-model="merchatBusinessMaterials"
@@ -47,7 +48,7 @@
       @prevStep="prevStep"
       @nextStep="nextStep"
     ></settlement-rules>
-
+    <!-- 结算银行账户 -->
     <settlement-bank-account
       v-show="showStatus[5]"
       v-model="merchatBusinessMaterials"
@@ -55,7 +56,7 @@
       @prevStep="prevStep"
       @nextStep="nextStep"
     ></settlement-bank-account>
-    
+    <!-- 补充资料 -->
     <supplementary-information
       v-show="showStatus[6]"
       v-model="merchatBusinessMaterials"
@@ -227,38 +228,34 @@ export default {
     },
     finishCommit(isEdit) {
       console.log(this.merchatBusinessMaterials);
-      // if (this.merchatBusinessMaterials.tagList) {
-      //   this.merchatBusinessMaterials.tags = this.merchatBusinessMaterials.tagList.join(",");
-      //   this.merchatBusinessMaterials.tagList = null;
-      // }
 
-      // this.$confirm("是否要提交该产品", "提示", {
-      //   confirmButtonText: "确定",
-      //   cancelButtonText: "取消",
-      //   type: "warning"
-      // }).then(() => {
-      //   if (isEdit) {
-      //     updateMerchatBusinessMaterials(this.$route.query.id, this.merchatBusinessMaterials).then(
-      //       response => {
-      //         this.$message({
-      //           type: "success",
-      //           message: "提交成功",
-      //           duration: 1000
-      //         });
-      //         this.$router.back();
-      //       }
-      //     );
-      //   } else {
-      //     createMerchatBusinessMaterials(this.merchatBusinessMaterials).then(response => {
-      //       this.$message({
-      //         type: "success",
-      //         message: "提交成功",
-      //         duration: 1000
-      //       });
-      //       this.$router.back();
-      //     });
-      //   }
-      // });
+      this.$confirm("是否提交申请", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
+        if (isEdit) {
+          updateMerchatBusinessMaterials(this.$route.query.id, this.merchatBusinessMaterials).then(
+            response => {
+              this.$message({
+                type: "success",
+                message: "提交成功",
+                duration: 1000
+              });
+              this.$router.back();
+            }
+          );
+        } else {
+          createMerchatBusinessMaterials(this.merchatBusinessMaterials).then(response => {
+            this.$message({
+              type: "success",
+              message: "提交成功",
+              duration: 1000
+            });
+            this.$router.back();
+          });
+        }
+      });
     }
   }
 };

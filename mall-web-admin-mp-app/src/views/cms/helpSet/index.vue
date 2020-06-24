@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-form :model="helpSet" :rules="rules" ref="helpSetFrom" label-width="150px">
       <el-form-item label="个人中心显示：">
-        <el-radio-group v-model="helpSet.showStatus">
+        <el-radio-group v-model="helpSet.userCentreShow">
           <el-radio label="1">是</el-radio>
           <el-radio label="0">否</el-radio>
         </el-radio-group>
@@ -11,17 +11,17 @@
       <el-form-item>
         <el-button
           type="primary"
-          :disabled="true"
           @click="onSubmit('helpSetFrom')"
-          v-loading.fullscreen.lock="fullscreenLoading"
           element-loading-text="数据提交中..."
         >提交</el-button>
       </el-form-item>
+      <!-- v-loading.fullscreen.lock="fullscreenLoading" -->
     </el-form>
   </div>
 </template>
 <script>
-import { fetchList, deleteHelpCategory } from "@/api/cms/helpCategory";
+import { fetchList, updateHelpSet, createHelpSet } from "@/api/cms/helpSet";
+import { get } from "@/utils/auth";
 const defaultHelpSet = {};
 export default {
   name: "helpsetList",
@@ -34,43 +34,30 @@ export default {
         pageSize: 10
       },
       list: null,
-      total: null,
-      listLoading: true,
-      multipleSelection: [],
       rules: {
-        name: [
-          { required: true, message: "请输入品牌名称", trigger: "blur" },
-          {
-            min: 2,
-            max: 140,
-            message: "长度在 2 到 140 个字符",
-            trigger: "blur"
-          }
-        ]
+        name: [{ required: true, message: "请输入品牌名称", trigger: "blur" }]
       },
-      fullscreenLoading: false
+      fullscreenLoading: false,
+      isEdit: false
     };
   },
   created() {
     this.getList();
-
-    // getHelpCategory(this.$route.query.id).then(response => {
-    //   this.helpCategory = response.data;
-    // });
   },
   methods: {
     getList() {
-      this.listLoading = true;
       fetchList(this.listQuery).then(response => {
-        this.listLoading = false;
-        this.list = response.data.records;
-        this.total = response.data.total;
-        this.totalPage = response.data.pages;
-        this.pageSize = response.data.size;
+        
+        if (response.data.records.length != 0) {
+          this.isEdit = true;
+          this.helpSet = response.data.records[0];
+        } else {
+          this.isEdit = false;
+        }
       });
     },
     onSubmit(formName) {
-      this.fullscreenLoading = true;
+      // this.fullscreenLoading = true;
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.$confirm("是否提交数据", "提示", {
@@ -79,10 +66,11 @@ export default {
             type: "warning"
           }).then(() => {
             if (this.isEdit) {
-              updateHelpCategory(this.$route.query.id, this.helpSet).then(
+              this.helpSet.updateBy = get('userId')
+              updateHelpSet(this.helpSet.id, this.helpSet).then(
                 response => {
-                  this.fullscreenLoading = false;
-                  this.$refs[formName].resetFields();
+                  // this.fullscreenLoading = false;
+                  this.getList();
                   this.$message({
                     message: "修改成功",
                     type: "success",
@@ -91,10 +79,10 @@ export default {
                 }
               );
             } else {
-              createHelpCategory(this.helpSet).then(response => {
+              this.helpSet.createBy = get('userId')
+              createHelpSet(this.helpSet).then(response => {
                 this.fullscreenLoading = false;
-                this.$refs[formName].resetFields();
-                this.helpSet = Object.assign({}, defaultHelpCategory);
+                this.getList();
                 this.$message({
                   message: "提交成功",
                   type: "success",
@@ -109,7 +97,7 @@ export default {
             type: "error",
             duration: 1000
           });
-          this.fullscreenLoading = false;
+          // this.fullscreenLoading = false;
           return false;
         }
       });

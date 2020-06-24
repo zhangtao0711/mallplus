@@ -196,6 +196,7 @@ export default {
               duration: 1000
             });
             this.getDealerUse();
+            this.getUserInfo();
           } else {
             this.$message({
               message: response.msg,
@@ -218,6 +219,7 @@ export default {
               duration: 1000
             });
             this.getDealerUse();
+            this.getUserInfo();
           } else {
             this.$message({
               message: response.msg,
@@ -275,6 +277,7 @@ export default {
           });
           // this.$router.back();
           this.getDealerUse();
+          this.getUserInfo();
         } else {
           this.$message({
             message: response.msg,

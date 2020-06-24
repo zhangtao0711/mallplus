@@ -125,6 +125,8 @@
 
       <el-form-item label="Oauth 2.0">在微信公众号号请求用户授权之前，开发者需要先到公众平台网站的【开发者中心】网页服务中配置授权回调域名。</el-form-item>
 
+      <el-form-item label="URL">{{ wtWaterCardActivate.appdomain }}</el-form-item>
+      
       <el-form-item label="头像" prop="logo">
         <single-upload-img v-model="wtWaterCardActivate.logo"></single-upload-img>
       </el-form-item>
@@ -278,15 +280,9 @@ export default {
         name: [
           { required: true, message: "请输入公众号名称", trigger: "blur" }
         ],
-        token: [
-          { required: true, message: "请输入token", trigger: "blur" }
-        ],
-        province: [
-          { required: true, message: "请选择省份", trigger: "blur" }
-        ],
-        city: [
-          { required: true, message: "请选择区县", trigger: "blur" }
-        ],
+        token: [{ required: true, message: "请输入token", trigger: "blur" }],
+        province: [{ required: true, message: "请选择省份", trigger: "blur" }],
+        city: [{ required: true, message: "请选择区县", trigger: "blur" }],
         account: [
           { required: true, message: "请输入公众号账号", trigger: "blur" }
         ],
@@ -302,9 +298,7 @@ export default {
         qrCode: [
           { required: true, message: "请上传公众号二维码", trigger: "blur" }
         ],
-        logo:[
-          { required: true, message: "请上传公众号头像", trigger: "blur" }
-        ]
+        logo: [{ required: true, message: "请上传公众号头像", trigger: "blur" }]
       }
     };
   },

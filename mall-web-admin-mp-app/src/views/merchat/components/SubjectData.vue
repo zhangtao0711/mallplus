@@ -8,7 +8,7 @@
       style="width: 720px"
       size="small"
     >
-      <el-form-item label="主体类型：" prop="subjectType">
+      <el-form-item label="主体类型" prop="subjectType">
         <el-radio-group v-model="value.subjectType" @change="businessLicense">
           <el-radio label="SUBJECT_TYPE_INDIVIDUAL">个体户</el-radio>
           <el-radio label="SUBJECT_TYPE_ENTERPRISE">企业</el-radio>
@@ -16,240 +16,193 @@
           <el-radio label="SUBJECT_TYPE_OTHERS">其他组织</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item
-        label="营业执照照片："
-        prop="licenseCopy"
-        v-show="businessLicenseShow"
-        :rules="[
-      { required: businessLicenseShow, message: '请上传营业执照', trigger: 'blur' },
-    ]"
-      >
-        <single-upload-tysh
-          v-model="value.licenseCopy"
-          style="width: 300px;display: inline-block;margin-left: 10px"
-        ></single-upload-tysh>
 
-        <!-- <el-input v-model="value.licenseCopy"></el-input> -->
-      </el-form-item>
-      <el-form-item
-        label="营业执照照片："
-        prop="licenseCopyMediaId"
-        v-show="businessLicenseShow"
-        :rules="[
-      { required: businessLicenseShow, message: '请上传营业执照', trigger: 'blur' },
-    ]"
-      >
-        <el-input v-model="value.licenseCopyMediaId"></el-input>
-      </el-form-item>
+      <!-- 营业执照 -->
+      <div v-show="businessLicenseShow">
+        <el-form-item
+          label="营业执照照片(上传到本地)"
+          prop="licenseCopy"
+          :rules="[{ required: businessLicenseShow, message: '请上传营业执照', trigger: 'blur' }]"
+        >
+          <single-upload-tysh
+            v-model="licenseCopy"
+            style="width: 300px;display: inline-block;margin-left: 10px"
+          ></single-upload-tysh>
+        </el-form-item>
 
-      <el-form-item
-        label="注册号/统一社会信用代码："
-        prop="licenseNumber"
-        v-show="businessLicenseShow"
-        :rules="[
-      { required: businessLicenseShow, message: '请输入注册号/统一社会信用代码', trigger: 'blur' },
-      { validator: validateBusinessLicense, trigger: 'change' }
-    ]"
-      >
-        <el-input v-model="value.licenseNumber"></el-input>
-      </el-form-item>
-      <el-form-item
-        label="商户名称："
-        prop="subjectMerchantName"
-        v-show="businessLicenseShow"
-        :rules="[
-      { required: businessLicenseShow, message: '请输入商户名称', trigger: 'blur' },
-      { validator: validateName, trigger: 'change' }
-    ]"
-      >
-        <el-input v-model="value.subjectMerchantName"></el-input>
-      </el-form-item>
-      <el-form-item
-        label="个体户经营者/法人姓名："
-        prop="subjectLegalPerson"
-        v-show="businessLicenseShow"
-        :rules="[
-      { required: businessLicenseShow, message: '请输入个体户经营者/法人姓名', trigger: 'blur' },
-    ]"
-      >
-        <el-input v-model="value.subjectLegalPerson"></el-input>
-      </el-form-item>
+        <el-form-item
+          label="注册号/统一社会信用代码："
+          prop="licenseNumber"
+          :rules="[
+            { required: businessLicenseShow, message: '请输入注册号/统一社会信用代码', trigger: 'blur' },
+            { validator: validateBusinessLicense, trigger: 'change' }
+		      ]"
+        >
+          <el-input v-model="value.licenseNumber"></el-input>
+        </el-form-item>
 
-      <el-form-item
-        label="登记证书照片："
-        prop="certCopy"
-        v-show="certificateShow"
-        :rules="[
-            { required: certificateShow, message: '请上传登记证书照片', trigger: 'change' },
-        ]"
-      >
-        <el-input v-model="value.certCopy"></el-input>
-      </el-form-item>
-      <el-form-item
-        label="登记证书照片："
-        prop="certCopyMediaId"
-        v-show="certificateShow"
-        :rules="[
-            { required: certificateShow, message: '请上传登记证书照片', trigger: 'change' },
-        ]"
-      >
-        <el-input v-model="value.certCopyMediaId"></el-input>
-      </el-form-item>
-      <el-form-item
-        label="登记证书类型："
-        prop="certType"
-        v-show="certificateShow"
-        :rules="[
-            { required: certificateShow, message: '请选择登记证书类型', trigger: 'change' },
-        ]"
-      >
-        <el-radio-group v-model="value.certType">
-          <el-radio label="CERTIFICATE_TYPE_2388">事业单位法人证书</el-radio>
-          <el-radio label="CERTIFICATE_TYPE_2389">统一社会信用代码证书</el-radio>
-          <el-radio label="CERTIFICATE_TYPE_2390">有偿服务许可证（军队医院适用）</el-radio>
-          <el-radio label="CERTIFICATE_TYPE_2391">医疗机构执业许可证（军队医院适用）</el-radio>
-          <el-radio label="CERTIFICATE_TYPE_2392">企业营业执照（挂靠企业的党组织适用）</el-radio>
-          <el-radio label="CERTIFICATE_TYPE_2393">组织机构代码证（政府机关适用）</el-radio>
-          <el-radio label="CERTIFICATE_TYPE_2394">社会团体法人登记证书</el-radio>
-          <el-radio label="CERTIFICATE_TYPE_2395">民办非企业单位登记证书</el-radio>
-          <el-radio label="CERTIFICATE_TYPE_2396">基金会法人登记证书</el-radio>
-          <el-radio label="CERTIFICATE_TYPE_2397">慈善组织公开募捐资格证书</el-radio>
-          <el-radio label="CERTIFICATE_TYPE_2398">农民专业合作社法人营业执照</el-radio>
-          <el-radio label="CERTIFICATE_TYPE_2399">宗教活动场所登记证</el-radio>
-          <el-radio label="CERTIFICATE_TYPE_2400">其他证书/批文/证明</el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item
-        label="证书号："
-        prop="certNumber"
-        v-show="certificateShow"
-        :rules="[
-        { required: certificateShow, message: '请填写登记证书上的证书编号', trigger: 'change' },
-       ]"
-      >
-        <el-input v-model="value.certNumber"></el-input>
-      </el-form-item>
-      <el-form-item
-        label="商户名称："
-        prop="merchantName"
-        v-show="certificateShow"
-        :rules="[
-      { required: certificateShow, message: '请填写登记证书上的商户名称', trigger: 'change' },
-    ]"
-      >
-        <el-input v-model="value.merchantName"></el-input>
-      </el-form-item>
-      <el-form-item
-        label="注册地址："
-        prop="companyAddress"
-        v-show="certificateShow"
-        :rules="[
-      { required: certificateShow, message: '请填写登记证书上的注册地址', trigger: 'change' },
-    ]"
-      >
-        <el-input v-model="value.companyAddress"></el-input>
-      </el-form-item>
-      <el-form-item
-        label="法人姓名："
-        prop="legalPerson"
-        v-show="certificateShow"
-        :rules="[
-      { required: certificateShow, message: '请填写登记证书上的法定代表人姓名', trigger: 'change' },
-    ]"
-      >
-        <el-input v-model="value.legalPerson"></el-input>
-      </el-form-item>
-      <el-form-item
-        label="有效期限开始日期："
-        prop="periodBegin"
-        v-show="certificateShow"
-        :rules="[
-      { required: certificateShow, message: '请选择有效期限开始日期', trigger: 'change' },
-      { validator: validateBeginTime, trigger: 'change' }
-    ]"
-      >
-        <el-date-picker v-model="value.periodBegin" type="date" placeholder="请选择有效期限开始日期"></el-date-picker>
-      </el-form-item>
-      <el-form-item
-        label="有效期限结束日期："
-        prop="periodEnd"
-        v-show="certificateShow"
-        :rules="[
-      { required: certificateShow, message: '请选择有效期限结束日期', trigger: 'change' },
-      { validator: validateEndTime, trigger: 'change' }
-    ]"
-      >
-        <el-date-picker v-model="value.periodEnd" type="date" placeholder="请选择有效期限结束日期"></el-date-picker>
-      </el-form-item>
+        <el-form-item
+          label="商户名称："
+          prop="subjectMerchantName"
+          :rules="[{ required: businessLicenseShow, message: '请输入商户名称', trigger: 'blur' }, { validator: validateName, trigger: 'change' }]"
+        >
+          <el-input v-model="value.subjectMerchantName"></el-input>
+        </el-form-item>
 
-      <el-form-item
-        label="组织机构代码证照片"
-        prop="organizationCopy"
-        v-show="organization"
-        :rules="[
-            { required: organization, message: '请上传组织机构代码证', trigger: 'change' },
-        ]"
-      >
-        <el-input v-model="value.organizationCopy" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="个体户经营者/法人姓名："
+          prop="subjectLegalPerson"
+          :rules="[{ required: businessLicenseShow, message: '请输入个体户经营者/法人姓名', trigger: 'blur' }]"
+        >
+          <el-input v-model="value.subjectLegalPerson"></el-input>
+        </el-form-item>
+      </div>
 
-      <el-form-item
-        label="组织机构代码证照片"
-        prop="organizationCopyMediaId"
-        v-show="organization"
-        :rules="[
-            { required: organization, message: '请上传组织机构代码证', trigger: 'change' },
-        ]"
-      >
-        <el-input v-model="value.organizationCopyMediaId" style="width: 370px;" />
-      </el-form-item>
+      <!-- 登记证书 -->
+      <div v-show="certificateShow">
+        <el-form-item
+          label="登记证书照片"
+          prop="certCopy"
+          :rules="[{ required: certificateShow, message: '请上传登记证书照片', trigger: 'change' }]"
+        >
+          <!-- <single-upload-tysh v-model="value.certCopy" style="width: 300px;display: inline-block;margin-left: 10px"></single-upload-tysh> -->
+          <single-upload-tysh
+            v-model="certCopy"
+            style="width: 300px;display: inline-block;margin-left: 10px"
+          ></single-upload-tysh>
+        </el-form-item>
 
-      <el-form-item
-        label="组织机构代码"
-        prop="organizationCode"
-        v-show="organization"
-        :rules="[
-            { required: organization, message: '请填写组织机构代码证上的组织机构代码', trigger: 'change' },
-            { validator: validateOrgPeriodCode, trigger: 'change' }
-        ]"
-      >
-        <el-input v-model="value.organizationCode" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="登记证书类型"
+          prop="certType"
+          :rules="[{ required: certificateShow, message: '请选择登记证书类型', trigger: 'change' }]"
+        >
+          <el-radio-group v-model="value.certType">
+            <el-radio label="CERTIFICATE_TYPE_2388">事业单位法人证书</el-radio>
+            <el-radio label="CERTIFICATE_TYPE_2389">统一社会信用代码证书</el-radio>
+            <el-radio label="CERTIFICATE_TYPE_2390">有偿服务许可证（军队医院适用）</el-radio>
+            <el-radio label="CERTIFICATE_TYPE_2391">医疗机构执业许可证（军队医院适用）</el-radio>
+            <el-radio label="CERTIFICATE_TYPE_2392">企业营业执照（挂靠企业的党组织适用）</el-radio>
+            <el-radio label="CERTIFICATE_TYPE_2393">组织机构代码证（政府机关适用）</el-radio>
+            <el-radio label="CERTIFICATE_TYPE_2394">社会团体法人登记证书</el-radio>
+            <el-radio label="CERTIFICATE_TYPE_2395">民办非企业单位登记证书</el-radio>
+            <el-radio label="CERTIFICATE_TYPE_2396">基金会法人登记证书</el-radio>
+            <el-radio label="CERTIFICATE_TYPE_2397">慈善组织公开募捐资格证书</el-radio>
+            <el-radio label="CERTIFICATE_TYPE_2398">农民专业合作社法人营业执照</el-radio>
+            <el-radio label="CERTIFICATE_TYPE_2399">宗教活动场所登记证</el-radio>
+            <el-radio label="CERTIFICATE_TYPE_2400">其他证书/批文/证明</el-radio>
+          </el-radio-group>
+        </el-form-item>
 
-      <el-form-item
-        label="组织机构代码证有效期开始日期"
-        prop="orgPeriodBegin"
-        v-show="organization"
-        :rules="[
-      { required: organization, message: '请选择有效期限开始日期', trigger: 'change' },
-      { validator: validateOrgPeriodBegin, trigger: 'change' }
-    ]"
-      >
-        <el-date-picker v-model="value.orgPeriodBegin" type="date" placeholder="请选择有效期限开始日期"></el-date-picker>
-      </el-form-item>
+        <el-form-item
+          label="证书号"
+          prop="certNumber"
+          :rules="[{ required: certificateShow, message: '请填写登记证书上的证书编号', trigger: 'change' }]"
+        >
+          <el-input v-model="value.certNumber"></el-input>
+        </el-form-item>
 
-      <el-form-item
-        label="组织机构代码证有效期结束日期"
-        prop="orgPeriodEnd"
-        v-show="organization"
-        :rules="[
-      { required: organization, message: '请选择有效期限结束日期', trigger: 'change' },
-      { validator: validateOrgPeriodEnd, trigger: 'change' }
-    ]"
-      >
-        <el-date-picker v-model="value.orgPeriodEnd" type="date" placeholder="请选择有效期限结束日期"></el-date-picker>
-      </el-form-item>
+        <el-form-item
+          label="商户名称"
+          prop="merchantName"
+          :rules="[{ required: certificateShow, message: '请填写登记证书上的商户名称', trigger: 'change' }]"
+        >
+          <el-input v-model="value.merchantName"></el-input>
+        </el-form-item>
 
-      <el-form-item
-        label="单位证明函照片"
-        prop="certificateLetterCopy"
-        v-show="letterShow"
-        :rules="[
-      { required: letterShow, message: '请上传单位证明函照片' },
-    ]"
-      >
-        <el-input v-model="value.certificateLetterCopy" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="注册地址"
+          prop="companyAddress"
+          :rules="[{ required: certificateShow, message: '请填写登记证书上的注册地址', trigger: 'change' }]"
+        >
+          <el-input v-model="value.companyAddress"></el-input>
+        </el-form-item>
+
+        <el-form-item
+          label="法人姓名"
+          prop="legalPerson"
+          :rules="[{ required: certificateShow, message: '请填写登记证书上的法定代表人姓名', trigger: 'change' }]"
+        >
+          <el-input v-model="value.legalPerson"></el-input>
+        </el-form-item>
+
+        <el-form-item
+          label="有效期限开始日期"
+          prop="periodBegin"
+          :rules="[{ required: certificateShow, message: '请选择有效期限开始日期', trigger: 'change' }, { validator: validateBeginTime, trigger: 'change' }]"
+        >
+          <el-date-picker v-model="value.periodBegin" type="date" placeholder="请选择有效期限开始日期"></el-date-picker>
+        </el-form-item>
+
+        <el-form-item
+          label="有效期限结束日期"
+          prop="periodEnd"
+          :rules="[{ required: certificateShow, message: '请选择有效期限结束日期', trigger: 'change' }, { validator: validateEndTime, trigger: 'change' }]"
+        >
+          <el-date-picker v-model="value.periodEnd" type="date" placeholder="请选择有效期限结束日期"></el-date-picker>
+        </el-form-item>
+      </div>
+
+      <!-- 组织机构 -->
+      <div v-show="organization">
+        <el-form-item
+          label="组织机构代码证照片"
+          prop="organizationCopy"
+          :rules="[{ required: organization, message: '请上传组织机构代码证', trigger: 'change' }]"
+        >
+          <!-- <single-upload-tysh v-model="value.organizationCopy" style="width: 300px;display: inline-block;margin-left: 10px"></single-upload-tysh> -->
+          <single-upload-tysh
+            v-model="organizationCopy"
+            style="width: 300px;display: inline-block;margin-left: 10px"
+          ></single-upload-tysh>
+        </el-form-item>
+
+        <el-form-item
+          label="组织机构代码"
+          prop="organizationCode"
+          :rules="[
+						{ required: organization, message: '请填写组织机构代码证上的组织机构代码', trigger: 'change' },
+						{ validator: validateOrgPeriodCode, trigger: 'change' }
+					]"
+        >
+          <el-input v-model="value.organizationCode" style="width: 370px;" />
+        </el-form-item>
+
+        <el-form-item
+          label="组织机构代码证有效期开始日期"
+          prop="orgPeriodBegin"
+          :rules="[{ required: organization, message: '请选择有效期限开始日期', trigger: 'change' }, { validator: validateOrgPeriodBegin, trigger: 'change' }]"
+        >
+          <el-date-picker v-model="value.orgPeriodBegin" type="date" placeholder="请选择有效期限开始日期"></el-date-picker>
+        </el-form-item>
+
+        <el-form-item
+          label="组织机构代码证有效期结束日期"
+          prop="orgPeriodEnd"
+          :rules="[{ required: organization, message: '请选择有效期限结束日期', trigger: 'change' }, { validator: validateOrgPeriodEnd, trigger: 'change' }]"
+        >
+          <el-date-picker v-model="value.orgPeriodEnd" type="date" placeholder="请选择有效期限结束日期"></el-date-picker>
+        </el-form-item>
+      </div>
+
+      <!-- 单位证明函 -->
+      <div v-show="letterShow">
+        <el-form-item
+          label="单位证明函照片"
+          prop="certificateLetterCopy"
+          :rules="[{ required: letterShow, message: '请上传单位证明函照片' }]"
+        >
+          <!-- <el-input v-model="value.certificateLetterCopy" style="width: 370px;" /> -->
+          <single-upload-tysh
+            v-model="certificateLetterCopy"
+            style="width: 300px;display: inline-block;margin-left: 10px"
+          ></single-upload-tysh>
+        </el-form-item>
+
+        <!-- <el-form-item label="单位证明函照片" prop="certificateLetterCopyMediaId" :rules="[{ required: letterShow, message: '请上传单位证明函照片' }]">
+					<el-input v-model="value.certificateLetterCopyMediaId" style="width: 370px;" />
+        </el-form-item>-->
+      </div>
 
       <el-form-item label="经营者/法人身份证件类型" prop="idDocType">
         <el-radio-group v-model="value.idDocType" @change="idDocTypeChange">
@@ -261,171 +214,118 @@
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item
-        label="身份证人像面照片"
-        prop="idCardCopy"
-        v-show="idCardShow"
-        :rules="[
-      { required: idCardShow, message: '请上传身份证人像面照片' }
-    ]"
-      >
-        <el-input v-model="value.idCardCopy" style="width: 370px;" />
-      </el-form-item>
+      <!-- 身份证 -->
+      <div v-show="idCardShow">
+        <el-form-item
+          label="身份证人像面照片"
+          prop="idCardCopy"
+          :rules="[{ required: idCardShow, message: '请上传身份证人像面照片' }]"
+        >
+          <single-upload-tysh
+            v-model="idCardCopy"
+            style="width: 300px;display: inline-block;margin-left: 10px"
+          ></single-upload-tysh>
+        </el-form-item>
 
-      <el-form-item
-        label="身份证人像面照片"
-        prop="idCardCopyMediaId"
-        v-show="idCardShow"
-        :rules="[
-      { required: idCardShow, message: '请上传身份证人像面照片' }
-    ]"
-      >
-        <el-input v-model="value.idCardCopyMediaId" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="身份证国徽面照片"
+          prop="idCardNational"
+          :rules="[{ required: idCardShow, message: '请上传身份证国徽面照片' }]"
+        >
+          <!-- <single-upload-tysh
+            v-model="value.idCardNational"
+            style="width: 300px;display: inline-block;margin-left: 10px"
+          ></single-upload-tysh>-->
+          <single-upload-tysh
+            v-model="idCardNational"
+            style="width: 300px;display: inline-block;margin-left: 10px"
+          ></single-upload-tysh>
+        </el-form-item>
 
-      <el-form-item
-        label="身份证国徽面照片"
-        prop="idCardNational"
-        v-show="idCardShow"
-        :rules="[
-      { required: idCardShow, message: '请上传身份证国徽面照片' }
-    ]"
-      >
-        <el-input v-model="value.idCardNational" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="身份证姓名"
+          prop="idCardName"
+          :rules="[{ required: idCardShow, message: '请填写身份证姓名', trigger: 'change' }]"
+        >
+          <el-input v-model="value.idCardName" style="width: 370px;" />
+        </el-form-item>
 
-      <el-form-item
-        label="身份证国徽面照片"
-        prop="idCardNationalMediaId"
-        v-show="idCardShow"
-        :rules="[
-      { required: idCardShow, message: '请上传身份证国徽面照片' }
-    ]"
-      >
-        <el-input v-model="value.idCardNationalMediaId" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="身份证号码"
+          prop="idCardNumber"
+          :rules="[{ required: idCardShow, message: '请填写身份证号码', trigger: 'change' }, { validator: validateIdCard, trigger: 'change' }]"
+        >
+          <el-input v-model="value.idCardNumber" style="width: 370px;" />
+        </el-form-item>
 
-      <el-form-item
-        label="身份证姓名"
-        prop="idCardName"
-        v-show="idCardShow"
-        :rules="[
-      { required: idCardShow, message: '请填写身份证姓名', trigger: 'change' }
-    ]"
-      >
-        <el-input v-model="value.idCardName" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="身份证有效期开始时间"
+          prop="cardPeriodBegin"
+          :rules="[{ required: idCardShow, message: '请选择身份证有效期开始时间' }, { validator: validateIdCardBegin, trigger: 'change' }]"
+        >
+          <el-date-picker v-model="value.cardPeriodBegin" type="date" placeholder="请选择身份证有效期开始时间"></el-date-picker>
+        </el-form-item>
 
-      <el-form-item
-        label="身份证号码"
-        prop="idCardNumber"
-        v-show="idCardShow"
-        :rules="[
-      { required: idCardShow, message: '请填写身份证号码', trigger: 'change' },
-      { validator: validateIdCard, trigger: 'change' }
-    ]"
-      >
-        <el-input v-model="value.idCardNumber" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="身份证有效期结束时间 "
+          prop="cardPeriodEnd"
+          :rules="[{ required: idCardShow, message: '请选择身份证有效期结束时间' }, { validator: validateIdCardEnd, trigger: 'change' }]"
+        >
+          <el-date-picker v-model="value.cardPeriodEnd" type="date" placeholder="请选择身份证有效期结束时间"></el-date-picker>
+        </el-form-item>
+      </div>
 
-      <el-form-item
-        label="身份证有效期开始时间"
-        prop="cardPeriodBegin"
-        v-show="idCardShow"
-        :rules="[
-      { required: idCardShow, message: '请选择身份证有效期开始时间' },
-      { validator: validateIdCardBegin, trigger: 'change' }
-    ]"
-      >
-        <el-date-picker v-model="value.cardPeriodBegin" type="date" placeholder="请选择身份证有效期开始时间"></el-date-picker>
-      </el-form-item>
+      <!-- 其他证件类型 -->
+      <div v-show="otherCardShow">
+        <el-form-item
+          label="证件照片"
+          prop="idDocCopy"
+          :rules="[{ required: otherCardShow, message: '请上传证件照片' }]"
+        >
+          <single-upload-tysh
+            v-model="idDocCopy"
+            style="width: 300px;display: inline-block;margin-left: 10px"
+          ></single-upload-tysh>
+        </el-form-item>
 
-      <el-form-item
-        label="身份证有效期结束时间 "
-        prop="cardPeriodEnd"
-        v-show="idCardShow"
-        :rules="[
-      { required: idCardShow, message: '请选择身份证有效期结束时间' },
-      { validator: validateIdCardEnd, trigger: 'change' }
-    ]"
-      >
-        <el-date-picker v-model="value.cardPeriodEnd" type="date" placeholder="请选择身份证有效期结束时间"></el-date-picker>
-      </el-form-item>
+        <el-form-item
+          label="证件姓名"
+          prop="idDocName"
+          :rules="[{ required: otherCardShow, message: '请填写证件姓名', trigger: 'change' }]"
+        >
+          <el-input v-model="value.idDocName" style="width: 370px;" />
+        </el-form-item>
 
-      <el-form-item
-        label="证件照片"
-        prop="idDocCopy"
-        v-show="otherCardShow"
-        :rules="[
-      { required: otherCardShow, message: '请上传证件照片' }
-    ]"
-      >
-        <el-input v-model="value.idDocCopy" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="证件号码"
+          prop="idDocNumber"
+          :rules="[{ required: otherCardShow, message: '请填写证件号码', trigger: 'change' }]"
+        >
+          <!-- { validator: validateIdDoc, trigger: 'change' } -->
+          <el-input v-model="value.idDocNumber" style="width: 370px;" />
+        </el-form-item>
 
-      <el-form-item
-        label="证件照片"
-        prop="idDocCopyMediaId"
-        v-show="otherCardShow"
-        :rules="[
-      { required: otherCardShow, message: '请上传证件照片' }
-    ]"
-      >
-        <el-input v-model="value.idDocCopyMediaId" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="证件有效期开始时间"
+          prop="docPeriodBegin"
+          :rules="[{ required: otherCardShow, message: '请选择证件有效期开始时间', trigger: 'change' }, { validator: validateIdDocBegin, trigger: 'change' }]"
+        >
+          <el-date-picker v-model="value.docPeriodBegin" type="date" placeholder="请选择证件有效期开始时间"></el-date-picker>
+        </el-form-item>
 
-      <el-form-item
-        label="证件姓名"
-        prop="idDocName"
-        v-show="otherCardShow"
-        :rules="[
-      { required: otherCardShow, message: '请填写证件姓名', trigger: 'change' }
-    ]"
-      >
-        <el-input v-model="value.idDocName" style="width: 370px;" />
-      </el-form-item>
-
-      <el-form-item
-        label="证件号码"
-        prop="idDocNumber"
-        v-show="otherCardShow"
-        :rules="[
-      { required: otherCardShow, message: '请填写证件号码', trigger: 'change' },
-      
-    ]"
-      >
-        <!-- { validator: validateIdDoc, trigger: 'change' } -->
-        <el-input v-model="value.idDocNumber" style="width: 370px;" />
-      </el-form-item>
-
-      <el-form-item
-        label="证件有效期开始时间"
-        prop="docPeriodBegin"
-        v-show="otherCardShow"
-        :rules="[
-      { required: otherCardShow, message: '请选择证件有效期开始时间', trigger: 'change' },
-      { validator: validateIdDocBegin, trigger: 'change' }
-    ]"
-      >
-        <el-date-picker v-model="value.docPeriodBegin" type="date" placeholder="请选择证件有效期开始时间"></el-date-picker>
-      </el-form-item>
-
-      <el-form-item
-        label="证件有效期结束时间 "
-        prop="docPeriodEnd"
-        v-show="otherCardShow"
-        :rules="[
-      { required: otherCardShow, message: '请选择证件有效期结束时间', trigger: 'change' },
-      { validator: validateIdDocEnd, trigger: 'change' }
-    ]"
-      >
-        <el-date-picker v-model="value.docPeriodEnd" type="date" placeholder="请选择证件有效期结束时间"></el-date-picker>
-      </el-form-item>
+        <el-form-item
+          label="证件有效期结束时间 "
+          prop="docPeriodEnd"
+          :rules="[{ required: otherCardShow, message: '请选择证件有效期结束时间', trigger: 'change' }, { validator: validateIdDocEnd, trigger: 'change' }]"
+        >
+          <el-date-picker v-model="value.docPeriodEnd" type="date" placeholder="请选择证件有效期结束时间"></el-date-picker>
+        </el-form-item>
+      </div>
 
       <el-form-item label="经营者/法人是否为受益人" prop="owner">
         <el-radio-group v-model="value.owner" @change="chooseOwner">
-          <el-radio :label="true">是</el-radio>
-          <el-radio :label="false">否</el-radio>
+          <el-radio label="1">是</el-radio>
+          <el-radio label="0">否</el-radio>
         </el-radio-group>
       </el-form-item>
 
@@ -433,9 +333,7 @@
         label="证件类型"
         prop="idType"
         v-show="isOwner"
-        :rules="[
-      { required: isOwner, message: '请选择受益人证件类型' }
-    ]"
+        :rules="[{ required: isOwner, message: '请选择受益人证件类型' }]"
       >
         <el-radio-group v-model="value.idType" @change="chooseIdType">
           <el-radio label="IDENTIFICATION_TYPE_IDCARD">中国大陆居民-身份证</el-radio>
@@ -446,164 +344,108 @@
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item
-        label="身份证人像面照片"
-        prop="uboIdCardCopy"
-        v-show="uboIdCardShow && isOwner"
-        :rules="[
-      { required: uboIdCardShow, message: '请上传身份证人像面照片' },
-    ]"
-      >
-        <el-input v-model="value.uboIdCardCopy" style="width: 370px;" />
-      </el-form-item>
+      <!-- 受益人证件类型-身份证 -->
+      <div v-show="uboIdCardShow && isOwner">
+        <el-form-item
+          label="身份证人像面照片"
+          prop="uboIdCardCopy"
+          :rules="[{ required: uboIdCardShow, message: '请上传身份证人像面照片' }]"
+        >
+          <single-upload-tysh
+            v-model="uboIdCardCopy"
+            style="width: 300px;display: inline-block;margin-left: 10px"
+          ></single-upload-tysh>
+        </el-form-item>
 
-      <el-form-item
-        label="身份证人像面照片"
-        prop="uboIdCardCopyMediaId"
-        v-show="uboIdCardShow && isOwner"
-        :rules="[
-      { required: uboIdCardShow, message: '请上传身份证人像面' }
-    ]"
-      >
-        <el-input v-model="value.uboIdCardCopyMediaId" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="身份证国徽面照片"
+          prop="uboIdCardNational"
+          :rules="[{ required: uboIdCardShow, message: '请上传身份证国徽面照片' }]"
+        >
+          <single-upload-tysh
+            v-model="uboIdCardNational"
+            style="width: 300px;display: inline-block;margin-left: 10px"
+          ></single-upload-tysh>
+        </el-form-item>
 
-      <el-form-item
-        label="身份证国徽面照片"
-        prop="uboIdCardNational"
-        v-show="uboIdCardShow && isOwner"
-        :rules="[
-      { required: uboIdCardShow, message: '请上传身份证国徽面照片' }
-    ]"
-      >
-        <el-input v-model="value.uboIdCardNational" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="身份证姓名"
+          prop="uboIdCardName"
+          :rules="[{ required: uboIdCardShow, message: '请填写身份证姓名' }]"
+        >
+          <el-input v-model="value.uboIdCardName" style="width: 370px;" />
+        </el-form-item>
 
-      <el-form-item
-        label="身份证国徽面照片"
-        prop="uboIdCardNationalMediaId"
-        v-show="uboIdCardShow && isOwner"
-        :rules="[
-      { required: uboIdCardShow, message: '请上传身份证国徽面照片' }
-    ]"
-      >
-        <el-input v-model="value.uboIdCardNationalMediaId" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="身份证号码"
+          prop="uboIdCardNumber"
+          :rules="[{ required: uboIdCardShow, message: '请填写身份证号码', trigger: 'change' }, { validator: validateUboIdCard, trigger: 'change' }]"
+        >
+          <el-input v-model="value.uboIdCardNumber" style="width: 370px;" />
+        </el-form-item>
 
-      <el-form-item
-        label="身份证姓名"
-        prop="uboIdCardName"
-        v-show="uboIdCardShow && isOwner"
-        :rules="[
-      { required: uboIdCardShow, message: '请填写身份证姓名' }
-    ]"
-      >
-        <el-input v-model="value.uboIdCardName" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="身份证有效期开始时间"
+          prop="uboCardPeriodBegin"
+          :rules="[{ required: uboIdCardShow, message: '请选择证件有效期开始时间', trigger: 'change' }, { validator: validateuboCardBegin, trigger: 'change' }]"
+        >
+          <el-date-picker v-model="value.uboCardPeriodBegin" type="date" placeholder="请选择证件有效期开始时间"></el-date-picker>
+        </el-form-item>
 
-      <el-form-item
-        label="身份证号码"
-        prop="uboIdCardNumber"
-        v-show="uboIdCardShow && isOwner"
-        :rules="[
-      { required: uboIdCardShow, message: '请填写身份证号码', trigger: 'change' },
-      { validator: validateUboIdCard, trigger: 'change' }
-    ]"
-      >
-        <el-input v-model="value.uboIdCardNumber" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="身份证有效期结束时间 "
+          prop="uboCardPeriodEnd"
+          :rules="[{ required: uboIdCardShow, message: '请选择证件有效期结束时间', trigger: 'change' }, { validator: validateuboCardEnd, trigger: 'change' }]"
+        >
+          <el-date-picker v-model="value.uboCardPeriodEnd" type="date" placeholder="请选择证件有效期结束时间"></el-date-picker>
+        </el-form-item>
+      </div>
 
-      <el-form-item
-        label="身份证有效期开始时间"
-        prop="uboCardPeriodBegin"
-        v-show="uboIdCardShow && isOwner"
-        :rules="[
-      { required: uboIdCardShow, message: '请选择证件有效期开始时间', trigger: 'change' },
-      { validator: validateuboCardBegin, trigger: 'change' }
-    ]"
-      >
-        <el-date-picker v-model="value.uboCardPeriodBegin" type="date" placeholder="请选择证件有效期开始时间"></el-date-picker>
-      </el-form-item>
+      <!-- 受益人证件类型-其他 -->
+      <div v-show="uboIdDocShow && isOwner">
+        <el-form-item
+          label="证件照片"
+          prop="uboIdDocCopy"
+          :rules="[{ required: uboIdDocShow, message: '请上传证件照片' }]"
+        >
+          <single-upload-tysh
+            v-model="uboIdDocCopy"
+            style="width: 300px;display: inline-block;margin-left: 10px"
+          ></single-upload-tysh>
+        </el-form-item>
 
-      <el-form-item
-        label="身份证有效期结束时间 "
-        prop="uboCardPeriodEnd"
-        v-show="uboIdCardShow && isOwner"
-        :rules="[
-      { required: uboIdCardShow, message: '请选择证件有效期结束时间', trigger: 'change' },
-      { validator: validateuboCardEnd, trigger: 'change' }
-    ]"
-      >
-        <el-date-picker v-model="value.uboCardPeriodEnd" type="date" placeholder="请选择证件有效期结束时间"></el-date-picker>
-      </el-form-item>
+        <el-form-item
+          label="证件姓名"
+          prop="uboIdDocName"
+          :rules="[{ required: uboIdDocShow, message: '请填写证件姓名', trigger: 'change' }]"
+        >
+          <el-input v-model="value.uboIdDocName" style="width: 370px;" />
+        </el-form-item>
 
-      <el-form-item
-        label="证件照片"
-        prop="uboIdDocCopy"
-        v-show="uboIdDocShow && isOwner"
-        :rules="[
-      { required: uboIdDocShow, message: '请上传证件照片' }
-    ]"
-      >
-        <el-input v-model="value.uboIdDocCopy" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="证件号码"
+          prop="uboIdDocNumber"
+          :rules="[{ required: uboIdDocShow, message: '请填写证件号码', trigger: 'change' }]"
+        >
+          <el-input v-model="value.uboIdDocNumber" style="width: 370px;" />
+        </el-form-item>
 
-      <el-form-item
-        label="证件照片"
-        prop="uboIdDocCopyMediaId"
-        v-show="uboIdDocShow && isOwner"
-        :rules="[
-      { required: uboIdDocShow, message: '请上传证件照片' }
-    ]"
-      >
-        <el-input v-model="value.uboIdDocCopyMediaId" style="width: 370px;" />
-      </el-form-item>
+        <el-form-item
+          label="证件有效期开始时间"
+          prop="uboDocPeriodBegin"
+          :rules="[{ required: uboIdDocShow, message: '请选择证件有效期开始时间', trigger: 'change' }, { validator: validateuboDocBegin, trigger: 'change' }]"
+        >
+          <el-date-picker v-model="value.uboDocPeriodBegin" type="date" placeholder="请选择证件有效期开始时间"></el-date-picker>
+        </el-form-item>
 
-      <el-form-item
-        label="证件姓名"
-        prop="uboIdDocName"
-        v-show="uboIdDocShow && isOwner"
-        :rules="[
-      { required: uboIdDocShow, message: '请填写证件姓名', trigger: 'change' }
-    ]"
-      >
-        <el-input v-model="value.uboIdDocName" style="width: 370px;" />
-      </el-form-item>
-
-      <el-form-item
-        label="证件号码"
-        prop="uboIdDocNumber"
-        v-show="uboIdDocShow && isOwner"
-        :rules="[
-      { required: uboIdDocShow, message: '请填写证件号码', trigger: 'change' }
-    ]"
-      >
-        <el-input v-model="value.uboIdDocNumber" style="width: 370px;" />
-      </el-form-item>
-
-      <el-form-item
-        label="证件有效期开始时间"
-        prop="uboDocPeriodBegin"
-        v-show="uboIdDocShow && isOwner"
-        :rules="[
-      { required: uboIdDocShow, message: '请选择证件有效期开始时间', trigger: 'change' },
-      { validator: validateuboDocBegin, trigger: 'change' }
-    ]"
-      >
-        <el-date-picker v-model="value.uboDocPeriodBegin" type="date" placeholder="请选择证件有效期开始时间"></el-date-picker>
-      </el-form-item>
-
-      <el-form-item
-        label="证件有效期结束时间 "
-        prop="uboDocPeriodEnd"
-        v-show="uboIdDocShow && isOwner"
-        :rules="[
-      { required: uboIdDocShow, message: '请选择证件有效期结束时间', trigger: 'change' },
-      { validator: validateuboDocEnd, trigger: 'change' }
-    ]"
-      >
-        <el-date-picker v-model="value.uboDocPeriodEnd" type="date" placeholder="请选择证件有效期开始时间"></el-date-picker>
-      </el-form-item>
+        <el-form-item
+          label="证件有效期结束时间 "
+          prop="uboDocPeriodEnd"
+          :rules="[{ required: uboIdDocShow, message: '请选择证件有效期结束时间', trigger: 'change' }, { validator: validateuboDocEnd, trigger: 'change' }]"
+        >
+          <el-date-picker v-model="value.uboDocPeriodEnd" type="date" placeholder="请选择证件有效期开始时间"></el-date-picker>
+        </el-form-item>
+      </div>
 
       <el-form-item style="text-align: center">
         <el-button size="medium" @click="handlePrev">上一步，填写超级管理员信息</el-button>
@@ -615,13 +457,16 @@
 
 <script>
 import SingleUpload from "@/components/Upload/singleUpload";
-import MultiUploadTYSH from "@/components/Upload/multiUploadTYSH";
 import Tinymce from "@/components/Tinymce";
 import SingleUploadTysh from "@/components/Upload/singleUploadTysh";
 
 export default {
   name: "ProductAttrDetail",
-  components: { SingleUpload, Tinymce, MultiUploadTYSH, SingleUploadTysh },
+  components: {
+    SingleUpload,
+    Tinymce,
+    SingleUploadTysh
+  },
   props: {
     value: Object,
     isEdit: {
@@ -631,6 +476,46 @@ export default {
   },
   data() {
     return {
+      licenseCopy: {
+        url: "",
+        MediaID: ""
+      },
+      certCopy: {
+        url: "",
+        MediaID: ""
+      },
+      organizationCopy: {
+        url: "",
+        MediaID: ""
+      },
+      certificateLetterCopy: {
+        url: "",
+        MediaID: ""
+      },
+      idCardCopy: {
+        url: "",
+        MediaID: ""
+      },
+      idCardNational: {
+        url: "",
+        MediaID: ""
+      },
+      idDocCopy: {
+        url: "",
+        MediaID: ""
+      },
+      uboIdCardCopy: {
+        url: "",
+        MediaID: ""
+      },
+      uboIdCardNational: {
+        url: "",
+        MediaID: ""
+      },
+      uboIdDocCopy: {
+        url: "",
+        MediaID: ""
+      },
       organization: false,
       businessLicenseShow: false,
       certificateShow: false,
@@ -1048,7 +933,7 @@ export default {
       }
     },
     chooseOwner(e) {
-      if (e === true) {
+      if (e == '1') {
         this.isOwner = false;
       } else {
         this.isOwner = true;
@@ -1060,6 +945,36 @@ export default {
     handleNext(formName) {
       //   this.$refs[formName].validate(valid => {
       //     if (valid) {
+      this.value.licenseCopyMediaId = this.licenseCopy.MediaID;
+      this.value.licenseCopy = this.licenseCopy.url;
+
+      this.value.certCopyMediaId = this.certCopy.MediaID;
+      this.value.certCopy = this.certCopy.url;
+
+      this.value.organizationCopyMediaId = this.organizationCopy.MediaID;
+      this.value.organizationCopy = this.organizationCopy.url;
+
+      this.value.certificateLetterCopyMediaId = this.certificateLetterCopy.MediaID;
+      this.value.certificateLetterCopy = this.certificateLetterCopy.url;
+
+      this.value.idCardCopy = this.idCardCopy.url;
+      this.value.idCardCopyMediaId = this.idCardCopy.MediaID;
+
+      this.value.idCardNational = this.idCardNational.url;
+      this.value.idCardNationalMediaId = this.idCardNational.MediaID;
+
+      this.value.idDocCopy = this.idDocCopy.url;
+      this.value.idDocCopyMediaId = this.idDocCopy.MediaID;
+
+      this.value.uboIdCardCopy = this.uboIdCardCopy.url;
+      this.value.uboIdCardCopyMediaId = this.uboIdCardCopy.MediaID;
+
+      this.value.uboIdCardNational = this.uboIdCardNational.url;
+      this.value.uboIdCardNationalMediaId = this.uboIdCardNational.MediaID;
+
+      this.value.uboIdDocCopy = this.uboIdDocCopy.url;
+      this.value.uboIdDocCopyMediaId = this.uboIdDocCopy.MediaID;
+
       this.$emit("nextStep");
       //     } else {
       //       this.$message({

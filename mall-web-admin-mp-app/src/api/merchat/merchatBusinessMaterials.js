@@ -8,7 +8,8 @@ export function fetchList(params) {
 }
 export function createMerchatBusinessMaterials(data) {
 	return request({
-		url: '/merchat/merchatBusinessMaterials/create',
+		// url: '/merchat/merchatBusinessMaterials/create',
+		url: '/merchat/merchatBusinessMaterials/applyForMerchant',
 		method: 'post',
 		data: data
 	})

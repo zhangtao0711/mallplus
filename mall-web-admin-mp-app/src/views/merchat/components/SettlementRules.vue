@@ -17,12 +17,15 @@
       </el-form-item>
 
       <el-form-item label="特殊资质图片" prop="qualifications">
-        <el-input v-model="value.qualifications" style="width: 370px;" />
+        <single-upload-tysh
+          v-model="qualifications"
+          style="width: 300px;display: inline-block;margin-left: 10px"
+        ></single-upload-tysh>
       </el-form-item>
 
-      <el-form-item label="特殊资质图片" prop="qualificationsMediaId">
+      <!-- <el-form-item label="特殊资质图片" prop="qualificationsMediaId">
         <el-input v-model="value.qualificationsMediaId" style="width: 370px;" />
-      </el-form-item>
+      </el-form-item>-->
 
       <el-form-item>
         不知道属于什么结算规则、所属行业以及特殊资质？点击这里查看
@@ -37,16 +40,26 @@
       </el-form-item>
 
       <el-form-item label="优惠费率活动值" prop="activitiesRate">
-        <el-input v-model="value.activitiesRate" style="width: 370px;" />
+        <el-input-number
+          :precision="2"
+          :step="0.1"
+          controls-position="right"
+          :min="0"
+          v-model="value.activitiesRate"
+          style="width: 370px;"
+        />
       </el-form-item>
 
       <el-form-item label="优惠费率活动补充材料 " prop="activitiesAdditions">
-        <el-input v-model="value.activitiesAdditions" style="width: 370px;" />
+        <single-upload-tysh
+          v-model="activitiesAdditions"
+          style="width: 300px;display: inline-block;margin-left: 10px"
+        ></single-upload-tysh>
       </el-form-item>
 
-      <el-form-item label="优惠费率活动补充材料 " prop="activitiesAdditionsMedia">
+      <!-- <el-form-item label="优惠费率活动补充材料 " prop="activitiesAdditionsMedia">
         <el-input v-model="value.activitiesAdditionsMedia" style="width: 370px;" />
-      </el-form-item>
+      </el-form-item>-->
 
       <el-form-item>
         不知道属于什么优惠费率活动？点击这里查看
@@ -65,6 +78,7 @@
 </template>
 
 <script>
+import SingleUploadTysh from "@/components/Upload/singleUploadTysh";
 export default {
   name: "ProductSaleDetail",
   props: {
@@ -74,8 +88,19 @@ export default {
       default: false
     }
   },
+  components: {
+    SingleUploadTysh
+  },
   data() {
     return {
+      qualifications: {
+        url: "",
+        MediaId: ""
+      },
+      activitiesAdditions: {
+        url: "",
+        MediaId: ""
+      },
       IdcardShow: false,
       openIdShow: false,
       rules: {
@@ -130,6 +155,11 @@ export default {
     handleNext(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
+          this.value.qualificationsMediaId = this.qualifications.MediaId;
+          this.value.qualifications = this.qualifications.url;
+
+          this.value.activitiesAdditions = this.activitiesAdditions.url;
+          this.value.activitiesAdditionsMedia = this.activitiesAdditions.MediaId;
           this.$emit("nextStep");
         } else {
           this.$message({
@@ -148,5 +178,9 @@ export default {
 <style scoped>
 .littleMargin {
   margin-top: 10px;
+}
+a {
+  text-decoration: underline;
+  color: deepskyblue;
 }
 </style>
