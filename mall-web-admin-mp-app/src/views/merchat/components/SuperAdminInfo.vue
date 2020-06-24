@@ -23,9 +23,9 @@
         label="超级管理员身份证件号码："
         prop="contactIdNumber"
         :rules="[
-      { required: IdcardShow, message: '请输入超级管理员身份证件号码', trigger: 'blur' },
-      { validator: validateIdCard, trigger: 'change' }
-    ]"
+          { required: IdcardShow, message: '请输入超级管理员身份证件号码', trigger: 'blur' },
+          { validator: validateIdCard, trigger: 'change' }
+        ]"
         v-show="IdcardShow"
       >
         <el-input v-model="value.contactIdNumber"></el-input>
@@ -35,8 +35,8 @@
         label="超级管理员微信openid："
         prop="openid"
         :rules="[
-      { required: openIdShow, message: '请输入超级管理员微信openid', trigger: 'blur' },
-    ]"
+          { required: openIdShow, message: '请输入超级管理员微信openid', trigger: 'blur' },
+        ]"
         v-show="openIdShow"
       >
         <el-input v-model="value.openid"></el-input>
@@ -46,7 +46,7 @@
         <el-input v-model="value.mobilePhone"></el-input>
       </el-form-item>
 
-      <el-form-item prop="contactEmail" label="联系邮箱">
+      <el-form-item label="联系邮箱：" prop="contactEmail">
         <el-input v-model="value.contactEmail"></el-input>
       </el-form-item>
 
@@ -112,7 +112,6 @@ export default {
   computed: {},
   methods: {
     chooseOne(e) {
-      console.log(e);
       if (e == "超级管理员身份证件号码") {
         this.IdcardShow = true;
         this.openIdShow = false;

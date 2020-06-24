@@ -195,13 +195,11 @@
           <template slot-scope="scope">{{ scope.row.idDocCopyMediaId }}</template>
         </el-table-column>
 
-        <el-table-column prop="
-idDocName" label="证件姓名">
+        <el-table-column prop="idDocName" label="证件姓名">
           <template slot-scope="scope">{{ scope.row.idDocName }}</template>
         </el-table-column>
 
-        <el-table-column prop="
-idDocNumber" label="证件号码">
+        <el-table-column prop="idDocNumber" label="证件号码">
           <template slot-scope="scope">{{ scope.row.idDocNumber }}</template>
         </el-table-column>
 
@@ -261,13 +259,11 @@ idDocNumber" label="证件号码">
           <template slot-scope="scope">{{ scope.row.uboIdDocCopyMediaId }}</template>
         </el-table-column>
 
-        <el-table-column prop="
-uboIdDocName" label="证件姓名">
+        <el-table-column prop="uboIdDocName" label="证件姓名">
           <template slot-scope="scope">{{ scope.row.uboIdDocName }}</template>
         </el-table-column>
 
-        <el-table-column prop="
-uboIdDocNumber" label="证件号码">
+        <el-table-column prop="uboIdDocNumber" label="证件号码">
           <template slot-scope="scope">{{ scope.row.uboIdDocNumber }}</template>
         </el-table-column>
 
@@ -419,8 +415,7 @@ uboIdDocNumber" label="证件号码">
           <template slot-scope="scope">{{ scope.row.activitiesId }}</template>
         </el-table-column>
 
-        <el-table-column prop="
-activitiesRate" label="优惠费率活动值">
+        <el-table-column prop="activitiesRate" label="优惠费率活动值">
           <template slot-scope="scope">{{ scope.row.activitiesRate }}</template>
         </el-table-column>
 
@@ -456,8 +451,7 @@ activitiesRate" label="优惠费率活动值">
           <template slot-scope="scope">{{ scope.row.bankName }}</template>
         </el-table-column>
 
-        <el-table-column prop="
-accountNumber" label="银行账号">
+        <el-table-column prop="accountNumber" label="银行账号">
           <template slot-scope="scope">{{ scope.row.accountNumber }}</template>
         </el-table-column>
 
@@ -545,7 +539,10 @@ accountNumber" label="银行账号">
   </div>
 </template>
 <script>
-import { fetchList, deleteMerchatBusinessMaterials} from "@/api/merchat/merchatBusinessMaterials";
+import {
+  fetchList,
+  deleteMerchatBusinessMaterials
+} from "@/api/merchat/merchatBusinessMaterials";
 import { formatDate } from "@/utils/date";
 import axios from "axios";
 import { getToken } from "@/utils/auth";
@@ -594,37 +591,36 @@ export default {
     getList() {
       this.listLoading = true;
 
-      axios({
-        method: "get",
-        url: this.url,
-        params: this.listQuery,
-        headers: {
-          Authorization: getToken()
-        }
-      }).then(response => {
-        this.listLoading = false;
-        const res = response.data;
-        this.list = res.records;
-        this.total = res.total;
-        this.totalPage = res.pages;
-        this.pageSize = res.size;
+      // axios({
+      //   method: "get",
+      //   url: this.url,
+      //   params: this.listQuery,
+      //   headers: {
+      //     Authorization: getToken()
+      //   }
+      // }).then(response => {
+      //   this.listLoading = false;
+      //   this.list = response.data.data.records;
+      //   this.total = response.data.total;
+      //   this.totalPage = response.data.pages;
+      //   this.pageSize = response.data.size;
 
-        if (res.code !== 200 && !res.access_token) {
-          Message({
-            message: res.msg,
-            type: "error",
-            duration: 3 * 1000
-          });
-        }
-      });
-
-      // fetchList(this.listQuery).then(response => {
-      // 	this.listLoading = false;
-      // 	this.list = response.data.records;
-      // 	this.total = response.data.total;
-      // 	this.totalPage = response.data.pages;
-      // 	this.pageSize = response.data.size;
+      //   // if (res.code !== 200 && !res.access_token) {
+      //   //   Message({
+      //   //     message: res.msg,
+      //   //     type: "error",
+      //   //     duration: 3 * 1000
+      //   //   });
+      //   // }
       // });
+
+      fetchList(this.listQuery).then(response => {
+      	this.listLoading = false;
+      	this.list = response.data.records;
+      	this.total = response.data.total;
+      	this.totalPage = response.data.pages;
+      	this.pageSize = response.data.size;
+      });
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;

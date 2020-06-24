@@ -7,6 +7,23 @@ export function fetchList(params) {
   })
 }
 
+// 获取会员日志、备注
+export function getLogList(params) {
+  return request({
+    url:'/ums/umsMemberLog/list',
+    method:'get',
+    params:params
+  })
+}
+
+export function createNote(data) {
+  return request({
+    url:'/ums/umsMemberLog/create',
+    method:'post',
+    data:data
+  })
+}
+
 export function createMember(data) {
   return request({
     url:'/ums/UmsMember/create',

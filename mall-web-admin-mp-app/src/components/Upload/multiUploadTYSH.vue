@@ -1,25 +1,26 @@
 <template>
   <div>
     <el-upload
+      class="upload-demo"
+      ref="upload"
       :action="coverUrl"
-      list-type="picture-card"
-      :file-list="fileList"
-      :on-remove="handleRemove"
-      :on-success="handleUploadSuccess"
+      accept=".jpg, .png"
       :on-preview="handlePreview"
+      :on-remove="handleRemove"
+      :file-list="fileList"
       :limit="maxCount"
+      :auto-upload="false"
       :on-exceed="handleExceed"
+      list-type="picture"
     >
-      <i class="el-icon-plus"></i>
+      <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+      <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
     </el-upload>
-    <el-dialog :visible.sync="dialogVisible">
-      <img width="100%" :src="dialogImageUrl" alt />
-    </el-dialog>
   </div>
 </template>
 <script>
-import { policy } from "@/api/oss";
-
+import axios from "axios";
+import { getToken, get } from "@/utils/auth";
 export default {
   name: "multiUpload",
   props: {
@@ -35,9 +36,9 @@ export default {
     return {
       coverUrl:
         process.env.BASE_API + "/merchat/merchatBusinessMaterials/uploadLocal",
-      // coverUrl:"https://api.mch.weixin.qq.com/v3/merchant/media/upload",
       dialogVisible: false,
       dialogImageUrl: null,
+      file: {}
     };
   },
   computed: {
@@ -50,6 +51,34 @@ export default {
     }
   },
   methods: {
+    submitUpload() {
+      this.$refs.upload.submit();
+      // const fd = new FormData();
+      // fd.append("file", this.file);
+      
+      // axios({
+      //   method: "POST",
+      //   url:
+      //     process.env.BASE_API +
+      //     "/merchat/merchatBusinessMaterials/imageUpload",
+      //   headers: {
+      //     "Content-Type": "multipart/form-data",
+      //     Authorization: getToken()
+      //   },
+      //   data: fd
+      // })
+      //   .then(response => {
+      //     if (response.data.code == 200) {
+      //       this.$message.success(response.data.msg);
+      //       this.emitInput(response.data.data);
+      //     } else {
+      //       this.$message.error(response.data.msg);
+      //     }
+      //   })
+      //   .catch(function(err) {
+      //     console.log(err);
+      //   });
+    },
     emitInput(fileList) {
       let value = [];
       for (let i = 0; i < fileList.length; i++) {
@@ -70,9 +99,9 @@ export default {
         type: "success",
         duration: 1000
       });
-      // console.log(res)
-      // console.log(file)
 
+      console.log(res)
+      console.log(file)
 
       this.fileList.push({
         name: file.name,

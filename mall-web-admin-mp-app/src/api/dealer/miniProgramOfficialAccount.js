@@ -1,11 +1,11 @@
 import request from '@/utils/request'
-// export function fetchList(params) {
-//     return request({
-//         url: '/water/wtEquipmentWarterCard/list',
-//         method: 'get',
-//         params: params
-//     })
-// }
+export function fetchList(params) {
+    return request({
+        url: '/weixin/accountWechats/list',
+        method: 'get',
+        params: params
+    })
+}
 
 // 添加公众号
 export function createAccount(data) {

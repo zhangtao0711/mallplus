@@ -9,7 +9,7 @@
       size="small"
     >
       <el-form-item label="业务申请编号：" prop="businessCode">
-        <el-input v-model="value.businessCode"></el-input>
+        <el-input :disabled="true" placeholder="业务申请编号自动生成" v-model="value.businessCode"></el-input>
       </el-form-item>
 
       <el-form-item style="text-align: center">
@@ -34,9 +34,9 @@ export default {
       hasEditCreated: false,
 
       rules: {
-        businessCode: [
-          { required: true, message: "请输入业务申请编号", trigger: "blur" }
-        ],
+        // businessCode: [
+        //   { required: true, message: "请输入业务申请编号", trigger: "blur" }
+        // ],
       }
     };
   },

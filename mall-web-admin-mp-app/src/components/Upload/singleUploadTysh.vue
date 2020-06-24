@@ -8,6 +8,7 @@
       list-type="picture"
       :on-remove="handleRemove"
       :on-success="handleUploadSuccess"
+      :before-upload="beforeUpload"
       :on-preview="handlePreview"
     >
       <el-button size="small" type="primary">点击上传</el-button>
@@ -26,15 +27,15 @@ import { getToken, get } from "@/utils/auth";
 export default {
   name: "singleUploadTysh",
   props: {
-    value: String
+    value: Object
   },
   computed: {
     imageUrl() {
-      return this.value;
+      return this.value.url;
     },
     imageName() {
-      if (this.value != null && this.value !== "") {
-        return this.value.substr(this.value.lastIndexOf("/") + 1);
+      if (this.value.url != null && this.value.url !== "") {
+        return this.value.url.substr(this.value.url.lastIndexOf("/") + 1);
       } else {
         return null;
       }
@@ -61,14 +62,43 @@ export default {
       coverUrl:
         process.env.BASE_API + "/merchat/merchatBusinessMaterials/uploadLocal",
       dialogVisible: false,
+      toWechat:
+        process.env.BASE_API + "/merchat/merchatBusinessMaterials/imageUpload",
+      MediaID: '',
+      data: {}
     };
   },
   methods: {
     emitInput(val) {
-      this.$emit("input", val);
+      this.data.url = val
+      this.$emit("input", this.data);
     },
     handleRemove(file, fileList) {
       this.emitInput("");
+    },
+    beforeUpload(file) {
+      const fd = new FormData();
+      fd.append("multipartFile", file);
+      axios({
+        method: "POST",
+        url: this.toWechat,
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: getToken()
+        },
+        data: fd
+      })
+        .then(response => {
+          if (response.data.code == 200) {
+            this.data.MediaID = response.data.data
+            // this.$message.success(response.data.msg);
+          } else {
+            this.$message.error(response.data.msg);
+          }
+        })
+        .catch(function(err) {
+          console.log(err);
+        });
     },
     handlePreview(file) {
       this.dialogVisible = true;
@@ -80,6 +110,10 @@ export default {
         name: file.name,
         url: file.response.data
       });
+
+      console.log(res)
+      console.log(file.response)
+
       this.emitInput(this.fileList[0].url);
     }
   }

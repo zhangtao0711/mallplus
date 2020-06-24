@@ -26,27 +26,27 @@
       <el-form-item label="商户证书" prop="apiclientCert">
         <file-upload v-model="merchatFacilitatorConfig.apiclientCert"></file-upload>
 
-        <el-button type="primary" @click="download(merchatFacilitatorConfig.apiclientCert)">
+        <!-- <el-button type="primary" @click="download(merchatFacilitatorConfig.apiclientCert)">
           下载
           <i class="el-icon-download el-icon--right"></i>
-        </el-button>
+        </el-button>-->
       </el-form-item>
 
       <el-form-item label="商户私钥" prop="privateKeyPath">
         <file-upload v-model="merchatFacilitatorConfig.privateKeyPath"></file-upload>
 
-        <el-button type="primary" @click="download(merchatFacilitatorConfig.privateKeyPath)">
+        <!-- <el-button type="primary" @click="download(merchatFacilitatorConfig.privateKeyPath)">
           下载
           <i class="el-icon-download el-icon--right"></i>
-        </el-button>
+        </el-button>-->
       </el-form-item>
 
       <el-form-item label="商户证书（.p12格式）" prop="apiclientCertP12">
         <file-upload v-model="merchatFacilitatorConfig.apiclientCertP12"></file-upload>
-        <el-button type="primary" @click="download(merchatFacilitatorConfig.apiclientCertP12)">
+        <!-- <el-button type="primary" @click="download(merchatFacilitatorConfig.apiclientCertP12)">
           下载
           <i class="el-icon-download el-icon--right"></i>
-        </el-button>
+        </el-button>-->
       </el-form-item>
 
       <el-form-item label="微信支付平台证书" prop="publicKeyPath">
@@ -88,15 +88,10 @@ const defaultMerchatFacilitatorConfig = {
 export default {
   name: "MerchatFacilitatorConfigDetail",
   components: { FileUpload, FileDownload },
-  props: {
-    isEdit: {
-      type: Boolean,
-      default: false
-    }
-  },
   data() {
     return {
-      id:null,
+      isEdit: null,
+      id: null,
       listQuery: {
         keyword: null,
         pageNum: 1,
@@ -155,11 +150,11 @@ export default {
       fetchList(this.listQuery).then(response => {
         if (response.data.records.length > 0) {
           this.isEdit = true;
-          this.id = response.data.records[0].id
+          this.id = response.data.records[0].id;
           getMerchatFacilitatorConfig(response.data.records[0].id).then(
             response => {
               this.merchatFacilitatorConfig = response.data;
-              this.merchatFacilitatorConfig.updateBy = get("userId")
+              this.merchatFacilitatorConfig.updateBy = get("userId");
             }
           );
         } else {
@@ -224,7 +219,7 @@ export default {
           // apiclientCertP12:
           //   "/opt/merchant/upload/apiclient_cert_1589590780157.p12"
 
-          apiv3key: this.merchatFacilitatorConfig.apiV3key,
+          apiv3key: this.merchatFacilitatorConfig.apiv3key,
           mchId: this.merchatFacilitatorConfig.mchId,
           apiclientCert: this.merchatFacilitatorConfig.apiclientCert,
           privateKeyPath: this.merchatFacilitatorConfig.privateKeyPath,
@@ -236,7 +231,7 @@ export default {
           access_token: getToken()
         }
       }).then(res => {
-        console.log(res);
+        this.merchatFacilitatorConfig.publicKeyPath = res.data.data.path
       });
     },
 
@@ -249,6 +244,17 @@ export default {
             type: "warning"
           }).then(() => {
             if (this.isEdit) {
+              if (!this.merchatFacilitatorConfig.wxCertCatalog) {
+                let wxCertIdx = this.merchatFacilitatorConfig.publicKeyPath.lastIndexOf("/");
+                let wxCertStr = this.merchatFacilitatorConfig.publicKeyPath.substring(0,wxCertIdx);
+                this.merchatFacilitatorConfig.wxCertCatalog = wxCertStr;
+              }
+              if (!this.merchatFacilitatorConfig.certCatalog) {
+                let certIdx = this.merchatFacilitatorConfig.apiclientCertP12.lastIndexOf("/");
+                let certStr = this.merchatFacilitatorConfig.apiclientCertP12.substring(0,certIdx);
+                this.merchatFacilitatorConfig.certCatalog = certStr;
+              }
+
               updateMerchatFacilitatorConfig(
                 this.id,
                 this.merchatFacilitatorConfig
@@ -260,7 +266,7 @@ export default {
                     type: "success",
                     duration: 1000
                   });
-                  this.getList()
+                  this.getList();
                 } else {
                   this.$message({
                     message: response.msg,
@@ -270,6 +276,14 @@ export default {
                 }
               });
             } else {
+              let wxCertIdx = this.merchatFacilitatorConfig.publicKeyPath.lastIndexOf("/");
+              let wxCertStr = this.merchatFacilitatorConfig.publicKeyPath.substring(0,wxCertIdx);
+              this.merchatFacilitatorConfig.wxCertCatalog = wxCertStr;
+
+              let certIdx = this.merchatFacilitatorConfig.apiclientCertP12.lastIndexOf("/");
+              let certStr = this.merchatFacilitatorConfig.apiclientCertP12.substring(0,certIdx);
+              this.merchatFacilitatorConfig.certCatalog = certStr;
+
               createMerchatFacilitatorConfig(
                 this.merchatFacilitatorConfig
               ).then(response => {
@@ -284,7 +298,7 @@ export default {
                     type: "success",
                     duration: 1000
                   });
-                  this.getList()
+                  this.getList();
                 } else {
                   this.$message({
                     message: response.msg,

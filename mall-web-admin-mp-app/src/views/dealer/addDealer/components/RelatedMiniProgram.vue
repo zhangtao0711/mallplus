@@ -234,6 +234,7 @@ export default {
           this.isEdit = true;
           this.wxappData = response.data;
           this.wxappData.level = String(this.wxappData.level);
+          this.wxappData.status = Number(this.wxappData.status);
           this.wxappVData.name = this.wxappData.name;
         } else {
           this.isEdit = false;
@@ -261,6 +262,7 @@ export default {
             type: "warning"
           }).then(() => {
             if (this.isEdit) {
+              // this.wxappData.storeName = get("storeName");
               updateWxapp(this.wxappData.acid, this.wxappData).then(
                 response => {
                   if (response.code == 200) {
@@ -288,7 +290,8 @@ export default {
             } else {
               this.wxappData.createBy = this.dealerId;
               this.wxappData.dealerId = this.dealerId;
-              this.wxappData.storeId = get("storeId");
+              // this.wxappData.storeId = get("storeId");
+              this.wxappData.storeName = get("storeName");
               createWxapp(this.wxappData).then(response => {
                 if (response.code == 200) {
                   this.$message({
@@ -365,7 +368,8 @@ export default {
               this.wxappVData.createBy = this.dealerId;
               this.wxappVData.dealerId = this.dealerId;
               this.wxappVData.uniacid = this.wxappData.acid;
-              this.wxappVData.storeId = get("storeId");
+              // this.wxappVData.storeId = get("storeId");
+              this.wxappVData.storeName = get("storeName");
               createWxappV(this.wxappVData).then(response => {
                 if (response.code == 200) {
                   this.getWxappV();

@@ -9,8 +9,6 @@
       size="small"
     >
       <el-form-item label="账户类型" prop="bankAccountType">
-        <!-- <el-input v-model="value.bankAccountType" style="width: 370px;" /> -->
-
         <el-radio-group v-model="value.bankAccountType">
           <el-radio label="BANK_ACCOUNT_TYPE_CORPORATE">对公银行账户</el-radio>
           <el-radio label="BANK_ACCOUNT_TYPE_PERSONAL">经营者个人银行卡</el-radio>
@@ -19,6 +17,10 @@
 
       <el-form-item label="开户名称" prop="accountName">
         <el-input v-model="value.accountName" style="width: 370px;" />
+        <div class="message">
+          <div>1、选择“经营者个人银行卡”时，开户名称必须与“经营者证件姓名”一致。</div>
+          <div>2、选择“对公银行账户”时，开户名称必须与营业执照/登记证书的“商户名称”一致。</div>
+        </div>
       </el-form-item>
 
       <el-form-item label="开户银行" prop="accountBank">
@@ -172,5 +174,12 @@ export default {
 <style scoped>
 .littleMargin {
   margin-top: 10px;
+}
+a{
+  text-decoration: underline;
+  color: deepskyblue;
+}
+.message {
+  font-size: 10px;
 }
 </style>
