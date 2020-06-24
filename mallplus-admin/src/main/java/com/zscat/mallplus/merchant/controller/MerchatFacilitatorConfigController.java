@@ -190,7 +190,7 @@ public class MerchatFacilitatorConfigController {
             return new CommonResult().failed();
         }
         Map<String,String> map = new HashMap<>();
-        map.put("path",CertPathConfig.publicKeyPath+ "wechatpay_" + mchSerialNo +"-" + System.currentTimeMillis() + ".pem");
+        map.put("path",CertPathConfig.publicKeyPath);
         return new CommonResult().success(map);
     }
 

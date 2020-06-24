@@ -140,13 +140,15 @@ public class CertificateDownloader implements Runnable {
         file.mkdirs();
 
         for (PlainCertificateItem item : cert) {
-            String outputAbsoluteFilename = file.getAbsolutePath() + File.separator + "wechatpay_" + item.getSerialNo()+"-" + System.currentTimeMillis() + ".pem";
+            long time = System.currentTimeMillis();
+            String outputAbsoluteFilename = file.getAbsolutePath() + File.separator + "wechatpay_" + item.getSerialNo()+"-" + time + ".pem";
             try (BufferedWriter writer = new BufferedWriter(
                     new OutputStreamWriter(new FileOutputStream(outputAbsoluteFilename), StandardCharsets.UTF_8))) {
                 writer.write(item.getPlainCertificate());
             }
 
             System.out.println("save cert file absolute path = " + outputAbsoluteFilename);
+            CertPathConfig.publicKeyPath = CertPathConfig.publicKeyPath+ "wechatpay_" + item.getSerialNo()+"-" + time + ".pem";
         }
     }
 

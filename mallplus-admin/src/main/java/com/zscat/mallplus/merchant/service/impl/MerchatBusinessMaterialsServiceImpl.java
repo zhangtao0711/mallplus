@@ -13,6 +13,7 @@ import com.zscat.mallplus.merchat.utils.MerchantUtil;
 import com.zscat.mallplus.sdk.util.PemUtil;
 import com.zscat.mallplus.util.StringUtils;
 import com.zscat.mallplus.utils.ValidatorUtils;
+import net.sf.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -172,7 +173,7 @@ public class MerchatBusinessMaterialsServiceImpl extends ServiceImpl
         }
         identity_info.put("owner",MerchantUtil.intToBool(merchatBusinessMaterials.getOwner()));
         subject_info.put("identity_info",identity_info);
-        if (merchatBusinessMaterials.getOwner()==1){
+        if (merchatBusinessMaterials.getOwner()==0){
             Map<String,Object> ubo_info = new HashMap<>();
             ubo_info.put("id_type",merchatBusinessMaterials.getIdType());
             if ("IDENTIFICATION_TYPE_IDCARD".equals(merchatBusinessMaterials.getIdType())){
@@ -192,16 +193,18 @@ public class MerchatBusinessMaterialsServiceImpl extends ServiceImpl
         business_info.put("merchant_shortname",merchatBusinessMaterials.getMerchantShortname());
         business_info.put("service_phone",merchatBusinessMaterials.getServicePhone());
         Map<String,Object> sales_info = new HashMap<>();
-        sales_info.put("sales_scenes_type",merchatBusinessMaterials.getSalesScenesType());
         List<String> list = Arrays.asList(merchatBusinessMaterials.getSalesScenesType().split(","));
+        sales_info.put("sales_scenes_type", JSONArray.fromObject(list));
         for (String type:list){
             if ("SALES_SCENES_STORE".equals(type)){
                 Map<String,Object> biz_store_info = new HashMap<>();
                 biz_store_info.put("biz_store_name",merchatBusinessMaterials.getBizStoreName());
                 biz_store_info.put("biz_address_code",merchatBusinessMaterials.getBizAddressCode());
                 biz_store_info.put("biz_store_address",merchatBusinessMaterials.getBizStoreAddress());
-                biz_store_info.put("store_entrance_pic",merchatBusinessMaterials.getStoreEntrancePicMediaId());
-                biz_store_info.put("indoor_pic",merchatBusinessMaterials.getIndoorPicMediaId());
+                List<String> store_entrance_pic = Arrays.asList(merchatBusinessMaterials.getStoreEntrancePicMediaId().split(","));
+                biz_store_info.put("store_entrance_pic",JSONArray.fromObject(store_entrance_pic));
+                List<String> indoor_pic = Arrays.asList(merchatBusinessMaterials.getIndoorPicMediaId().split(","));
+                biz_store_info.put("indoor_pic",JSONArray.fromObject(indoor_pic));
                 if (StringUtils.isNotBlank(merchatBusinessMaterials.getBizSubAppid())){
                     biz_store_info.put("biz_sub_appid ",merchatBusinessMaterials.getBizSubAppid());
                 }
@@ -215,7 +218,8 @@ public class MerchatBusinessMaterialsServiceImpl extends ServiceImpl
                         mp_info.put("mp_sub_appid ",merchatBusinessMaterials.getMpSubAppid());
                     }
                 }if (StringUtils.isNotBlank(merchatBusinessMaterials.getMpPicsMediaId())) {
-                    mp_info.put("mp_pics", merchatBusinessMaterials.getMpPicsMediaId());
+                    List<String> mpPicsList = Arrays.asList(merchatBusinessMaterials.getMpPicsMediaId().split(","));
+                    mp_info.put("mp_pics", JSONArray.fromObject(mpPicsList));
                 }
                 sales_info.put("mp_info",mp_info);
             }else if ("SALES_SCENES_MINI_PROGRAM".equals(type)){
@@ -227,7 +231,8 @@ public class MerchatBusinessMaterialsServiceImpl extends ServiceImpl
                         mini_program_infov.put("mini_program_sub_appid",merchatBusinessMaterials.getMiniProgramSubAppid());
                     }
                 }if (StringUtils.isNotBlank(merchatBusinessMaterials.getMiniProgramPicsMediaId())) {
-                    mini_program_infov.put("mini_program_pics",merchatBusinessMaterials.getMiniProgramPicsMediaId());
+                    List<String> mini_program_pics = Arrays.asList(merchatBusinessMaterials.getMiniProgramPicsMediaId().split(","));
+                    mini_program_infov.put("mini_program_pics",JSONArray.fromObject(mini_program_pics));
                 }
                 sales_info.put("mini_program_infov",mini_program_infov);
             }else if ("SALES_SCENES_WEB".equals(type)){
@@ -254,7 +259,8 @@ public class MerchatBusinessMaterialsServiceImpl extends ServiceImpl
             } else if ("SALES_SCENES_WEWORK".equals(type)){
                 Map<String,Object> wework_info = new HashMap<>();
                wework_info.put("sub_corp_id ",merchatBusinessMaterials.getSubCorpId());
-                wework_info.put("wework_pics",merchatBusinessMaterials.getWeworkPicsMediaId());
+               List<String> wework_pics = Arrays.asList(merchatBusinessMaterials.getWeworkPicsMediaId().split(","));
+                wework_info.put("wework_pics",wework_pics);
                 sales_info.put("wework_info",wework_info);
             }
         }
@@ -263,8 +269,9 @@ public class MerchatBusinessMaterialsServiceImpl extends ServiceImpl
         Map<String,Object> settlement_info = new HashMap<>();
         settlement_info.put("settlement_id",merchatBusinessMaterials.getSettlementId());
         settlement_info.put("qualification_type",merchatBusinessMaterials.getQualificationType());
-        if (StringUtils.isNotBlank(merchatBusinessMaterials.getQualifications())){
-            settlement_info.put("qualifications",merchatBusinessMaterials.getQualificationsMediaId());
+        if (StringUtils.isNotBlank(merchatBusinessMaterials.getQualificationsMediaId())){
+            List<String> qualifications = Arrays.asList(merchatBusinessMaterials.getQualificationsMediaId().split(","));
+            settlement_info.put("qualifications",qualifications);
         }
         if (StringUtils.isNotBlank(merchatBusinessMaterials.getActivitiesId())){
             settlement_info.put("activities_id",merchatBusinessMaterials.getActivitiesId());
@@ -273,7 +280,8 @@ public class MerchatBusinessMaterialsServiceImpl extends ServiceImpl
             settlement_info.put("activities_rate",merchatBusinessMaterials.getActivitiesRate());
         }
         if (StringUtils.isNotBlank(merchatBusinessMaterials.getActivitiesAdditionsMedia())){
-            settlement_info.put("activities_additions",merchatBusinessMaterials.getActivitiesAdditionsMedia());
+            List<String> activities_additions = Arrays.asList(merchatBusinessMaterials.getActivitiesAdditionsMedia().split(","));
+            settlement_info.put("activities_additions",activities_additions);
         }
         requestMap.put("settlement_info",settlement_info);
         Map<String,Object> bank_account_info = new HashMap<>();
@@ -302,7 +310,8 @@ public class MerchatBusinessMaterialsServiceImpl extends ServiceImpl
                 addition_info.put("legal_person_video",merchatBusinessMaterials.getLegalPersonVideoMediaId());
             }
             if (StringUtils.isNotBlank(merchatBusinessMaterials.getBusinessAdditionPicsMediaId())){
-                addition_info.put("business_addition_pics",merchatBusinessMaterials.getBusinessAdditionPicsMediaId());
+                List<String> business_addition_pics = Arrays.asList(merchatBusinessMaterials.getBusinessAdditionPicsMediaId());
+                addition_info.put("business_addition_pics",business_addition_pics);
             }
             if (StringUtils.isNotBlank(merchatBusinessMaterials.getBusinessAdditionMsg())){
                 addition_info.put("business_addition_msg",merchatBusinessMaterials.getBusinessAdditionMsg());
@@ -321,15 +330,15 @@ public class MerchatBusinessMaterialsServiceImpl extends ServiceImpl
             return map;
         }
         if (merchatBusinessMaterials.getSubjectType().equals("SUBJECT_TYPE_INDIVIDUAL")){
-            if (ValidatorUtils.empty(merchatBusinessMaterials.getLicenseCopy())||ValidatorUtils.empty(merchatBusinessMaterials.getLicenseNumber())
-            ||ValidatorUtils.empty(merchatBusinessMaterials.getMerchantName())||ValidatorUtils.empty(merchatBusinessMaterials.getLegalPerson())){
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getLicenseCopyMediaId())||ValidatorUtils.empty(merchatBusinessMaterials.getLicenseNumber())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getSubjectMerchantName())||ValidatorUtils.empty(merchatBusinessMaterials.getSubjectLegalPerson())){
                 map.put("success",false);
                 map.put("message","主体类型是个体户必须填写营业执照！");
                 return map;
             }
         }else if (merchatBusinessMaterials.getSubjectType().equals("SUBJECT_TYPE_ENTERPRISE")) {
             if (ValidatorUtils.empty(merchatBusinessMaterials.getLicenseCopy()) || ValidatorUtils.empty(merchatBusinessMaterials.getLicenseNumber())
-                    || ValidatorUtils.empty(merchatBusinessMaterials.getMerchantName()) || ValidatorUtils.empty(merchatBusinessMaterials.getLegalPerson())
+                    || ValidatorUtils.empty(merchatBusinessMaterials.getSubjectMerchantName()) || ValidatorUtils.empty(merchatBusinessMaterials.getSubjectLegalPerson())
             ||ValidatorUtils.empty(merchatBusinessMaterials.getOrganizationCopy())||ValidatorUtils.empty(merchatBusinessMaterials.getOrganizationCode())
             ||ValidatorUtils.empty(merchatBusinessMaterials.getOrgPeriodBegin())||ValidatorUtils.empty(merchatBusinessMaterials.getOrgPeriodEnd())) {
                 map.put("success",false);
@@ -425,6 +434,22 @@ public class MerchatBusinessMaterialsServiceImpl extends ServiceImpl
             if (ValidatorUtils.empty(merchatBusinessMaterials.getBankBranchId())&&ValidatorUtils.empty(merchatBusinessMaterials.getBankName())) {
                 map.put("success", false);
                 map.put("message", "17家直连银行无需填写，如为其他银行，则开户银行全称（含支行）和开户银行联行号二选一！");
+                return map;
+            }
+        } else if (merchatBusinessMaterials.getIdDocType().equals("IDENTIFICATION_TYPE_IDCARD")){
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getIdCardCopyMediaId())||ValidatorUtils.empty(merchatBusinessMaterials.getIdCardNationalMediaId())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getIdCardName())||ValidatorUtils.empty(merchatBusinessMaterials.getIdCardNumber())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getCardPeriodBegin())||ValidatorUtils.empty(merchatBusinessMaterials.getCardPeriodEnd())){
+                map.put("success", false);
+                map.put("message", "经营者/法人身份证件,证件类型为“身份证”时填写信息不完整！");
+                return map;
+            }
+        }else {
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getIdDocCopyMediaId())||ValidatorUtils.empty(merchatBusinessMaterials.getIdDocName())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getIdDocNumber())||ValidatorUtils.empty(merchatBusinessMaterials.getDocPeriodBegin())
+            ||ValidatorUtils.empty(merchatBusinessMaterials.getDocPeriodEnd())){
+                map.put("success", false);
+                map.put("message", "经营者/法人身份证件,证件类型为“非身份证”时填写信息不完整！");
                 return map;
             }
         }
