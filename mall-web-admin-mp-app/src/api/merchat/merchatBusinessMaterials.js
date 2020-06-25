@@ -15,6 +15,30 @@ export function createMerchatBusinessMaterials(data) {
 	})
 }
 
+// export function queryByApplymentId(data) {
+// 	return request({
+// 		url: '/merchat/merchatBusinessMaterials/queryByApplymentId',
+// 		method: 'post',
+// 		data: data
+// 	})
+// }
+
+export function queryByApplymentId(params) {
+	return request({
+		url: '/merchat/merchatBusinessMaterials/queryByApplymentId',
+		method: 'get',
+		params: params
+	})
+}
+
+export function queryByBusinessCode(params) {
+	return request({
+		url: '/merchat/merchatBusinessMaterials/queryByBusinessCode',
+		method: 'get',
+		params: params
+	})
+}
+
 export function deleteMerchatBusinessMaterials(id) {
 	return request({
 		url: '/merchat/merchatBusinessMaterials/delete/' + id,

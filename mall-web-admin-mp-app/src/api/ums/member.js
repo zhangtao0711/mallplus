@@ -85,6 +85,16 @@ export function updateStatus(data) {
     data:data
   })
 }
+
+// 挂失
+export function updateWaterCard(data) {
+  return request({
+    url:'/ums/UmsMember/updateWaterCard',
+    method:'post',
+    data:data
+  })
+}
+
 // 添加标签
 export function addLabel(data) {
   return request({

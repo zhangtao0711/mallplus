@@ -79,15 +79,15 @@ export default {
     return {
       legalPersonCommitment: {
         url: "",
-        MediaId: ""
+        MediaID: ""
       },
       legalPersonVideo: {
         url: "",
-        MediaId: ""
+        MediaID: ""
       },
       businessAdditionPics: {
         url: "",
-        MediaId: ""
+        MediaID: ""
       }
     };
   },
@@ -102,8 +102,27 @@ export default {
       this.$emit("prevStep");
     },
     handleFinishCommit() {
-      this.value.legalPersonCommitmentMediaId = this.legalPersonCommitment.MediaId;
-      this.value.legalPersonCommitment = this.legalPersonCommitment.url;
+      if (!this.value.legalPersonCommitmentMediaId) {
+        this.value.legalPersonCommitmentMediaId = this.legalPersonCommitment.MediaID;
+      }
+      if (!this.value.legalPersonCommitment) {
+        this.value.legalPersonCommitment = this.legalPersonCommitment.url;
+      }
+
+      if (!this.value.legalPersonVideo) {
+        this.value.legalPersonVideo = this.legalPersonVideo.url;
+      }
+      if (!this.value.legalPersonVideoMediaId) {
+        this.value.legalPersonVideoMediaId = this.legalPersonVideo.MediaID;
+      }
+
+      if (!this.value.businessAdditionPics) {
+        this.value.businessAdditionPics = this.businessAdditionPics.url;
+      }
+      if (!this.value.businessAdditionPicsMediaId) {
+        this.value.businessAdditionPicsMediaId = this.businessAdditionPics.MediaID;
+      }
+
       this.$emit("finishCommit", this.isEdit);
     }
   }

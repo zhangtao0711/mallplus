@@ -227,7 +227,7 @@ export default {
       }
     },
     finishCommit(isEdit) {
-      console.log(this.merchatBusinessMaterials);
+      // console.log(this.merchatBusinessMaterials);
 
       this.$confirm("是否提交申请", "提示", {
         confirmButtonText: "确定",
@@ -235,16 +235,24 @@ export default {
         type: "warning"
       }).then(() => {
         if (isEdit) {
-          updateMerchatBusinessMaterials(this.$route.query.id, this.merchatBusinessMaterials).then(
-            response => {
-              this.$message({
-                type: "success",
-                message: "提交成功",
-                duration: 1000
-              });
-              this.$router.back();
-            }
-          );
+          createMerchatBusinessMaterials(this.merchatBusinessMaterials).then(response => {
+            this.$message({
+              type: "success",
+              message: response.data,
+              duration: 1000
+            });
+            this.$router.back();
+          });
+          // updateMerchatBusinessMaterials(this.$route.query.id, this.merchatBusinessMaterials).then(
+          //   response => {
+          //     this.$message({
+          //       type: "success",
+          //       message: "提交成功",
+          //       duration: 1000
+          //     });
+          //     this.$router.back();
+          //   }
+          // );
         } else {
           createMerchatBusinessMaterials(this.merchatBusinessMaterials).then(response => {
             this.$message({

@@ -913,8 +913,39 @@ export const constantRouterMap = [
     component: Layout,
     redirect: '/sms/coupon',
     name: 'sms',
-    meta: { title: '营销', icon: 'sms' },
+    meta: { title: '营销功能', icon: 'sms' },
     children: [
+      {
+        path: 'registeredGiftSet',
+        name: 'registeredGiftSet',
+        component: () => import('@/views/sms/registeredGiftSet/index'),
+        meta: { title: '注册赠送设置', icon: 'sms-flash' }
+      },
+      {
+        path: 'registeredGiftList',
+        name: 'registeredGiftList',
+        component: () => import('@/views/sms/registeredGiftList/index'),
+        meta: { title: '注册赠送列表', icon: 'sms-flash' }
+      },
+      {
+        path: 'groupPurchaseGoodsList',
+        name: 'groupPurchaseGoodsList',
+        component: () => import('@/views/sms/groupPurchaseGoods/index'),
+        meta: { title: '团购商品列表', icon: 'sms-flash' }
+      },
+      {
+        path: 'groupPurchaseManagement',
+        name: 'groupPurchaseManagement',
+        component: () => import('@/views/sms/groupPurchaseManagement/index'),
+        meta: { title: '拼团管理', icon: 'sms-flash' }
+      },
+      {
+        path: 'orderDetail',
+        name: 'orderDetail',
+        component: () => import('@/views/sms/groupPurchaseManagement/orderDetail'),
+        meta: { title: '订单详情' },
+        hidden: true
+      },
       {
         path: 'rechargePackage',
         name: 'rechargePackage',
@@ -1307,6 +1338,54 @@ export const constantRouterMap = [
     meta: { title: '会员', icon: 'home' },
     children: [
       {
+        path: 'physicalCard',
+        name: 'physicalCard',
+        component: () => import('@/views/ums/physical/physicalCard'),
+        meta: { title: '实体卡列表', icon: 'product-list' }
+      },
+      {
+        path: 'addPhysicalCard',
+        name: 'addPhysicalCard',
+        component: () => import('@/views/ums/physical/add'),
+        meta: { title: '添加实体卡', icon: 'product-list' }
+      },
+      {
+        path: 'updatePhysicalCard',
+        name: 'updatePhysicalCard',
+        component: () => import('@/views/ums/physical/update'),
+        meta: { title: '编辑实体卡', icon: 'product-list' }
+      },
+      {
+        path: 'PhysicalDetail',
+        name: 'PhysicalDetail',
+        component: () => import('@/views/ums/physical/components/MemberDetail'),
+        meta: { title: '详情', icon: 'product-list' }
+      },
+      {
+        path: 'virtualCard',
+        name: 'virtualCard',
+        component: () => import('@/views/ums/virtual/virtualCard'),
+        meta: { title: '虚拟卡列表', icon: 'product-list' }
+      },
+      {
+        path: 'addVirtualCard',
+        name: 'addVirtualCard',
+        component: () => import('@/views/ums/virtual/add'),
+        meta: { title: '添加虚拟卡', icon: 'product-list' }
+      },
+      {
+        path: 'updateVirtualCard',
+        name: 'updateVirtualCard',
+        component: () => import('@/views/ums/virtual/update'),
+        meta: { title: '编辑虚拟卡', icon: 'product-list' }
+      },
+      {
+        path: 'VirtualDetail',
+        name: 'VirtualDetail',
+        component: () => import('@/views/ums/virtual/components/MemberDetail'),
+        meta: { title: '详情', icon: 'product-list' }
+      },
+      {
         path: 'member',
         name: 'member',
         component: () => import('@/views/ums/member/index'),
@@ -1325,7 +1404,20 @@ export const constantRouterMap = [
         component: () => import('@/views/ums/member/update'),
         meta: { title: '编辑会员' },
         hidden: true
-      }, {
+      },
+      {
+        path: 'recommendList',
+        name: 'recommendList',
+        component: () => import('@/views/ums/member/components/recommendList'),
+        meta: { title: '推荐用户列表', icon: 'product-list' }
+      },
+      {
+        path: 'derivedCard',
+        name: 'derivedCard',
+        component: () => import('@/views/ums/member/components/derivedCard'),
+        meta: { title: '会员卡导出', icon: 'product-list' }
+      },
+      {
         path: 'memberLevel',
         name: 'memberLevel',
         component: () => import('@/views/ums/memberLevel/index'),
@@ -2140,6 +2232,13 @@ export const constantRouterMap = [
         meta: { title: '修改商户号', icon: 'product-list' },
         hidden: true
       },
+      {
+        path: 'merchatDetail',
+        name: 'merchatDetail',
+        component: () => import('@/views/merchat/merchatDetail'),
+        meta: { title: '特约商户详情', icon: 'product-list' },
+        hidden: true
+      }
     ]
   },
   {

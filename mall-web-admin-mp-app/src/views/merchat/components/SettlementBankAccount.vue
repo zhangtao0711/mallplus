@@ -55,16 +55,18 @@
       </el-form-item>
 
       <el-form-item label="开户银行联行号" prop="bankBranchId" v-show="bankIDShow"
-      :rules="[
-      { required: bankIDShow, message: '请填写开户银行联行号', trigger: 'blur' },
-    ]">
+        :rules="[
+          { required: bankIDShow, message: '请填写开户银行联行号', trigger: 'blur' },
+        ]"
+      >
         <el-input v-model="value.bankBranchId" style="width: 370px;" />
       </el-form-item>
 
       <el-form-item label="开户银行全称（含支行)" prop="bankName" v-show="bankNameShow"
-      :rules="[
-      { required: bankNameShow, message: '请填写开户银行全称（含支行)', trigger: 'blur' },
-    ]">
+        :rules="[
+          { required: bankNameShow, message: '请填写开户银行全称（含支行)', trigger: 'blur' },
+        ]"
+      >
         <el-input v-model="value.bankName" style="width: 370px;" />
       </el-form-item>
 
@@ -139,7 +141,25 @@ export default {
     } else {
     }
   },
-  computed: {},
+  computed: {
+    productId() {
+      return this.value;
+    }
+  },
+  watch: {
+    productId: function(newValue) {
+      if (!this.isEdit) return;
+      if (newValue.bankBranchId) {
+        this.bankIDShow = true;
+        this.bankNameShow = false;
+        this.choose = "开户银行联行号"
+      } else if (newValue.bankName) {
+        this.bankIDShow = false;
+        this.bankNameShow = true;
+        this.choose = "开户银行全称（含支行)"
+      }
+    }
+  },
   methods: {
     chooseOne(e) {
       if (e == "开户银行联行号") {

@@ -614,7 +614,8 @@ export default {
         let data = {
           content: this.note.content,
           falg: 1,
-          createBy: get('userId')
+          createBy: get('userId'),
+          memberId: this.$route.query.id
         }
         createNote(data).then(response => {
           this.$message({
@@ -630,6 +631,7 @@ export default {
 
     getMemberList() {
       this.memberlistLoading = true;
+      this.memberListQuery.memberId = this.$route.query.id
       getLogList(this.memberListQuery).then(response => {
         this.memberlistLoading = false;
         this.memberlist = response.data.records;
@@ -660,6 +662,7 @@ export default {
 
     getNoteList() {
       this.notelistLoading = true;
+      this.noteListQuery.memberId = this.$route.query.id
       getLogList(this.noteListQuery).then(response => {
         this.notelistLoading = false;
         this.notelist = response.data.records;

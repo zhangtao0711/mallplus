@@ -74,6 +74,7 @@ import {
   updateWtWaterCard
 } from "@/api/water/wtWaterCard";
 import SingleUpload from "@/components/Upload/singleUpload";
+import { getToken, get } from "@/utils/auth";
 
 const defaultWtWaterCard = {};
 export default {

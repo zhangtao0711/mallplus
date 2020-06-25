@@ -1,55 +1,23 @@
 <template>
   <el-card class="form-container" shadow="never">
-    <el-button size="mini" type="primary" @click="addIntegration">积分管理</el-button>
-    <el-button size="mini" :disabled="true" type="primary" @click="sendMessage">发送通知</el-button>
-    <el-button
-      size="mini"
-      type="primary"
-      @click="handleDelete(wtFilterElementType.id)"
-    >{{ text }}黑名单</el-button>
+    <el-button size="mini" type="primary" @click="reportLoss">{{ cardType }}</el-button>
+    <el-button size="mini" type="primary">补卡</el-button>
     <div class="table-container">
       <el-row>
         <el-col :span="12">
-          <div class="bg-purple">用户昵称</div>
+          <div class="bg-purple">卡号</div>
+        </el-col>
+        <el-col :span="12">
+          <div class="bg-purple-light">{{ wtFilterElementType.cardNo }}</div>
+        </el-col>
+      </el-row>
+
+      <el-row>
+        <el-col :span="12">
+          <div class="bg-purple">用户名</div>
         </el-col>
         <el-col :span="12">
           <div class="bg-purple-light">{{ wtFilterElementType.nickname }}</div>
-        </el-col>
-      </el-row>
-
-      <el-row>
-        <el-col :span="12">
-          <div class="bg-purple">手机号</div>
-        </el-col>
-        <el-col :span="12">
-          <div class="bg-purple-light">{{ wtFilterElementType.phone }}</div>
-        </el-col>
-      </el-row>
-
-      <el-row>
-        <el-col :span="12">
-          <div class="bg-purple">实体卡</div>
-        </el-col>
-        <el-col :span="12">
-          <div class="bg-purple-light">{{ wtFilterElementType.cardNum }}</div>
-        </el-col>
-      </el-row>
-
-      <el-row>
-        <el-col :span="12">
-          <div class="bg-purple">虚拟卡</div>
-        </el-col>
-        <el-col :span="12">
-          <div class="bg-purple-light">{{ wtFilterElementType.cardInventedNum }}</div>
-        </el-col>
-      </el-row>
-
-      <el-row>
-        <el-col :span="12">
-          <div class="bg-purple">公众号</div>
-        </el-col>
-        <el-col :span="12">
-          <div class="bg-purple-light">{{ wtFilterElementType.uniacName }}</div>
         </el-col>
       </el-row>
 
@@ -64,41 +32,36 @@
 
       <el-row>
         <el-col :span="12">
-          <div class="bg-purple">标签</div>
+          <div class="bg-purple">余额</div>
+        </el-col>
+        <el-col :span="12">
+          <div class="bg-purple-light">{{ wtFilterElementType.uniacName }}</div>
+        </el-col>
+      </el-row>
+
+      <el-row>
+        <el-col :span="12">
+          <div class="bg-purple">状态</div>
         </el-col>
         <el-col :span="12">
           <div class="bg-purple-light">
-            <!-- <el-tag
-              :key="tag"
-              v-for="tag in dynamicTags"
-              closable
-              :disable-transitions="false"
-              @close="handleClose(tag)"
-            >{{tag}}</el-tag>-->
-            <el-tag
-              v-if="wtFilterElementType.labelName"
-              closable
-              :disable-transitions="false"
-              @close="handleClose(wtFilterElementType.labelName)"
-            >{{ wtFilterElementType.labelName }}</el-tag>
-
-            <el-button size="small" style="float:right" @click="addTag">添加标签</el-button>
+            {{ wtFilterElementType.labelName }}
           </div>
         </el-col>
       </el-row>
 
       <el-row>
         <el-col :span="12">
-          <div class="bg-purple">来源</div>
+          <div class="bg-purple">售卡人</div>
         </el-col>
         <el-col :span="12">
-          <div class="bg-purple-light">{{ wtFilterElementType.sourceType | formatType }}</div>
+          <div class="bg-purple-light">{{ wtFilterElementType.sourceType }}</div>
         </el-col>
       </el-row>
 
       <el-row>
         <el-col :span="12">
-          <div class="bg-purple">推荐人</div>
+          <div class="bg-purple">设备</div>
         </el-col>
         <el-col :span="12">
           <div class="bg-purple-light">{{ wtFilterElementType.recommendName }}</div>
@@ -107,7 +70,7 @@
 
       <el-row>
         <el-col :span="12">
-          <div class="bg-purple">推荐人数</div>
+          <div class="bg-purple">充值金额</div>
         </el-col>
         <el-col :span="12">
           <div class="bg-purple-light">{{ wtFilterElementType.recommendNum }}</div>
@@ -116,7 +79,34 @@
 
       <el-row>
         <el-col :span="12">
-          <div class="bg-purple">积分</div>
+          <div class="bg-purple">赠送金额</div>
+        </el-col>
+        <el-col :span="12">
+          <div class="bg-purple-light">{{ wtFilterElementType.integration }}</div>
+        </el-col>
+      </el-row>
+
+      <el-row>
+        <el-col :span="12">
+          <div class="bg-purple">体验金额</div>
+        </el-col>
+        <el-col :span="12">
+          <div class="bg-purple-light">{{ wtFilterElementType.integration }}</div>
+        </el-col>
+      </el-row>
+
+      <el-row>
+        <el-col :span="12">
+          <div class="bg-purple">赠送有效期</div>
+        </el-col>
+        <el-col :span="12">
+          <div class="bg-purple-light">{{ wtFilterElementType.integration }}</div>
+        </el-col>
+      </el-row>
+
+      <el-row>
+        <el-col :span="12">
+          <div class="bg-purple">公众号</div>
         </el-col>
         <el-col :span="12">
           <div class="bg-purple-light">{{ wtFilterElementType.integration }}</div>
@@ -124,6 +114,7 @@
       </el-row>
     </div>
 
+    <!-- 会员卡日志 -->
     <div style="margin-top:50px">
       <h3>会员卡日志</h3>
       <div class="table-container">
@@ -170,6 +161,7 @@
       </div>
     </div>
 
+    <!-- 会员日志 -->
     <div style="margin-top:50px">
       <h3>会员日志</h3>
       <div class="table-container">
@@ -213,6 +205,7 @@
       </div>
     </div>
 
+    <!-- 备注列表 -->
     <div style="margin-top:50px">
       <el-button type="primary" @click="addNote" size="small">添加备注</el-button>
       <div class="table-container">
@@ -252,55 +245,9 @@
       </div>
     </div>
 
-    <!-- 积分管理 -->
-    <el-dialog title="积分管理" :visible.sync="integration.dialogVisible" width="40%">
-      <el-form :model="integration" ref="brandFrom" label-width="150px">
-        <el-form-item label="当前积分：" prop="detail">
-          <el-input-number size="medium" v-model="integration.integration"></el-input-number>
-        </el-form-item>
-
-        <el-form-item>
-          <el-button @click="integration.dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleEditIntegration">确 定</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
-
-    <!-- 添加标签 -->
-    <el-dialog title="添加标签" :visible.sync="tag.dialogVisible" width="40%">
-      <el-form :model="integration" ref="brandFrom" label-width="150px">
-        <el-form-item label="标签：" prop="detail">
-          <el-select v-model="tag.labelName" placeholder="请选择用户标签">
-            <el-option v-for="item in list" :key="item.name" :label="item.name" :value="item.name"></el-option>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item>
-          <el-button @click="tag.dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleAddTag">确 定</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
-
-    <!-- 发送消息 -->
-    <el-dialog title="发送消息" :visible.sync="msg.dialogVisible" width="40%">
-      <el-form :model="integration" ref="brandFrom" label-width="150px">
-        <el-form-item label="选择模版消息：" prop="detail">
-          <el-select v-model="msg.labelName" placeholder="请选择模版消息">
-            <el-option v-for="item in list" :key="item.name" :label="item.name" :value="item.name"></el-option>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item>
-          <el-button @click="msg.dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleSendMsg">确 定</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
-
     <!-- 添加备注 -->
     <el-dialog title="添加备注" :visible.sync="note.dialogVisible" width="40%">
-      <el-form :model="integration" ref="brandFrom" label-width="150px">
+      <el-form :model="note" ref="brandFrom" label-width="150px">
         <el-form-item label="备注：" prop="detail">
           <el-input v-model="note.content" />
         </el-form-item>
@@ -316,14 +263,11 @@
 <script>
 import {
   getMember,
-  updateIntegration,
-  updateStatus,
-  addLabel,
-  removeLabel,
   getLogList,
-  createNote
+  createNote,
+  updateWaterCard
 } from "@/api/ums/member";
-import { fetchList } from "@/api/ums/umsMemberTag";
+import { getWtWaterCard } from "@/api/water/wtWaterCard";
 import axios from "axios";
 import { getToken, get } from "@/utils/auth";
 import { formatDate } from "@/utils/date";
@@ -356,19 +300,7 @@ export default {
   },
   data() {
     return {
-      text: "",
-      integration: {
-        dialogVisible: false,
-        id: null
-      },
-      tag: {
-        dialogVisible: false,
-        id: null
-      },
-      msg: {
-        dialogVisible: false,
-        id: null
-      },
+      cardType:"挂失",
       note: {
         dialogVisible: false,
         id: null
@@ -404,195 +336,19 @@ export default {
     };
   },
   created() {
-    this.getMember();
-    this.getList();
+    this.getWtWaterCard();
     this.getNoteList();
     this.getMemberList();
   },
   methods: {
-    addNote() {
-      this.note.dialogVisible = true;
-    },
-    handleClose(tag) {
-      // this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
-      removeLabel({ umsMemberId: this.$route.query.id, labelName: tag }).then(
-        response => {
-          this.getMember();
-        }
-      );
-    },
-    addTag() {
-      this.tag.dialogVisible = true;
-    },
-    handleAddTag() {
-      if (this.tag.labelName == null) {
-        this.$message({
-          message: "请选择用户标签",
-          type: "warning",
-          duration: 1000
-        });
-        return;
-      }
-      this.$confirm("是否添该改标签", "提示", {
+    // 挂失
+    reportLoss() {
+      this.$confirm("确定挂失该卡吗", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(() => {
-        axios({
-          method: "POST",
-          url: process.env.BASE_API + "/ums/UmsMember/addLabel",
-          headers: {
-            Authorization: getToken()
-          },
-          data: {
-            umsMemberId: this.$route.query.id,
-            labelName: this.tag.labelName
-          }
-        })
-          .then(response => {
-            if (response.data.code == 200) {
-              this.$message({
-                message: "操作成功",
-                type: "success",
-                duration: 1000
-              });
-              this.getMember();
-            } else {
-              this.$message.error(response.data.msg);
-            }
-          })
-          .catch(function(err) {
-            console.log(err);
-          });
-        this.tag.dialogVisible = false;
-      });
-    },
-    getList() {
-      let listQuery = {
-        keyword: null,
-        pageNum: 1,
-        pageSize: 10,
-        genType: 2
-      };
-
-      fetchList(listQuery).then(response => {
-        for (var i = 0; i < response.data.pages; i++) {
-          fetchList(listQuery).then(res => {
-            for (var j = 0; j < res.data.records.length; j++) {
-              this.list.push(res.data.records[j]);
-            }
-          });
-        }
-      });
-    },
-    getMember() {
-      getMember(this.$route.query.id).then(response => {
-        this.wtFilterElementType = response.data.records[0];
-        this.integration.integration = this.wtFilterElementType.integration;
-        // 0冻结1正常
-        if (this.wtFilterElementType.status == "1") {
-          this.text = "拉入";
-        } else {
-          this.text = "取消";
-        }
-      });
-    },
-    addIntegration() {
-      this.integration.dialogVisible = true;
-    },
-    handleEditIntegration() {
-      this.$confirm("是否对该用户的积分进行操作", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(() => {
-        // let params = new URLSearchParams();
-        // params.append("id", this.integration.id);
-        // params.append("integration", this.integration.integration);
-
-        axios({
-          method: "POST",
-          url: process.env.BASE_API + "/ums/UmsMember/updateIntegration",
-          headers: {
-            Authorization: getToken()
-          },
-          data: {
-            id: this.integration.id,
-            integration: this.integration.integration
-          }
-        })
-          .then(response => {
-            if (response.data.code == 200) {
-              this.$message({
-                message: "操作成功",
-                type: "success",
-                duration: 1000
-              });
-              this.getMember();
-            } else {
-              this.$message.error(response.data.msg);
-            }
-          })
-          .catch(function(err) {
-            console.log(err);
-          });
-
-        this.integration.dialogVisible = false;
-      });
-    },
-    sendMessage() {
-      this.msg.dialogVisible = true;
-    },
-    handleSendMsg() {
-      if (this.tag.labelName == null) {
-        this.$message({
-          message: "请选择模版消息",
-          type: "warning",
-          duration: 1000
-        });
-        return;
-      }
-      this.$confirm("是否添加该标签", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(() => {
-        axios({
-          method: "POST",
-          url: process.env.BASE_API + "/ums/UmsMember/addLabel",
-          headers: {
-            Authorization: getToken()
-          },
-          data: {
-            umsMemberId: this.$route.query.id,
-            labelName: this.tag.labelName
-          }
-        })
-          .then(response => {
-            if (response.data.code == 200) {
-              this.$message({
-                message: "操作成功",
-                type: "success",
-                duration: 1000
-              });
-              this.getMember();
-            } else {
-              this.$message.error(response.data.msg);
-            }
-            this.tag.dialogVisible = false;
-          })
-          .catch(function(err) {
-            console.log(err);
-          });
-      });
-    },
-    handleDelete(id) {
-      this.$confirm("是否要将该用户" + this.text + "黑名单", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(() => {
-        updateStatus({
+        updateWaterCard({
           id: this.wtFilterElementType.id
         }).then(response => {
           this.$message({
@@ -600,11 +356,14 @@ export default {
             type: "success",
             duration: 1000
           });
-          this.getMember();
+          this.getWtWaterCard();
         });
       });
     },
-
+    // 添加备注
+    addNote() {
+      this.note.dialogVisible = true;
+    },
     handleAddNote() {
       this.$confirm("是否添加该备注", "提示", {
         confirmButtonText: "确定",
@@ -628,6 +387,20 @@ export default {
       });
     },
 
+    getWtWaterCard() {
+      getWtWaterCard(this.$route.query.id).then(response => {
+        this.wtFilterElementType = response.data.records[0];
+        this.integration.integration = this.wtFilterElementType.integration;
+        // 0正常1复制卡2挂失卡3删除卡4非经销商卡
+        if (this.wtFilterElementType.state == "2") {
+          this.text = "解除挂失";
+        } else if (this.wtFilterElementType.state == "0") {
+          this.text = "挂失";
+        }
+      });
+    },
+
+    // 会员日志
     getMemberList() {
       this.memberlistLoading = true;
       getLogList(this.memberListQuery).then(response => {
@@ -657,7 +430,7 @@ export default {
       this.memberCardListQuery.pageNum = val;
       // this.getMemberList();
     },
-
+    // 备注列表
     getNoteList() {
       this.notelistLoading = true;
       getLogList(this.noteListQuery).then(response => {

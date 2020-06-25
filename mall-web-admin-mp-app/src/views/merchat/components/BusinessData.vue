@@ -137,10 +137,7 @@
           <el-input v-model="value.mpSubAppid" style="width: 370px;" />
         </el-form-item>
 
-        <el-form-item
-          label="公众号页面截图 "
-          prop="mpPics"
-        >
+        <el-form-item label="公众号页面截图 " prop="mpPics">
           <single-upload-tysh
             v-model="mpPics"
             style="width: 300px;display: inline-block;margin-left: 10px"
@@ -204,7 +201,7 @@
         </el-form-item>
       </div>
 
-      <!-- 应用 -->
+      <!-- APP应用 -->
       <div v-show="appShow">
         <el-form-item
           label="服务商应用/商家应用"
@@ -419,7 +416,47 @@ export default {
     };
   },
   created() {},
-  computed: {},
+  computed: {
+    productId() {
+      return this.value;
+    }
+  },
+  watch: {
+    productId: function(newValue) {
+      if (!this.isEdit) return;
+      this.salesScenesType = newValue.salesScenesType.split(",");
+      this.salesScenesTypeChange(this.salesScenesType);
+      if (newValue.mpSubAppid) {
+        this.fwsShow = false;
+        this.sjShow = true;
+        this.choose = "商家公众号";
+      } else if (newValue.mpAppid) {
+        this.fwsShow = true;
+        this.sjShow = false;
+        this.choose = "服务商公众号";
+      }
+
+      if (newValue.miniProgramAppid) {
+        this.fwsPShow = true;
+        this.sjPShow = false;
+        this.choose = "服务商小程序";
+      } else if (newValue.miniProgramSubAppid) {
+        this.fwsShow = true;
+        this.sjShow = false;
+        this.choose = "商家小程序";
+      }
+
+      if (newValue.appAppid) {
+        this.fwsAppShow = true;
+        this.sjAppShow = false;
+        this.choose3 = "服务商应用";
+      } else if (newValue.appSubAppid) {
+        this.fwsAppShow = false;
+        this.sjAppShow = true;
+        this.choose3 = "商家应用";
+      }
+    }
+  },
   methods: {
     chooseOne(e) {
       if (e == "服务商公众号") {
@@ -449,7 +486,7 @@ export default {
       }
     },
     salesScenesTypeChange(e) {
-      this.value.salesScenesType = e.join(',')
+      this.value.salesScenesType = e.join(",");
       if (e.indexOf("SALES_SCENES_STORE") != "-1") {
         this.storeShow = true;
       } else {
@@ -492,26 +529,55 @@ export default {
     handleNext(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          this.value.storeEntrancePic = this.storeEntrancePic.url;
-          this.value.storeEntrancePicMediaId = this.storeEntrancePic.MediaID;
+          if (!this.value.storeEntrancePic) {
+            this.value.storeEntrancePic = this.storeEntrancePic.url;
+          }
+          if (!this.value.storeEntrancePicMediaId) {
+            this.value.storeEntrancePicMediaId = this.storeEntrancePic.MediaID;
+          }
 
-          this.value.indoorPic = this.indoorPic.url;
-          this.value.indoorPicMediaId = this.indoorPic.MediaID;
+          if (!this.value.indoorPic) {
+            this.value.indoorPic = this.indoorPic.url;
+          }
+          if (!this.value.indoorPicMediaId) {
+            this.value.indoorPicMediaId = this.indoorPic.MediaID;
+          }
 
-          this.value.mpPics = this.mpPics.url;
-          this.value.mpPicsMediaId = this.mpPics.MediaID;
+          if (!this.value.mpPics) {
+            this.value.mpPics = this.mpPics.url;
+          }
+          if (!this.value.mpPicsMediaId) {
+            this.value.mpPicsMediaId = this.mpPics.MediaID;
+          }
 
-          this.value.miniProgramPics = this.miniProgramPics.url;
-          this.value.miniProgramPicsMediaId = this.miniProgramPics.MediaID;
+          if (!this.value.miniProgramPics) {
+            this.value.miniProgramPics = this.miniProgramPics.url;
+          }
+          if (!this.value.miniProgramPicsMediaId) {
+            this.value.miniProgramPicsMediaId = this.miniProgramPics.MediaID;
+          }
 
-          this.value.appPics = this.appPics.url;
-          this.value.appPicsMediaId = this.appPics.MediaID;
+          if (!this.value.appPics) {
+            this.value.appPics = this.appPics.url;
+          }
+          if (!this.value.appPicsMediaId) {
+            this.value.appPicsMediaId = this.appPics.MediaID;
+          }
 
-          this.value.webAuthorisation = this.webAuthorisation.url;
-          this.value.webAuthorisationMediaId = this.webAuthorisation.MediaID;
+          if (!this.value.webAuthorisation) {
+            this.value.webAuthorisation = this.webAuthorisation.url;
+          }
+          if (!this.value.webAuthorisationMediaId) {
+            this.value.webAuthorisationMediaId = this.webAuthorisation.MediaID;
+          }
 
-          this.value.weworkPics = this.weworkPics.url;
-          this.value.weworkPicsMediaId = this.weworkPics.MediaID;
+          if (!this.value.weworkPics) {
+            this.value.weworkPics = this.weworkPics.url;
+          }
+          if (!this.value.weworkPicsMediaId) {
+            this.value.weworkPicsMediaId = this.weworkPics.MediaID;
+          }
+
           this.$emit("nextStep");
         } else {
           this.$message({
@@ -528,7 +594,7 @@ export default {
 </script>
 
 <style scoped>
-.message{
+.message {
   font-size: 12px;
   color: #666666;
 }

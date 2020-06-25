@@ -77,9 +77,7 @@ export default {
         choose: [
           {
             required: true,
-            message:
-              "超级管理员身份证号码”与“超级管理员微信openid”，二选一必填",
-            trigger: "change"
+            message: "超级管理员身份证号码”与“超级管理员微信openid”，二选一必填"
           }
         ],
         contactName: [
@@ -104,14 +102,30 @@ export default {
       }
     };
   },
-  created() {
-    if (this.isEdit) {
-    } else {
+  computed: {
+    //商品的编号
+    superAdminValue() {
+      return this.value;
     }
   },
-  computed: {},
+  watch: {
+    superAdminValue: function(newValue) {
+      if (!this.isEdit) return;
+      if (newValue.contactIdNumber) {
+        this.value.choose = "超级管理员身份证件号码";
+        this.IdcardShow = true;
+        this.openIdShow = false;
+      } else if (newValue.openid) {
+        this.value.choose = "超级管理员微信openid";
+        this.IdcardShow = false;
+        this.openIdShow = true;
+      }
+    }
+  },
+  created() {},
   methods: {
     chooseOne(e) {
+      console.log(e)
       if (e == "超级管理员身份证件号码") {
         this.IdcardShow = true;
         this.openIdShow = false;

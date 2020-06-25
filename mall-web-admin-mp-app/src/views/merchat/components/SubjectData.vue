@@ -449,7 +449,7 @@
 
       <el-form-item style="text-align: center">
         <el-button size="medium" @click="handlePrev">上一步，填写超级管理员信息</el-button>
-        <el-button type="primary" size="medium" @click="handleNext">下一步，填写经营资料</el-button>
+        <el-button type="primary" size="medium" @click="handleNext('productAttrForm')">下一步，填写经营资料</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -523,67 +523,113 @@ export default {
       idCardShow: false,
       otherCardShow: false,
       isOwner: false,
-      uboIdCardShow: true,
+      uboIdCardShow: false,
       uboIdDocShow: false,
       //编辑模式时是否初始化成功
       hasEditCreated: false,
       rules: {
-        // subjectType: [
-        //   {
-        //     required: true,
-        //     message: "请选择主体类型",
-        //     trigger: "change"
-        //   }
-        // ],
-        // idDocType: [
-        //   {
-        //     required: true,
-        //     message: "请选择经营者/法人身份证件类型",
-        //     trigger: "change"
-        //   }
-        // ],
-        // owner: [
-        //   {
-        //     required: true,
-        //     message: "请选择经营者/法人是否为受益人",
-        //     trigger: "change"
-        //   }
-        // ]
+        subjectType: [
+          {
+            required: true,
+            message: "请选择主体类型",
+            trigger: "change"
+          }
+        ],
+        idDocType: [
+          {
+            required: true,
+            message: "请选择经营者/法人身份证件类型",
+            trigger: "change"
+          }
+        ],
+        owner: [
+          {
+            required: true,
+            message: "请选择经营者/法人是否为受益人",
+            trigger: "change"
+          }
+        ]
       }
     };
   },
-  created() {
-    // this.getProductAttrCateList();
+  created() {},
+  computed: {
+    productId() {
+      return this.value;
+    }
   },
   watch: {
-    // productId: function(newValue) {
-    //   if (!this.isEdit) return;
-    //   if (this.hasEditCreated) return;
-    //   if (newValue === undefined || newValue == null || newValue === 0) return;
-    // }
+    productId: function(newValue) {
+      if (!this.isEdit) return;
+      this.value = newValue;
+      this.value.owner = String(newValue.owner);
+      if (newValue.owner == "1") {
+        this.isOwner = false;
+      } else {
+        this.isOwner = true;
+      }
+      // 个体户
+      if (newValue.subjectType == "SUBJECT_TYPE_INDIVIDUAL") {
+        this.businessLicenseShow = true;
+        this.certificateShow = false;
+        this.organization = false;
+        this.letterShow = false;
+      } else if (newValue.subjectType == "SUBJECT_TYPE_ENTERPRISE") {
+        //   企业
+        this.organization = true;
+        this.businessLicenseShow = true;
+        this.certificateShow = false;
+        this.letterShow = false;
+      } else if (newValue.subjectType == "SUBJECT_TYPE_INSTITUTIONS") {
+        //   党政、机关及事业单位
+        this.certificateShow = true;
+        this.businessLicenseShow = false;
+        this.organization = true;
+        this.letterShow = true;
+      } else if (newValue.subjectType == "SUBJECT_TYPE_OTHERS") {
+        //   其他组织
+        this.certificateShow = true;
+        this.businessLicenseShow = false;
+        this.organization = true;
+        this.letterShow = false;
+      }
+
+      if (newValue.idDocType == "IDENTIFICATION_TYPE_IDCARD") {
+        this.idCardShow = true;
+        this.otherCardShow = false;
+      } else {
+        this.idCardShow = false;
+        this.otherCardShow = true;
+      }
+    }
   },
   methods: {
     validateBeginTime(rule, value, callback) {
-      let year = value.getFullYear();
-      let month = value.getMonth() + 1;
-      let day = value.getDate();
-      month = month > 9 ? month : "0" + month;
-      day = day > 9 ? day : "0" + day;
-      var chooseDay = year + "-" + month + "-" + day;
-      if (this.certificateShow === true) {
-        const date = new Date();
-        let yearN = date.getFullYear();
-        let monthN = date.getMonth() + 1;
-        let dayN = date.getDate();
-        monthN = monthN > 9 ? monthN : "0" + monthN;
-        dayN = dayN > 9 ? dayN : "0" + dayN;
-        var nowDay = yearN + "-" + monthN + "-" + dayN;
+      if (value) {
+        value = new Date(value);
+        let year = value.getFullYear();
+        let month = value.getMonth() + 1;
+        let day = value.getDate();
+        month = month > 9 ? month : "0" + month;
+        day = day > 9 ? day : "0" + day;
+        var chooseDay = year + "-" + month + "-" + day;
+        if (this.certificateShow === true) {
+          const date = new Date();
+          let yearN = date.getFullYear();
+          let monthN = date.getMonth() + 1;
+          let dayN = date.getDate();
+          monthN = monthN > 9 ? monthN : "0" + monthN;
+          dayN = dayN > 9 ? dayN : "0" + dayN;
+          var nowDay = yearN + "-" + monthN + "-" + dayN;
 
-        var cDate = chooseDay.replace("-", "").replace("-", "");
-        var nDate = nowDay.replace("-", "").replace("-", "");
+          var cDate = chooseDay.replace("-", "").replace("-", "");
+          var nDate = nowDay.replace("-", "").replace("-", "");
 
-        if (Number(cDate) >= Number(nDate)) {
-          callback(new Error("开始日期需大于当前日期"));
+          if (Number(cDate) >= Number(nDate)) {
+            callback(new Error("开始日期需大于当前日期"));
+          } else {
+            callback();
+          }
         } else {
           callback();
         }
@@ -592,33 +638,39 @@ export default {
       }
     },
     validateEndTime(rule, value, callback) {
-      let year = value.getFullYear();
-      let month = value.getMonth() + 1;
-      let day = value.getDate();
-      month = month > 9 ? month : "0" + month;
-      day = day > 9 ? day : "0" + day;
-      var chooseDay = year + "-" + month + "-" + day;
-      if (this.certificateShow === true) {
-        let yearN = this.value.periodBegin.getFullYear();
-        let monthN = this.value.periodBegin.getMonth() + 1;
-        let dayN = this.value.periodBegin.getDate();
-        monthN = monthN > 9 ? monthN : "0" + monthN;
-        dayN = dayN > 9 ? dayN : "0" + dayN;
-        var nowDay = yearN + "-" + monthN + "-" + dayN;
+      if (value) {
+        value = new Date(value);
+        let year = value.getFullYear();
+        let month = value.getMonth() + 1;
+        let day = value.getDate();
+        month = month > 9 ? month : "0" + month;
+        day = day > 9 ? day : "0" + day;
+        var chooseDay = year + "-" + month + "-" + day;
+        if (this.certificateShow === true) {
+          this.value.periodBegin = new Date(this.value.periodBegin);
+          let yearN = this.value.periodBegin.getFullYear();
+          let monthN = this.value.periodBegin.getMonth() + 1;
+          let dayN = this.value.periodBegin.getDate();
+          monthN = monthN > 9 ? monthN : "0" + monthN;
+          dayN = dayN > 9 ? dayN : "0" + dayN;
+          var nowDay = yearN + "-" + monthN + "-" + dayN;
 
-        var cDate = chooseDay.replace("-", "").replace("-", "");
-        var nDate = nowDay.replace("-", "").replace("-", "");
+          var cDate = chooseDay.replace("-", "").replace("-", "");
+          var nDate = nowDay.replace("-", "").replace("-", "");
 
-        var startDate = Date.parse(chooseDay.replace("/-/g", "/"));
-        var endDate = Date.parse(nowDay.replace("/-/g", "/"));
-        //   var diffDate=(endDate-startDate)+1*24*60*60*1000;
-        var days =
-          (Number(startDate) - Number(endDate)) / (1 * 24 * 60 * 60 * 1000);
+          var startDate = Date.parse(chooseDay.replace("/-/g", "/"));
+          var endDate = Date.parse(nowDay.replace("/-/g", "/"));
+          //   var diffDate=(endDate-startDate)+1*24*60*60*1000;
+          var days =
+            (Number(startDate) - Number(endDate)) / (1 * 24 * 60 * 60 * 1000);
 
-        if (Number(cDate) <= Number(nDate)) {
-          callback(new Error("结束日期大于开始日期"));
-        } else if (days < 60) {
-          callback(new Error("有效期必须大于60天"));
+          if (Number(cDate) <= Number(nDate)) {
+            callback(new Error("结束日期大于开始日期"));
+          } else if (days < 60) {
+            callback(new Error("有效期必须大于60天"));
+          } else {
+            callback();
+          }
         } else {
           callback();
         }
@@ -627,27 +679,33 @@ export default {
       }
     },
     validateOrgPeriodBegin(rule, value, callback) {
-      let year = value.getFullYear();
-      let month = value.getMonth() + 1;
-      let day = value.getDate();
-      month = month > 9 ? month : "0" + month;
-      day = day > 9 ? day : "0" + day;
-      var chooseDay = year + "/" + month + "/" + day;
-      if (this.organization === true && this.value.orgPeriodEnd) {
-        let yearN = this.value.orgPeriodEnd.getFullYear();
-        let monthN = this.value.orgPeriodEnd.getMonth() + 1;
-        let dayN = this.value.orgPeriodEnd.getDate();
-        monthN = monthN > 9 ? monthN : "0" + monthN;
-        dayN = dayN > 9 ? dayN : "0" + dayN;
-        var nowDay = yearN + "/" + monthN + "/" + dayN;
+      if (value) {
+        value = new Date(value);
+        let year = value.getFullYear();
+        let month = value.getMonth() + 1;
+        let day = value.getDate();
+        month = month > 9 ? month : "0" + month;
+        day = day > 9 ? day : "0" + day;
+        var chooseDay = year + "/" + month + "/" + day;
+        if (this.organization === true && this.value.orgPeriodEnd) {
+          this.value.orgPeriodEnd = new Date(this.value.orgPeriodEnd);
+          let yearN = this.value.orgPeriodEnd.getFullYear();
+          let monthN = this.value.orgPeriodEnd.getMonth() + 1;
+          let dayN = this.value.orgPeriodEnd.getDate();
+          monthN = monthN > 9 ? monthN : "0" + monthN;
+          dayN = dayN > 9 ? dayN : "0" + dayN;
+          var nowDay = yearN + "/" + monthN + "/" + dayN;
 
-        var startDate = Date.parse(chooseDay);
-        var endDate = Date.parse(nowDay);
-        //   var diffDate=(endDate-startDate)+1*24*60*60*1000;
-        var days =
-          (Number(startDate) - Number(endDate)) / (1 * 24 * 60 * 60 * 1000);
-        if (days < 60) {
-          callback(new Error("有效期必须大于60天"));
+          var startDate = Date.parse(chooseDay);
+          var endDate = Date.parse(nowDay);
+          //   var diffDate=(endDate-startDate)+1*24*60*60*1000;
+          var days =
+            (Number(startDate) - Number(endDate)) / (1 * 24 * 60 * 60 * 1000);
+          if (days < 60) {
+            callback(new Error("有效期必须大于60天"));
+          } else {
+            callback();
+          }
         } else {
           callback();
         }
@@ -656,33 +714,39 @@ export default {
       }
     },
     validateOrgPeriodEnd(rule, value, callback) {
-      let year = value.getFullYear();
-      let month = value.getMonth() + 1;
-      let day = value.getDate();
-      month = month > 9 ? month : "0" + month;
-      day = day > 9 ? day : "0" + day;
-      var chooseDay = year + "-" + month + "-" + day;
-      if (this.organization === true) {
-        let yearN = this.value.periodBegin.getFullYear();
-        let monthN = this.value.periodBegin.getMonth() + 1;
-        let dayN = this.value.periodBegin.getDate();
-        monthN = monthN > 9 ? monthN : "0" + monthN;
-        dayN = dayN > 9 ? dayN : "0" + dayN;
-        var nowDay = yearN + "-" + monthN + "-" + dayN;
+      if (value) {
+        value = new Date(value);
+        let year = value.getFullYear();
+        let month = value.getMonth() + 1;
+        let day = value.getDate();
+        month = month > 9 ? month : "0" + month;
+        day = day > 9 ? day : "0" + day;
+        var chooseDay = year + "-" + month + "-" + day;
+        if (this.organization === true) {
+          this.value.periodBegin = new Date(this.value.periodBegin);
+          let yearN = this.value.periodBegin.getFullYear();
+          let monthN = this.value.periodBegin.getMonth() + 1;
+          let dayN = this.value.periodBegin.getDate();
+          monthN = monthN > 9 ? monthN : "0" + monthN;
+          dayN = dayN > 9 ? dayN : "0" + dayN;
+          var nowDay = yearN + "-" + monthN + "-" + dayN;
 
-        var cDate = chooseDay.replace("-", "").replace("-", "");
-        var nDate = nowDay.replace("-", "").replace("-", "");
+          var cDate = chooseDay.replace("-", "").replace("-", "");
+          var nDate = nowDay.replace("-", "").replace("-", "");
 
-        var startDate = Date.parse(chooseDay.replace("/-/g", "/"));
-        var endDate = Date.parse(nowDay.replace("/-/g", "/"));
-        //   var diffDate=(endDate-startDate)+1*24*60*60*1000;
-        var days =
-          (Number(startDate) - Number(endDate)) / (1 * 24 * 60 * 60 * 1000);
+          var startDate = Date.parse(chooseDay.replace("/-/g", "/"));
+          var endDate = Date.parse(nowDay.replace("/-/g", "/"));
+          //   var diffDate=(endDate-startDate)+1*24*60*60*1000;
+          var days =
+            (Number(startDate) - Number(endDate)) / (1 * 24 * 60 * 60 * 1000);
 
-        if (Number(cDate) <= Number(nDate)) {
-          callback(new Error("结束日期大于开始日期"));
-        } else if (days < 60) {
-          callback(new Error("有效期必须大于60天"));
+          if (Number(cDate) <= Number(nDate)) {
+            callback(new Error("结束日期大于开始日期"));
+          } else if (days < 60) {
+            callback(new Error("有效期必须大于60天"));
+          } else {
+            callback();
+          }
         } else {
           callback();
         }
@@ -707,7 +771,6 @@ export default {
     },
     validateName(rule, value, callback) {
       if (this.businessLicenseShow === true) {
-        console.log(value.length);
         if (value.length < 2 || value.length > 110) {
           callback(new Error("商户名称长度需在 2 到 110 个字符"));
         } else {
@@ -746,25 +809,31 @@ export default {
       }
     },
     validateIdCardBegin(rule, value, callback) {
-      let year = value.getFullYear();
-      let month = value.getMonth() + 1;
-      let day = value.getDate();
-      month = month > 9 ? month : "0" + month;
-      day = day > 9 ? day : "0" + day;
-      var chooseDay = year + "-" + month + "-" + day;
-      if (this.idCardShow === true && this.value.cardPeriodEnd) {
-        let yearN = this.value.cardPeriodEnd.getFullYear();
-        let monthN = this.value.cardPeriodEnd.getMonth() + 1;
-        let dayN = this.value.cardPeriodEnd.getDate();
-        monthN = monthN > 9 ? monthN : "0" + monthN;
-        dayN = dayN > 9 ? dayN : "0" + dayN;
-        var endDay = yearN + "-" + monthN + "-" + dayN;
+      if (value) {
+        value = new Date(value);
+        let year = value.getFullYear();
+        let month = value.getMonth() + 1;
+        let day = value.getDate();
+        month = month > 9 ? month : "0" + month;
+        day = day > 9 ? day : "0" + day;
+        var chooseDay = year + "-" + month + "-" + day;
+        if (this.idCardShow === true && this.value.cardPeriodEnd) {
+          this.value.cardPeriodEnd = new Date(this.value.cardPeriodEnd);
+          let yearN = this.value.cardPeriodEnd.getFullYear();
+          let monthN = this.value.cardPeriodEnd.getMonth() + 1;
+          let dayN = this.value.cardPeriodEnd.getDate();
+          monthN = monthN > 9 ? monthN : "0" + monthN;
+          dayN = dayN > 9 ? dayN : "0" + dayN;
+          var endDay = yearN + "-" + monthN + "-" + dayN;
 
-        var cDate = chooseDay.replace("-", "").replace("-", "");
-        var eDate = endDay.replace("-", "").replace("-", "");
+          var cDate = chooseDay.replace("-", "").replace("-", "");
+          var eDate = endDay.replace("-", "").replace("-", "");
 
-        if (Number(cDate) >= Number(eDate)) {
-          callback(new Error("开始日期需早于结束日期"));
+          if (Number(cDate) >= Number(eDate)) {
+            callback(new Error("开始日期需早于结束日期"));
+          } else {
+            callback();
+          }
         } else {
           callback();
         }
@@ -773,33 +842,39 @@ export default {
       }
     },
     validateIdCardEnd(rule, value, callback) {
-      let year = value.getFullYear();
-      let month = value.getMonth() + 1;
-      let day = value.getDate();
-      month = month > 9 ? month : "0" + month;
-      day = day > 9 ? day : "0" + day;
-      var chooseDay = year + "-" + month + "-" + day;
-      if (this.idCardShow === true && this.value.cardPeriodBegin) {
-        let yearN = this.value.cardPeriodBegin.getFullYear();
-        let monthN = this.value.cardPeriodBegin.getMonth() + 1;
-        let dayN = this.value.cardPeriodBegin.getDate();
-        monthN = monthN > 9 ? monthN : "0" + monthN;
-        dayN = dayN > 9 ? dayN : "0" + dayN;
-        var nowDay = yearN + "-" + monthN + "-" + dayN;
+      if (value) {
+        value = new Date(value);
+        let year = value.getFullYear();
+        let month = value.getMonth() + 1;
+        let day = value.getDate();
+        month = month > 9 ? month : "0" + month;
+        day = day > 9 ? day : "0" + day;
+        var chooseDay = year + "-" + month + "-" + day;
+        if (this.idCardShow === true && this.value.cardPeriodBegin) {
+          this.value.cardPeriodBegin = new Date(this.value.cardPeriodBegin);
+          let yearN = this.value.cardPeriodBegin.getFullYear();
+          let monthN = this.value.cardPeriodBegin.getMonth() + 1;
+          let dayN = this.value.cardPeriodBegin.getDate();
+          monthN = monthN > 9 ? monthN : "0" + monthN;
+          dayN = dayN > 9 ? dayN : "0" + dayN;
+          var nowDay = yearN + "-" + monthN + "-" + dayN;
 
-        var cDate = chooseDay.replace("-", "").replace("-", "");
-        var nDate = nowDay.replace("-", "").replace("-", "");
+          var cDate = chooseDay.replace("-", "").replace("-", "");
+          var nDate = nowDay.replace("-", "").replace("-", "");
 
-        var startDate = Date.parse(chooseDay.replace("/-/g", "/"));
-        var endDate = Date.parse(nowDay.replace("/-/g", "/"));
-        //   var diffDate=(endDate-startDate)+1*24*60*60*1000;
-        var days =
-          (Number(startDate) - Number(endDate)) / (1 * 24 * 60 * 60 * 1000);
+          var startDate = Date.parse(chooseDay.replace("/-/g", "/"));
+          var endDate = Date.parse(nowDay.replace("/-/g", "/"));
+          //   var diffDate=(endDate-startDate)+1*24*60*60*1000;
+          var days =
+            (Number(startDate) - Number(endDate)) / (1 * 24 * 60 * 60 * 1000);
 
-        if (Number(cDate) <= Number(nDate)) {
-          callback(new Error("结束日期需大于开始日期"));
-        } else if (days < 60) {
-          callback(new Error("有效期必须大于60天"));
+          if (Number(cDate) <= Number(nDate)) {
+            callback(new Error("结束日期需大于开始日期"));
+          } else if (days < 60) {
+            callback(new Error("有效期必须大于60天"));
+          } else {
+            callback();
+          }
         } else {
           callback();
         }
@@ -823,25 +898,31 @@ export default {
       }
     },
     validateIdDocBegin(rule, value, callback) {
-      let year = value.getFullYear();
-      let month = value.getMonth() + 1;
-      let day = value.getDate();
-      month = month > 9 ? month : "0" + month;
-      day = day > 9 ? day : "0" + day;
-      var chooseDay = year + "-" + month + "-" + day;
-      if (this.otherCardShow === true && this.value.docPeriodEnd) {
-        let yearN = this.value.docPeriodEnd.getFullYear();
-        let monthN = this.value.docPeriodEnd.getMonth() + 1;
-        let dayN = this.value.docPeriodEnd.getDate();
-        monthN = monthN > 9 ? monthN : "0" + monthN;
-        dayN = dayN > 9 ? dayN : "0" + dayN;
-        var endDay = yearN + "-" + monthN + "-" + dayN;
+      if (value) {
+        value = new Date(value);
+        let year = value.getFullYear();
+        let month = value.getMonth() + 1;
+        let day = value.getDate();
+        month = month > 9 ? month : "0" + month;
+        day = day > 9 ? day : "0" + day;
+        var chooseDay = year + "-" + month + "-" + day;
+        if (this.otherCardShow === true && this.value.docPeriodEnd) {
+          this.value.docPeriodEnd = new Date(this.value.docPeriodEnd);
+          let yearN = this.value.docPeriodEnd.getFullYear();
+          let monthN = this.value.docPeriodEnd.getMonth() + 1;
+          let dayN = this.value.docPeriodEnd.getDate();
+          monthN = monthN > 9 ? monthN : "0" + monthN;
+          dayN = dayN > 9 ? dayN : "0" + dayN;
+          var endDay = yearN + "-" + monthN + "-" + dayN;
 
-        var cDate = chooseDay.replace("-", "").replace("-", "");
-        var eDate = endDay.replace("-", "").replace("-", "");
+          var cDate = chooseDay.replace("-", "").replace("-", "");
+          var eDate = endDay.replace("-", "").replace("-", "");
 
-        if (Number(cDate) >= Number(eDate)) {
-          callback(new Error("开始日期需早于结束日期"));
+          if (Number(cDate) >= Number(eDate)) {
+            callback(new Error("开始日期需早于结束日期"));
+          } else {
+            callback();
+          }
         } else {
           callback();
         }
@@ -850,33 +931,39 @@ export default {
       }
     },
     validateIdDocEnd(rule, value, callback) {
-      let year = value.getFullYear();
-      let month = value.getMonth() + 1;
-      let day = value.getDate();
-      month = month > 9 ? month : "0" + month;
-      day = day > 9 ? day : "0" + day;
-      var chooseDay = year + "-" + month + "-" + day;
-      if (this.otherCardShow === true && this.value.docPeriodBegin) {
-        let yearN = this.value.docPeriodBegin.getFullYear();
-        let monthN = this.value.docPeriodBegin.getMonth() + 1;
-        let dayN = this.value.docPeriodBegin.getDate();
-        monthN = monthN > 9 ? monthN : "0" + monthN;
-        dayN = dayN > 9 ? dayN : "0" + dayN;
-        var nowDay = yearN + "-" + monthN + "-" + dayN;
+      if (value) {
+        value = new Date(value);
+        let year = value.getFullYear();
+        let month = value.getMonth() + 1;
+        let day = value.getDate();
+        month = month > 9 ? month : "0" + month;
+        day = day > 9 ? day : "0" + day;
+        var chooseDay = year + "-" + month + "-" + day;
+        if (this.otherCardShow === true && this.value.docPeriodBegin) {
+          this.value.docPeriodBegin = new Date(this.value.docPeriodBegin);
+          let yearN = this.value.docPeriodBegin.getFullYear();
+          let monthN = this.value.docPeriodBegin.getMonth() + 1;
+          let dayN = this.value.docPeriodBegin.getDate();
+          monthN = monthN > 9 ? monthN : "0" + monthN;
+          dayN = dayN > 9 ? dayN : "0" + dayN;
+          var nowDay = yearN + "-" + monthN + "-" + dayN;
 
-        var cDate = chooseDay.replace("-", "").replace("-", "");
-        var nDate = nowDay.replace("-", "").replace("-", "");
+          var cDate = chooseDay.replace("-", "").replace("-", "");
+          var nDate = nowDay.replace("-", "").replace("-", "");
 
-        var startDate = Date.parse(chooseDay.replace("/-/g", "/"));
-        var endDate = Date.parse(nowDay.replace("/-/g", "/"));
-        //   var diffDate=(endDate-startDate)+1*24*60*60*1000;
-        var days =
-          (Number(startDate) - Number(endDate)) / (1 * 24 * 60 * 60 * 1000);
+          var startDate = Date.parse(chooseDay.replace("/-/g", "/"));
+          var endDate = Date.parse(nowDay.replace("/-/g", "/"));
+          //   var diffDate=(endDate-startDate)+1*24*60*60*1000;
+          var days =
+            (Number(startDate) - Number(endDate)) / (1 * 24 * 60 * 60 * 1000);
 
-        if (Number(cDate) <= Number(nDate)) {
-          callback(new Error("结束日期需大于开始日期"));
-        } else if (days < 60) {
-          callback(new Error("有效期必须大于60天"));
+          if (Number(cDate) <= Number(nDate)) {
+            callback(new Error("结束日期需大于开始日期"));
+          } else if (days < 60) {
+            callback(new Error("有效期必须大于60天"));
+          } else {
+            callback();
+          }
         } else {
           callback();
         }
@@ -933,7 +1020,7 @@ export default {
       }
     },
     chooseOwner(e) {
-      if (e == '1') {
+      if (e == "1") {
         this.isOwner = false;
       } else {
         this.isOwner = true;
@@ -943,48 +1030,86 @@ export default {
       this.$emit("prevStep");
     },
     handleNext(formName) {
-      //   this.$refs[formName].validate(valid => {
-      //     if (valid) {
-      this.value.licenseCopyMediaId = this.licenseCopy.MediaID;
-      this.value.licenseCopy = this.licenseCopy.url;
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          if (!this.value.licenseCopyMediaId) {
+            this.value.licenseCopyMediaId = this.licenseCopy.MediaID;
+          }
+          if (!this.value.licenseCopy) {
+            this.value.licenseCopy = this.licenseCopy.url;
+          }
+          if (!this.value.certCopyMediaId) {
+            this.value.certCopyMediaId = this.certCopy.MediaID;
+          }
+          if (!this.value.certCopy) {
+            this.value.certCopy = this.certCopy.url;
+          }
+          if (!this.value.organizationCopyMediaId) {
+            this.value.organizationCopyMediaId = this.organizationCopy.MediaID;
+          }
+          if (!this.value.organizationCopy) {
+            this.value.organizationCopy = this.organizationCopy.url;
+          }
 
-      this.value.certCopyMediaId = this.certCopy.MediaID;
-      this.value.certCopy = this.certCopy.url;
+          if (!this.value.certificateLetterCopyMediaId) {
+            this.value.certificateLetterCopyMediaId = this.certificateLetterCopy.MediaID;
+          }
+          if (!this.value.certificateLetterCopy) {
+            this.value.certificateLetterCopy = this.certificateLetterCopy.url;
+          }
 
-      this.value.organizationCopyMediaId = this.organizationCopy.MediaID;
-      this.value.organizationCopy = this.organizationCopy.url;
+          if (!this.value.idCardCopyMediaId) {
+            this.value.idCardCopyMediaId = this.idCardCopy.MediaID;
+          }
+          if (!this.value.idCardCopy) {
+            this.value.idCardCopy = this.idCardCopy.url;
+          }
 
-      this.value.certificateLetterCopyMediaId = this.certificateLetterCopy.MediaID;
-      this.value.certificateLetterCopy = this.certificateLetterCopy.url;
+          if (!this.value.idCardNationalMediaId) {
+            this.value.idCardNationalMediaId = this.idCardNationalMediaId.MediaID;
+          }
+          if (!this.value.idCardNational) {
+            this.value.idCardNational = this.idCardNational.url;
+          }
 
-      this.value.idCardCopy = this.idCardCopy.url;
-      this.value.idCardCopyMediaId = this.idCardCopy.MediaID;
+          if (!this.value.idDocCopyMediaId) {
+            this.value.idDocCopyMediaId = this.idDocCopy.MediaID;
+          }
+          if (!this.value.idDocCopy) {
+            this.value.idDocCopy = this.idDocCopy.url;
+          }
 
-      this.value.idCardNational = this.idCardNational.url;
-      this.value.idCardNationalMediaId = this.idCardNational.MediaID;
+          if (!this.value.uboIdCardCopyMediaId) {
+            this.value.uboIdCardCopyMediaId = this.uboIdCardCopy.MediaID;
+          }
+          if (!this.value.uboIdCardCopy) {
+            this.value.uboIdCardCopy = this.uboIdCardCopy.url;
+          }
 
-      this.value.idDocCopy = this.idDocCopy.url;
-      this.value.idDocCopyMediaId = this.idDocCopy.MediaID;
+          if (!this.value.uboIdCardNationalMediaId) {
+            this.value.uboIdCardNationalMediaId = this.uboIdCardNational.MediaID;
+          }
+          if (!this.value.uboIdCardNational) {
+            this.value.uboIdCardNational = this.uboIdCardNational.url;
+          }
 
-      this.value.uboIdCardCopy = this.uboIdCardCopy.url;
-      this.value.uboIdCardCopyMediaId = this.uboIdCardCopy.MediaID;
+          if (!this.value.uboIdDocCopyMediaId) {
+            this.value.uboIdDocCopyMediaId = this.uboIdDocCopy.MediaID;
+          }
+          if (!this.value.uboIdDocCopy) {
+            this.value.uboIdDocCopy = this.uboIdDocCopy.url;
+          }
 
-      this.value.uboIdCardNational = this.uboIdCardNational.url;
-      this.value.uboIdCardNationalMediaId = this.uboIdCardNational.MediaID;
-
-      this.value.uboIdDocCopy = this.uboIdDocCopy.url;
-      this.value.uboIdDocCopyMediaId = this.uboIdDocCopy.MediaID;
-
-      this.$emit("nextStep");
-      //     } else {
-      //       this.$message({
-      //         message: "验证失败",
-      //         type: "error",
-      //         duration: 1000
-      //       });
-      //       return false;
-      //     }
-      //   });
+          this.$emit("nextStep");
+        } else {
+          this.$message({
+            message: "验证失败",
+            type: "error",
+            duration: 1000
+          });
+          return false;
+        }
+      });
     },
     validateUboIdCard(rule, value, callback) {
       if (this.uboIdCardShow === true && this.isOwner === true) {
@@ -1002,29 +1127,35 @@ export default {
       }
     },
     validateuboCardBegin(rule, value, callback) {
-      let year = value.getFullYear();
-      let month = value.getMonth() + 1;
-      let day = value.getDate();
-      month = month > 9 ? month : "0" + month;
-      day = day > 9 ? day : "0" + day;
-      var chooseDay = year + "-" + month + "-" + day;
-      if (
-        this.uboIdCardShow === true &&
-        this.isOwner === true &&
-        this.value.uboCardPeriodEnd
-      ) {
-        let yearN = this.value.uboCardPeriodEnd.getFullYear();
-        let monthN = this.value.uboCardPeriodEnd.getMonth() + 1;
-        let dayN = this.value.uboCardPeriodEnd.getDate();
-        monthN = monthN > 9 ? monthN : "0" + monthN;
-        dayN = dayN > 9 ? dayN : "0" + dayN;
-        var endDay = yearN + "-" + monthN + "-" + dayN;
+      if (value) {
+        value = new Date(value);
+        let year = value.getFullYear();
+        let month = value.getMonth() + 1;
+        let day = value.getDate();
+        month = month > 9 ? month : "0" + month;
+        day = day > 9 ? day : "0" + day;
+        var chooseDay = year + "-" + month + "-" + day;
+        if (
+          this.uboIdCardShow === true &&
+          this.isOwner === true &&
+          this.value.uboCardPeriodEnd
+        ) {
+          this.value.uboCardPeriodEnd = new Date(this.value.uboCardPeriodEnd);
+          let yearN = this.value.uboCardPeriodEnd.getFullYear();
+          let monthN = this.value.uboCardPeriodEnd.getMonth() + 1;
+          let dayN = this.value.uboCardPeriodEnd.getDate();
+          monthN = monthN > 9 ? monthN : "0" + monthN;
+          dayN = dayN > 9 ? dayN : "0" + dayN;
+          var endDay = yearN + "-" + monthN + "-" + dayN;
 
-        var cDate = chooseDay.replace("-", "").replace("-", "");
-        var eDate = endDay.replace("-", "").replace("-", "");
+          var cDate = chooseDay.replace("-", "").replace("-", "");
+          var eDate = endDay.replace("-", "").replace("-", "");
 
-        if (Number(cDate) >= Number(eDate)) {
-          callback(new Error("开始日期需早于结束日期"));
+          if (Number(cDate) >= Number(eDate)) {
+            callback(new Error("开始日期需早于结束日期"));
+          } else {
+            callback();
+          }
         } else {
           callback();
         }
@@ -1033,37 +1164,45 @@ export default {
       }
     },
     validateuboCardEnd(rule, value, callback) {
-      let year = value.getFullYear();
-      let month = value.getMonth() + 1;
-      let day = value.getDate();
-      month = month > 9 ? month : "0" + month;
-      day = day > 9 ? day : "0" + day;
-      var chooseDay = year + "-" + month + "-" + day;
-      if (
-        this.uboIdCardShow === true &&
-        this.isOwner === true &&
-        this.value.uboCardPeriodBegin
-      ) {
-        let yearN = this.value.uboCardPeriodBegin.getFullYear();
-        let monthN = this.value.uboCardPeriodBegin.getMonth() + 1;
-        let dayN = this.value.uboCardPeriodBegin.getDate();
-        monthN = monthN > 9 ? monthN : "0" + monthN;
-        dayN = dayN > 9 ? dayN : "0" + dayN;
-        var nowDay = yearN + "-" + monthN + "-" + dayN;
+      if (value) {
+        value = new Date(value);
+        let year = value.getFullYear();
+        let month = value.getMonth() + 1;
+        let day = value.getDate();
+        month = month > 9 ? month : "0" + month;
+        day = day > 9 ? day : "0" + day;
+        var chooseDay = year + "-" + month + "-" + day;
+        if (
+          this.uboIdCardShow === true &&
+          this.isOwner === true &&
+          this.value.uboCardPeriodBegin
+        ) {
+          this.value.uboCardPeriodBegin = new Date(
+            this.value.uboCardPeriodBegin
+          );
+          let yearN = this.value.uboCardPeriodBegin.getFullYear();
+          let monthN = this.value.uboCardPeriodBegin.getMonth() + 1;
+          let dayN = this.value.uboCardPeriodBegin.getDate();
+          monthN = monthN > 9 ? monthN : "0" + monthN;
+          dayN = dayN > 9 ? dayN : "0" + dayN;
+          var nowDay = yearN + "-" + monthN + "-" + dayN;
 
-        var cDate = chooseDay.replace("-", "").replace("-", "");
-        var nDate = nowDay.replace("-", "").replace("-", "");
+          var cDate = chooseDay.replace("-", "").replace("-", "");
+          var nDate = nowDay.replace("-", "").replace("-", "");
 
-        var startDate = Date.parse(chooseDay.replace("/-/g", "/"));
-        var endDate = Date.parse(nowDay.replace("/-/g", "/"));
-        //   var diffDate=(endDate-startDate)+1*24*60*60*1000;
-        var days =
-          (Number(startDate) - Number(endDate)) / (1 * 24 * 60 * 60 * 1000);
+          var startDate = Date.parse(chooseDay.replace("/-/g", "/"));
+          var endDate = Date.parse(nowDay.replace("/-/g", "/"));
+          //   var diffDate=(endDate-startDate)+1*24*60*60*1000;
+          var days =
+            (Number(startDate) - Number(endDate)) / (1 * 24 * 60 * 60 * 1000);
 
-        if (Number(cDate) <= Number(nDate)) {
-          callback(new Error("结束日期需大于开始日期"));
-        } else if (days < 60) {
-          callback(new Error("有效期必须大于60天"));
+          if (Number(cDate) <= Number(nDate)) {
+            callback(new Error("结束日期需大于开始日期"));
+          } else if (days < 60) {
+            callback(new Error("有效期必须大于60天"));
+          } else {
+            callback();
+          }
         } else {
           callback();
         }
@@ -1072,29 +1211,35 @@ export default {
       }
     },
     validateuboDocBegin(rule, value, callback) {
-      let year = value.getFullYear();
-      let month = value.getMonth() + 1;
-      let day = value.getDate();
-      month = month > 9 ? month : "0" + month;
-      day = day > 9 ? day : "0" + day;
-      var chooseDay = year + "-" + month + "-" + day;
-      if (
-        this.uboIdDocShow === true &&
-        this.isOwner === true &&
-        this.value.uboDocPeriodEnd
-      ) {
-        let yearN = this.value.uboDocPeriodEnd.getFullYear();
-        let monthN = this.value.uboDocPeriodEnd.getMonth() + 1;
-        let dayN = this.value.uboDocPeriodEnd.getDate();
-        monthN = monthN > 9 ? monthN : "0" + monthN;
-        dayN = dayN > 9 ? dayN : "0" + dayN;
-        var endDay = yearN + "-" + monthN + "-" + dayN;
+      if (value) {
+        value = new Date(value);
+        let year = value.getFullYear();
+        let month = value.getMonth() + 1;
+        let day = value.getDate();
+        month = month > 9 ? month : "0" + month;
+        day = day > 9 ? day : "0" + day;
+        var chooseDay = year + "-" + month + "-" + day;
+        if (
+          this.uboIdDocShow === true &&
+          this.isOwner === true &&
+          this.value.uboDocPeriodEnd
+        ) {
+          this.value.uboDocPeriodEnd = new Date(this.value.uboDocPeriodEnd);
+          let yearN = this.value.uboDocPeriodEnd.getFullYear();
+          let monthN = this.value.uboDocPeriodEnd.getMonth() + 1;
+          let dayN = this.value.uboDocPeriodEnd.getDate();
+          monthN = monthN > 9 ? monthN : "0" + monthN;
+          dayN = dayN > 9 ? dayN : "0" + dayN;
+          var endDay = yearN + "-" + monthN + "-" + dayN;
 
-        var cDate = chooseDay.replace("-", "").replace("-", "");
-        var eDate = endDay.replace("-", "").replace("-", "");
+          var cDate = chooseDay.replace("-", "").replace("-", "");
+          var eDate = endDay.replace("-", "").replace("-", "");
 
-        if (Number(cDate) >= Number(eDate)) {
-          callback(new Error("开始日期需早于结束日期"));
+          if (Number(cDate) >= Number(eDate)) {
+            callback(new Error("开始日期需早于结束日期"));
+          } else {
+            callback();
+          }
         } else {
           callback();
         }
@@ -1103,37 +1248,43 @@ export default {
       }
     },
     validateuboDocEnd(rule, value, callback) {
-      let year = value.getFullYear();
-      let month = value.getMonth() + 1;
-      let day = value.getDate();
-      month = month > 9 ? month : "0" + month;
-      day = day > 9 ? day : "0" + day;
-      var chooseDay = year + "-" + month + "-" + day;
-      if (
-        this.uboIdDocShow === true &&
-        this.isOwner === true &&
-        this.value.uboDocPeriodBegin
-      ) {
-        let yearN = this.value.uboDocPeriodBegin.getFullYear();
-        let monthN = this.value.uboDocPeriodBegin.getMonth() + 1;
-        let dayN = this.value.uboDocPeriodBegin.getDate();
-        monthN = monthN > 9 ? monthN : "0" + monthN;
-        dayN = dayN > 9 ? dayN : "0" + dayN;
-        var nowDay = yearN + "-" + monthN + "-" + dayN;
+      if (value) {
+        value = new Date(value);
+        let year = value.getFullYear();
+        let month = value.getMonth() + 1;
+        let day = value.getDate();
+        month = month > 9 ? month : "0" + month;
+        day = day > 9 ? day : "0" + day;
+        var chooseDay = year + "-" + month + "-" + day;
+        if (
+          this.uboIdDocShow === true &&
+          this.isOwner === true &&
+          this.value.uboDocPeriodBegin
+        ) {
+          this.value.uboDocPeriodBegin = new Date(this.value.uboDocPeriodBegin);
+          let yearN = this.value.uboDocPeriodBegin.getFullYear();
+          let monthN = this.value.uboDocPeriodBegin.getMonth() + 1;
+          let dayN = this.value.uboDocPeriodBegin.getDate();
+          monthN = monthN > 9 ? monthN : "0" + monthN;
+          dayN = dayN > 9 ? dayN : "0" + dayN;
+          var nowDay = yearN + "-" + monthN + "-" + dayN;
 
-        var cDate = chooseDay.replace("-", "").replace("-", "");
-        var nDate = nowDay.replace("-", "").replace("-", "");
+          var cDate = chooseDay.replace("-", "").replace("-", "");
+          var nDate = nowDay.replace("-", "").replace("-", "");
 
-        var startDate = Date.parse(chooseDay.replace("/-/g", "/"));
-        var endDate = Date.parse(nowDay.replace("/-/g", "/"));
-        //   var diffDate=(endDate-startDate)+1*24*60*60*1000;
-        var days =
-          (Number(startDate) - Number(endDate)) / (1 * 24 * 60 * 60 * 1000);
+          var startDate = Date.parse(chooseDay.replace("/-/g", "/"));
+          var endDate = Date.parse(nowDay.replace("/-/g", "/"));
+          //   var diffDate=(endDate-startDate)+1*24*60*60*1000;
+          var days =
+            (Number(startDate) - Number(endDate)) / (1 * 24 * 60 * 60 * 1000);
 
-        if (Number(cDate) <= Number(nDate)) {
-          callback(new Error("结束日期需大于开始日期"));
-        } else if (days < 60) {
-          callback(new Error("有效期必须大于60天"));
+          if (Number(cDate) <= Number(nDate)) {
+            callback(new Error("结束日期需大于开始日期"));
+          } else if (days < 60) {
+            callback(new Error("有效期必须大于60天"));
+          } else {
+            callback();
+          }
         } else {
           callback();
         }

@@ -23,10 +23,6 @@
         ></single-upload-tysh>
       </el-form-item>
 
-      <!-- <el-form-item label="特殊资质图片" prop="qualificationsMediaId">
-        <el-input v-model="value.qualificationsMediaId" style="width: 370px;" />
-      </el-form-item>-->
-
       <el-form-item>
         不知道属于什么结算规则、所属行业以及特殊资质？点击这里查看
         <a
@@ -56,10 +52,6 @@
           style="width: 300px;display: inline-block;margin-left: 10px"
         ></single-upload-tysh>
       </el-form-item>
-
-      <!-- <el-form-item label="优惠费率活动补充材料 " prop="activitiesAdditionsMedia">
-        <el-input v-model="value.activitiesAdditionsMedia" style="width: 370px;" />
-      </el-form-item>-->
 
       <el-form-item>
         不知道属于什么优惠费率活动？点击这里查看
@@ -95,11 +87,11 @@ export default {
     return {
       qualifications: {
         url: "",
-        MediaId: ""
+        MediaID: ""
       },
       activitiesAdditions: {
         url: "",
-        MediaId: ""
+        MediaID: ""
       },
       IdcardShow: false,
       openIdShow: false,
@@ -155,11 +147,20 @@ export default {
     handleNext(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          this.value.qualificationsMediaId = this.qualifications.MediaId;
-          this.value.qualifications = this.qualifications.url;
+          if (!this.value.qualificationsMediaId) {
+            this.value.qualificationsMediaId = this.qualifications.MediaID;
+          }
+          if (!this.value.qualifications) {
+            this.value.qualifications = this.qualifications.url;
+          }
 
-          this.value.activitiesAdditions = this.activitiesAdditions.url;
-          this.value.activitiesAdditionsMedia = this.activitiesAdditions.MediaId;
+          if (!this.value.activitiesAdditions) {
+            this.value.activitiesAdditions = this.activitiesAdditions.url;
+          }
+          if (!this.value.activitiesAdditionsMedia) {
+            this.value.activitiesAdditionsMedia = this.activitiesAdditions.MediaID;
+          }
+
           this.$emit("nextStep");
         } else {
           this.$message({
