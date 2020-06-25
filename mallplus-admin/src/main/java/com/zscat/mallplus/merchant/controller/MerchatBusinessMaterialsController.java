@@ -196,7 +196,9 @@ public class MerchatBusinessMaterialsController {
             String business_code = IMerchatBusinessMaterialsService.queryMax("merchat_business_materials", "business_code");
             merchatBusinessMaterials.setBusinessCode(business_code);
         }else {
-            if (merchatBusinessMaterials.getApplymentState()==null){
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getId())){
+                return new CommonResult().validateFailed("id不能为空！");
+            } else if (merchatBusinessMaterials.getApplymentState()==null){
                 return new CommonResult().validateFailed("请先查询审核结果！");
             }else if (merchatBusinessMaterials.getApplymentState().equals("APPLYMENT_STATE_FINISHED")||merchatBusinessMaterials.getApplymentState().equals("APPLYMENT_STATE_CANCELED")){
                 return new CommonResult().validateFailed("已完成或者已作废的申请单不允许再申请！");
@@ -235,7 +237,11 @@ public class MerchatBusinessMaterialsController {
             JSONObject jasonObject = JSONObject.parseObject(body);
             String applyment_id = jasonObject.getString("applyment_id");
             merchatBusinessMaterials.setApplymentId(applyment_id);
-            IMerchatBusinessMaterialsService.save(merchatBusinessMaterials);
+            if (ValidatorUtils.empty(merchatBusinessMaterials.getId())) {
+                IMerchatBusinessMaterialsService.save(merchatBusinessMaterials);
+            }else {
+                IMerchatBusinessMaterialsService.updateById(merchatBusinessMaterials);
+            }
             return new CommonResult().success("操作成功，请五分钟以后查询您的申请结果"+merchatBusinessMaterials.getBusinessCode() + ", 或者请求单号："  + applyment_id);
         } else {
             System.out.println("apply failed,resp code=" + statusCode + ",body=" + body);
