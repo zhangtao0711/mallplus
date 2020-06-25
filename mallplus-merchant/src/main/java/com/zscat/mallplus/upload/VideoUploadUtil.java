@@ -35,8 +35,8 @@ public class VideoUploadUtil {
      * @return
      * @throws IOException
      */
-    public static String getV3VideoMediaID(File file,String mchId,String privateKeyPath,String apiclientCertP12) throws Exception {
-        String serialNo = EncryptSensitive.getSerialNo(CertPathConfig.apiclient_cert);
+    public static String getV3VideoMediaID(File file,String mchId,String privateKeyPath,String apiclientCertP12,String apiclientCertPath) throws Exception {
+        String serialNo = EncryptSensitive.getSerialNo(apiclientCertPath);
         String reqdata ="{\"filename\":"+ "\""+file.getName()+"\"," +"\"sha256\":" + "\""+ DigestUtils.sha256Hex(new FileInputStream(file)) + "\"}";
         System.out.println(reqdata);
         String token = MerchantUtil.getToken("POST",uploadUrl,reqdata,mchId,serialNo,privateKeyPath);
@@ -81,7 +81,7 @@ public class VideoUploadUtil {
     public static void main(String[] args) throws Exception {
         String path = "C:\\Users\\Administrator\\Desktop\\mmexport1589544613240_cps.mp4";
         File file = new File(path);
-        getV3VideoMediaID(file,"1527256251",CertPathConfig.privateKeyPath,CertPathConfig.apiclient_cert_P12);
+//        getV3VideoMediaID(file,"1527256251",CertPathConfig.privateKeyPath,CertPathConfig.apiclient_cert_P12);
 //        String path1 = "/opt/merchant/upload/学习_1589532762390.txt";
     }
 }

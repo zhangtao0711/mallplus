@@ -35,8 +35,8 @@ public class ImgUploadUtil {
      * @return
      * @throws IOException
      */
-    public static String getV3MediaID(File file,String mchId,String privateKeyPath,String apiclientCertP12) throws Exception {
-        String serialNo = EncryptSensitive.getSerialNo(CertPathConfig.apiclient_cert);
+    public static String getV3MediaID(File file,String mchId,String privateKeyPath,String apiclientCertP12,String apiclientCertPath) throws Exception {
+        String serialNo = EncryptSensitive.getSerialNo(apiclientCertPath);
         String reqdata ="{\"filename\":"+ "\""+file.getName()+"\"," +"\"sha256\":" + "\""+ DigestUtils.sha256Hex(new FileInputStream(file)) + "\"}";
         System.out.println(reqdata);
         String token = MerchantUtil.getToken("POST",uploadUrl,reqdata,mchId,serialNo,privateKeyPath);
@@ -84,7 +84,7 @@ public class ImgUploadUtil {
         if (!file.exists()){
             System.out.println("图片不存在");
         }
-        getV3MediaID(file,"1527256251",CertPathConfig.privateKeyPath,CertPathConfig.apiclient_cert_P12);
+//        getV3MediaID(file,"1527256251",CertPathConfig.privateKeyPath,CertPathConfig.apiclient_cert_P12);
 //        String path1 = "/opt/merchant/upload/学习_1589532762390.txt";
     }
 }
