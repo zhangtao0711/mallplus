@@ -38,7 +38,8 @@ public class FenxiaoConfigController {
     @SysLog(MODULE = "fenxiao", REMARK = "根据条件查询所有分销配置列表")
     @ApiOperation("根据条件查询所有分销配置列表")
     @GetMapping(value = "/list")
-    @PreAuthorize("hasAuthority('fenxiao:fenxiaoConfig:read')")
+   // @PreAuthorize("hasAuthority('fenxiao:fenxiaoConfig:read')")
+    @PreAuthorize("hasAnyAuthority('fenxiao:fenxiaoConfig:read')")
     public Object getFenxiaoConfigByPage(FenxiaoConfig entity,
                                          @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                                          @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize

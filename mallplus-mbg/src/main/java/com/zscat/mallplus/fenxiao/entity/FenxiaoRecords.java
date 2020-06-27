@@ -32,7 +32,8 @@ public class FenxiaoRecords extends BaseEntity implements Serializable {
     @TableField("member_id")
     private Long memberId;
     // 1商品分销 2 会员分销
-    @TableField("fenxiao_type")
+   // @TableField("fenxiao_type")
+    @TableField("type")
     private Integer fenxiaoType;
         //1余额 2积分
     @TableField("type")

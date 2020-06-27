@@ -2,6 +2,7 @@ package com.zscat.mallplus.fenxiao.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zscat.mallplus.annotation.SysLog;
 import com.zscat.mallplus.fenxiao.entity.FenxiaoChecks;
@@ -43,6 +44,12 @@ public class FenxiaoChecksController {
                                          @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         try {
+
+            //进行分页查询
+            // IPage<FenxiaoChecks> page=new Page(pageNum,pageSize);
+            //QueryWrapper queryWrapper=new QueryWrapper(entity);
+            //IFenxiaoChecksService.page(new Page<FenxiaoChecks>(pageNum, pageSize), new QueryWrapper<>(entity))
+            //return new CommonResult().success( IFenxiaoChecksService.page(page,queryWrapper));
             return new CommonResult().success(IFenxiaoChecksService.page(new Page<FenxiaoChecks>(pageNum, pageSize), new QueryWrapper<>(entity)));
         } catch (Exception e) {
             log.error("根据条件查询所有分销审核列表：%s", e.getMessage(), e);
